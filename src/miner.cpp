@@ -876,6 +876,9 @@ void static BitcoinMiner()
 
     bool bForkModeStarted = false;
     try {
+        unique_ptr<equi> peq;
+        if (solver == "tromp")
+            peq.reset(new equi(1));
         while (true) {
             if (chainparams.MiningRequiresPeers()) {
                 bool fForkMiner = GetBoolArg("-fork-mine", false);
@@ -1044,17 +1047,22 @@ void static BitcoinMiner()
 
                 // TODO: factor this out into a function with the same API for each solver.
                 if (solver == "tromp") {
-                    // Create solver and initialize it.
-                    equi eq(1);
+                    equi& eq = *peq;
+                    // initialize solver
                     eq.setstate(&curr_state);
 
                     // Intialization done, start algo driver.
                     eq.digit0(0);
-                    eq.xfull = eq.bfull = eq.hfull = 0;
+                    eq.bfull = eq.hfull = 0;
                     eq.showbsizes(0);
                     for (u32 r = 1; r < WK; r++) {
+<<<<<<< HEAD
                         (r & 1) ? eq.digitodd(r, 0) : eq.digiteven(r, 0);
                         eq.xfull = eq.bfull = eq.hfull = 0;
+=======
+                        (r&1) ? eq.digitodd(r, 0) : eq.digiteven(r, 0);
+                        eq.bfull = eq.hfull = 0;
+>>>>>>> 0bdd503a7e... updated Tromp's equihash solver to his latest version
                         eq.showbsizes(r);
                     }
                     eq.digitK(0);
