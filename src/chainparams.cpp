@@ -65,7 +65,7 @@ public:
         pchMessageStart[2] = 0xa2;
         pchMessageStart[3] = 0xcd;
         vAlertPubKey = ParseHex("04f2cd746e629ffd320a81287474c98c2ad15d15b0a210b0144edcd8f3e1301c6311fd751fa34ba17d88090374cfec7cd9aaca55a5a0c4456511acc01b922005de");
-        nDefaultPort = 7933;
+        nDefaultPort = 12345;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
         const size_t N = 200, K = 9;
@@ -188,7 +188,7 @@ public:
         pchMessageStart[3] = 0xd6;
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
-        nDefaultPort = 17933;
+        nDefaultPort = 12345;
         nPruneAfterHeight = 1000;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
