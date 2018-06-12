@@ -267,7 +267,7 @@ inline bool EhOptimisedSolveUncancellable(unsigned int n, unsigned int k, const 
     if (n == 96 && k == 3) {                             \
         ret = Eh96_3.IsValidSolution(base_state, soln);  \
     } else if (n == 200 && k == 9) {                     \
-        ret = Eh200_9.IsValidSolution(base_state, soln); \
+        ret = .IsValidSolution(base_state, soln); \
     } else if (n == 96 && k == 5) {                      \
         ret = Eh96_5.IsValidSolution(base_state, soln);  \
     } else if (n == 48 && k == 5) {                      \
