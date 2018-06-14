@@ -146,12 +146,14 @@ BITCOIN_CORE_H = \
   miner.h \
   mruset.h \
   net.h \
+  netfulfilledman.h \
   netbase.h \
   noui.h \
   policy/fees.h \
   pow.h \
   primitives/block.h \
   primitives/transaction.h \
+  prevector.h \
   protocol.h \
   pubkey.h \
   random.h \
@@ -173,6 +175,8 @@ BITCOIN_CORE_H = \
   support/cleanse.h \
   support/events.h \
   support/pagelocker.h \
+  spentindex.h \
+  spork.h \
   sync.h \
   threadsafety.h \
   timedata.h \
