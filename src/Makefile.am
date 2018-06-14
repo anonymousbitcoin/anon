@@ -136,6 +136,7 @@ BITCOIN_CORE_H = \
   main.h \
   memusage.h \
   merkleblock.h \
+  masternodeconfig.h \
   metrics.h \
   miner.h \
   mruset.h \
@@ -223,6 +224,7 @@ libbitcoin_server_a_SOURCES = \
   leveldbwrapper.cpp \
   main.cpp \
   merkleblock.cpp \
+  masternodeconfig.cpp \
   metrics.cpp \
   miner.cpp \
   net.cpp \
