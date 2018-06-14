@@ -4,7 +4,6 @@
 
 #include "activemasternode.h"
 #include "checkpoints.h"
-#include "governance.h"
 #include "main.h"
 #include "masternode.h"
 #include "masternode-payments.h"

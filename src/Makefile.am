@@ -95,6 +95,7 @@ BITCOIN_CORE_H = \
   addrman.h \
   alert.h \
   amount.h \
+  activemasternode.h \
   amqp/amqpabstractnotifier.h \
   amqp/amqpconfig.h \
   amqp/amqpnotificationinterface.h \
@@ -137,6 +138,10 @@ BITCOIN_CORE_H = \
   memusage.h \
   merkleblock.h \
   masternodeconfig.h \
+  masternode.h \ 
+  masternode-payments.h \
+  masternode-sync.h \
+  masternodeman.h \
   metrics.h \
   miner.h \
   mruset.h \
@@ -210,6 +215,7 @@ libbitcoin_server_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT
 libbitcoin_server_a_SOURCES = \
   sendalert.cpp \
   addrman.cpp \
+  activemasternode.cpp \
   alert.cpp \
   alertkeys.h \
   asyncrpcoperation.cpp \
@@ -225,6 +231,10 @@ libbitcoin_server_a_SOURCES = \
   main.cpp \
   merkleblock.cpp \
   masternodeconfig.cpp \
+  masternode.cpp \
+  masternode-payments.cpp \ 
+  masternode-sync.cpp \
+  masternodeman.cpp \
   metrics.cpp \
   miner.cpp \
   net.cpp \
