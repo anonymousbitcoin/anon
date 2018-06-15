@@ -318,7 +318,7 @@ bool CMasternode::IsValidNetAddr(CService addrIn)
 {
     // TODO: regtest is fine with any addresses for now,
     // should probably be a bit smarter if one day we start to implement tests for this
-    return Params().NetworkIDString() == CBaseChainParams::REGTEST ||
+    return Params().NetworkIDString() == "regtest" ||
            (addrIn.IsIPv4() && IsReachable(addrIn) && addrIn.IsRoutable());
 }
 
@@ -481,7 +481,7 @@ bool CMasternodeBroadcast::Create(std::string strService, std::string strKeyMast
 
     CService service = CService(strService);
     int mainnetDefaultPort = Params(CBaseChainParams::MAIN).GetDefaultPort();
-    if (Params().NetworkIDString() == CBaseChainParams::MAIN)
+    if (Params().NetworkIDString() == "main")
     {
         if (service.GetPort() != mainnetDefaultPort)
         {
@@ -602,7 +602,7 @@ bool CMasternodeBroadcast::SimpleCheck(int &nDos)
     }
 
     int mainnetDefaultPort = Params(CBaseChainParams::MAIN).GetDefaultPort();
-    if (Params().NetworkIDString() == CBaseChainParams::MAIN)
+    if (Params().NetworkIDString() == "main")
     {
         if (addr.GetPort() != mainnetDefaultPort)
             return false;

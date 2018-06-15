@@ -366,7 +366,7 @@ void CMasternodeSync::ProcessTick()
             continue;
 
         // QUICK MODE (REGTEST ONLY!)
-        if (Params().NetworkIDString() == CBaseChainParams::REGTEST)
+        if (Params().NetworkIDString() == "regtest")
         {
             if (nRequestedMasternodeAttempt <= 2)
             {

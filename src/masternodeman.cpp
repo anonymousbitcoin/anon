@@ -494,7 +494,7 @@ void CMasternodeMan::DsegUpdate(CNode *pnode)
 {
     LOCK(cs);
 
-    if (Params().NetworkIDString() == CBaseChainParams::MAIN)
+    if (Params().NetworkIDString() == "main")
     {
         if (!(pnode->addr.IsRFC1918() || pnode->addr.IsLocal()))
         {
@@ -871,7 +871,7 @@ CMasternode *CMasternodeMan::GetMasternodeByRank(int nRank, int nBlockHeight, in
 void CMasternodeMan::ProcessMasternodeConnections()
 {
     //we don't care about this for regtest
-    if (Params().NetworkIDString() == CBaseChainParams::REGTEST)
+    if (Params().NetworkIDString() == "regtest")
         return;
 
     LOCK(cs_vNodes);
@@ -1020,7 +1020,7 @@ void CMasternodeMan::ProcessMessage(CNode *pfrom, std::string &strCommand, CData
             //local network
             bool isLocal = (pfrom->addr.IsRFC1918() || pfrom->addr.IsLocal());
 
-            if (!isLocal && Params().NetworkIDString() == CBaseChainParams::MAIN)
+            if (!isLocal && Params().NetworkIDString() == "main")
             {
                 std::map<CNetAddr, int64_t>::iterator i = mAskedUsForMasternodeList.find(pfrom->addr);
                 if (i != mAskedUsForMasternodeList.end())

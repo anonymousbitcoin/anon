@@ -75,7 +75,7 @@ bool CMasternodeConfig::read(std::string &strErr)
             return false;
         }
         int mainnetDefaultPort = Params(CBaseChainParams::MAIN).GetDefaultPort();
-        if (Params().NetworkIDString() == CBaseChainParams::MAIN)
+        if (Params().NetworkIDString() == "main")
         {
             if (port != mainnetDefaultPort)
             {
