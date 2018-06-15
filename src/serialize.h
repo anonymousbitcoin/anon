@@ -23,9 +23,9 @@
 
 #include <boost/array.hpp>
 #include <boost/optional.hpp>
+#include "prevector.h"
 
 class CScript;
-#include "prevector.h"
 
 static const unsigned int MAX_SIZE = 0x02000000;
 

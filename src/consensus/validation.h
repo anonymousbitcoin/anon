@@ -87,8 +87,8 @@ public:
         return corruptionPossible;
     }
 
-    unsigned int GetRejectCode() const { return chRejectCode; }
-    std::string GetRejectReason() const { return strRejectReason; }
+    virtual unsigned char GetRejectCode() const { return chRejectCode; }
+    virtual std::string GetRejectReason() const { return strRejectReason; }    
     std::string GetDebugMessage() const { return strDebugMessage; }
 };
 

@@ -248,9 +248,9 @@ FILE* OpenUndoFile(const CDiskBlockPos& pos, bool fReadOnly = false);
 /** Translation to a filesystem path */
 boost::filesystem::path GetBlockPosFilename(const CDiskBlockPos& pos, const char* prefix);
 /** Import blocks from an external file */
-bool LoadExternalBlockFile(const CChainParams& chainparams, FILE* fileIn, CDiskBlockPos* dbp = NULL);
+bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos* dbp = NULL);
 /** Initialize a new block tree database + block data on disk */
-bool InitBlockIndex(const CChainParams& chainparams);
+bool InitBlockIndex();
 /** Load the block tree and coins database from disk */
 bool LoadBlockIndex();
 /** Unload database information */
@@ -269,7 +269,7 @@ void ThreadScriptCheck();
 void PartitionCheck(bool (*initialDownloadCheck)(), CCriticalSection& cs, const CBlockIndex* const& bestHeader, int64_t nPowTargetSpacing);
 /** Check whether we are doing an initial block download (synchronizing from disk or network) */
 
-bool IsInitialBlockDownload();
+bool IsInitialBlockDownload(bool includeFork=false);
 /** Format a string that describes several potential problems detected by the core.
  * strFor can have three values:
  * - "rpc": get critical warnings, which should put the client in safe mode if non-empty
@@ -281,7 +281,7 @@ std::string GetWarnings(const std::string& strFor);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
 bool GetTransaction(const uint256& hash, CTransaction& tx, const Consensus::Params& params, uint256& hashBlock, bool fAllowSlow = false);
 /** Find the best known block, and make it the tip of the block chain */
-bool ActivateBestChain(CValidationState& state, const CChainParams& chainparams, const CBlock* pblock = NULL);
+bool ActivateBestChain(CValidationState& state, const CBlock* pblock = NULL);
 
 double ConvertBitsToDouble(unsigned int nBits);
 CAmount GetBlockSubsidy(int nBits, int nHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly = false);
@@ -302,7 +302,7 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue);
  *
  * @param[out]   setFilesToPrune   The set of file indices that can be unlinked will be returned
  */
-void FindFilesToPrune(std::set<int>& setFilesToPrune, uint64_t nPruneAfterHeight);
+void FindFilesToPrune(std::set<int>& setFilesToPrune);
 
 /**
  *  Actually unlink the specified files
@@ -823,6 +823,13 @@ bool GetAddressUnspent(uint160 addressHash, int type, std::vector<std::pair<CAdd
 /** Functions for disk access for blocks */
 
 bool WriteBlockToDisk(const CBlock& block, CDiskBlockPos& pos, const CMessageHeader::MessageStartChars& messageStart);
+bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos
+#ifdef FORK_CB_INPUT
+        , int nHeight = -1
+#endif
+);
+bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex);
+
 bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos, const Consensus::Params& consensusParams);
 bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus::Params& consensusParams);
 
@@ -929,7 +936,7 @@ class CVerifyDB
 public:
     CVerifyDB();
     ~CVerifyDB();
-    bool VerifyDB(const CChainParams& chainparams, CCoinsView* coinsview, int nCheckLevel, int nCheckDepth);
+    bool VerifyDB(CCoinsView* coinsview, int nCheckLevel, int nCheckDepth);
 };
 
 /** Find the last common block between the parameter chain and a locator. */

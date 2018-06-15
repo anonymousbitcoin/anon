@@ -152,9 +152,12 @@ class CService : public CNetAddr
         friend bool operator!=(const CService& a, const CService& b);
         friend bool operator<(const CService& a, const CService& b);
         std::vector<unsigned char> GetKey() const;
-        std::string ToString() const;
+        //std::string ToString() const;
         std::string ToStringPort() const;
-        std::string ToStringIPPort() const;
+        //std::string ToStringIPPort() const;
+
+        std::string ToString(bool fUseGetnameinfo = true) const;
+        std::string ToStringIPPort(bool fUseGetnameinfo = true) const;
 
         CService(const struct in6_addr& ipv6Addr, unsigned short port);
         CService(const struct sockaddr_in6& addr);
