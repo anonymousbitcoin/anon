@@ -14,26 +14,34 @@
 #ifdef ENABLE_MINING
 #include "base58.h"
 #endif
+#include "activemasternode.h"
+#include "chain.h"
 #include "checkpoints.h"
 #include "compat/sanity.h"
 #include "consensus/validation.h"
-#include "httpserver.h"
 #include "httprpc.h"
+#include "httpserver.h"
 #include "key.h"
 #include "main.h"
 #include "metrics.h"
 #include "miner.h"
 #include "net.h"
 #include "rpcserver.h"
-#include "script/standard.h"
 #include "scheduler.h"
-#include "txdb.h"
+#include "script/standard.h"
+#include "sync.h"
 #include "torcontrol.h"
+#include "txdb.h"
 #include "ui_interface.h"
 #include "util.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
 #ifdef ENABLE_WALLET
+#include "masternode-payments.h"
+#include "masternode-sync.h"
+#include "masternodeconfig.h"
+#include "masternodeman.h"
+#include "netfulfilledman.h"
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h"
 #endif
@@ -822,6 +830,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (mapArgs.count("-whitebind")) {
         if (SoftSetBoolArg("-listen", true))
             LogPrintf("%s: parameter interaction: -whitebind set -> setting -listen=1\n", __func__);
+    }
+
+    if (GetBoolArg("-masternode", false)) {
+        // masternodes must accept connections from outside
+        if (SoftSetBoolArg("-listen", true))
+            LogPrintf("%s: parameter interaction: -masternode=1 -> setting -listen=1\n", __func__);
     }
 
     if (mapArgs.count("-connect") && mapMultiArgs["-connect"].size() > 0) {
@@ -1678,6 +1692,40 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 
     // ********************************************************* Step 11: start node
+    // ********************************************************* Step 11: start MASTERNODE
+    fMasterNode = GetBoolArg("-masternode", false);
+
+    if ((fMasterNode || masternodeConfig.getCount() > -1) && fTxIndex == false) {
+        return InitError("Enabling Masternode support requires turning on transaction indexing."
+                         "Please add txindex=1 to your configuration and start with -reindex");
+    }
+
+    if (fMasterNode) {
+        LogPrintf("MASTERNODE:\n");
+
+        if (!GetArg("-masternodeaddr", "").empty()) {
+            // Hot masternode (either local or remote) should get its address in
+            // CActiveMasternode::ManageState() automatically and no longer relies on masternodeaddr.
+            return InitError(_("masternodeaddr option is deprecated. Please use masternode.conf to manage your remote masternodes."));
+        }
+
+        std::string strMasterNodePrivKey = GetArg("-masternodeprivkey", "");
+        if (!strMasterNodePrivKey.empty()) {
+            // if (!darkSendSigner.GetKeysFromSecret(strMasterNodePrivKey, activeMasternode.keyMasternode, activeMasternode.pubKeyMasternode))
+                // return InitError(_("Invalid masternodeprivkey. Please see documenation."));
+
+            LogPrintf("  pubKeyMasternode: %s\n", CBitcoinAddress(activeMasternode.pubKeyMasternode.GetID()).ToString());
+        } else {
+            return InitError(_("You must specify a masternodeprivkey in the configuration. Please see documentation for help."));
+        }
+    }
+
+    // UPDATE MASTERNODE MODULES WITH BLOCKTIP/CURRENTBLOCKINDEX
+    mnodeman.UpdatedBlockTip(chainActive.Tip());
+    mnpayments.UpdatedBlockTip(chainActive.Tip());
+    masternodeSync.UpdatedBlockTip(chainActive.Tip());
+
+    LogPrintf("Using masternode config file %s\n", GetMasternodeConfigFile().string());
 
     if (!CheckDiskSpace())
         return false;

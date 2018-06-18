@@ -291,7 +291,7 @@ std::string GetWarnings(const std::string& strFor);
 // BTCP
 bool GetTransaction(const uint256& hash, CTransaction& tx, uint256& hashBlock, bool fAllowSlow = false);
 /** Find the best known block, and make it the tip of the block chain */
-bool ActivateBestChain(CValidationState& state, const CBlock* pblock = NULL);
+bool ActivateBestChain(CValidationState& state, CBlock* pblock = NULL);
 
 double ConvertBitsToDouble(unsigned int nBits);
 // CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly = false);
@@ -332,12 +332,12 @@ void FlushStateToDisk();
 void PruneAndFlush();
 
 /** (try to) add transaction to memory pool **/
-bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransaction& tx, bool fLimitFree, bool* pfMissingInputs, bool fOverrideMempoolLimit = false, bool fRejectAbsurdFee = false, bool fDryRun = false);
+//bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransaction& tx, bool fLimitFree, bool* pfMissingInputs, bool fOverrideMempoolLimit = false, bool fRejectAbsurdFee = false);
+bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransaction &tx, bool fLimitFree,
+                        bool* pfMissingInputs, bool fRejectAbsurdFee=false);
 
 int GetUTXOHeight(const COutPoint& outpoint);
 int GetInputAge(const CTxIn& txin);
-int GetInputAgeIX(const uint256& nTXHash, const CTxIn& txin);
-int GetIXConfirmations(const uint256& nTXHash);
 
 /** Convert CValidationState to a human-readable message for logging */
 std::string FormatStateMessage(const CValidationState& state);
@@ -850,7 +850,8 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
  *  In case pfClean is provided, operation will try to be tolerant about errors, and *pfClean
  *  will be true if no problems were found. Otherwise, the return value will be false in case
  *  of problems. Note that in any case, coins may be modified. */
-bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockIndex* pindex, CCoinsViewCache& coins, bool* pfClean = NULL);
+//bool DisconnectBlock(const CBlock& block, CValidationState& state, const CBlockIndex* pindex, CCoinsViewCache& coins, bool* pfClean = NULL);
+bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& coins, bool* pfClean = NULL);
 
 /** Reprocess a number of blocks to try and get on the correct chain again **/
 bool DisconnectBlocks(int blocks);
@@ -1067,6 +1068,7 @@ extern uint256 hashPid;
  * Fills hashRet with found hash, if no nBlockHeight is specified - chainActive.Height() is used.
  */
 bool GetBlockHash(uint256& hashRet, int nBlockHeight = -1);
+// bool GetBlockHash();
 
 /** Reject codes greater or equal to this can be returned by AcceptToMemPool
  * for transactions, to signal internal conditions. They cannot and should not

@@ -129,6 +129,7 @@ public:
         fMineBlocksOnDemand = false;
         fTestnetToBeDeprecatedFieldRPC = false;
 
+        nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
         checkpointData = {
             {
                 {      0, consensus.hashGenesisBlock },
@@ -225,6 +226,7 @@ public:
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
         fTestnetToBeDeprecatedFieldRPC = true;
+        nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
         checkpointData = (Checkpoints::CCheckpointData) {
             boost::assign::map_list_of
@@ -294,6 +296,7 @@ public:
         fRequireStandard = false;
         fMineBlocksOnDemand = true;
         fTestnetToBeDeprecatedFieldRPC = false;
+        nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
         checkpointData = (Checkpoints::CCheckpointData){
             boost::assign::map_list_of

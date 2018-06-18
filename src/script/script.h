@@ -370,27 +370,52 @@ private:
 typedef prevector<28, unsigned char> CScriptBase;
 
 /** Serialized script, used inside transaction inputs and outputs */
-class CScript : public CScriptBase
+// class CScript : public CScriptBase
+// {
+// protected:
+//     CScript& push_int64(int64_t n)
+//     {
+//         if (n == -1 || (n >= 1 && n <= 16)) {
+//             push_back(n + (OP_1 - 1));
+//         } else if (n == 0) {
+//             push_back(OP_0);
+//         } else {
+//             *this << CScriptNum::serialize(n);
+//         }
+//         return *this;
+//     }
+
+// public:
+//     CScript() {}
+//     CScript(const CScript& b) : CScriptBase(b.begin(), b.end()) {}
+//     CScript(const_iterator pbegin, const_iterator pend) : CScriptBase(pbegin, pend) {}
+//     CScript(std::vector<unsigned char>::const_iterator pbegin, std::vector<unsigned char>::const_iterator pend) : CScriptBase(pbegin, pend) {}
+//     CScript(const unsigned char* pbegin, const unsigned char* pend) : CScriptBase(pbegin, pend) {}
+
+class CScript : public std::vector<unsigned char>
 {
 protected:
     CScript& push_int64(int64_t n)
     {
-        if (n == -1 || (n >= 1 && n <= 16)) {
+        if (n == -1 || (n >= 1 && n <= 16))
+        {
             push_back(n + (OP_1 - 1));
-        } else if (n == 0) {
+        }
+        else if (n == 0)
+        {
             push_back(OP_0);
-        } else {
+        }
+        else
+        {
             *this << CScriptNum::serialize(n);
         }
         return *this;
     }
-
 public:
-    CScript() {}
-    CScript(const CScript& b) : CScriptBase(b.begin(), b.end()) {}
-    CScript(const_iterator pbegin, const_iterator pend) : CScriptBase(pbegin, pend) {}
-    CScript(std::vector<unsigned char>::const_iterator pbegin, std::vector<unsigned char>::const_iterator pend) : CScriptBase(pbegin, pend) {}
-    CScript(const unsigned char* pbegin, const unsigned char* pend) : CScriptBase(pbegin, pend) {}
+    CScript() { }
+    CScript(const CScript& b) : std::vector<unsigned char>(b.begin(), b.end()) { }
+    CScript(const_iterator pbegin, const_iterator pend) : std::vector<unsigned char>(pbegin, pend) { }
+    CScript(const unsigned char* pbegin, const unsigned char* pend) : std::vector<unsigned char>(pbegin, pend) { }
 
     CScript& operator+=(const CScript& b)
     {
@@ -621,7 +646,8 @@ public:
     void clear()
     {
         // The default std::vector::clear() does not release memory.
-        CScriptBase().swap(*this);
+        // CScriptBase().swap(*this);
+        std::vector<unsigned char>().swap(*this);
     }
 };
 

@@ -138,7 +138,7 @@ BITCOIN_CORE_H = \
   memusage.h \
   merkleblock.h \
   masternodeconfig.h \
-  masternode.h \ 
+  masternode.h \
   masternode-payments.h \
   masternode-sync.h \
   masternodeman.h \
@@ -236,12 +236,13 @@ libbitcoin_server_a_SOURCES = \
   merkleblock.cpp \
   masternodeconfig.cpp \
   masternode.cpp \
-  masternode-payments.cpp \ 
+  masternode-payments.cpp \
   masternode-sync.cpp \
   masternodeman.cpp \
   metrics.cpp \
   miner.cpp \
   net.cpp \
+  netfulfilledman.cpp \
   noui.cpp \
   policy/fees.cpp \
   pow.cpp \
@@ -252,6 +253,7 @@ libbitcoin_server_a_SOURCES = \
   rpcnet.cpp \
   rpcrawtransaction.cpp \
   rpcserver.cpp \
+  rpcmasternode.cpp \
   script/sigcache.cpp \
   timedata.cpp \
   torcontrol.cpp \
@@ -259,6 +261,7 @@ libbitcoin_server_a_SOURCES = \
   txmempool.cpp \
   validationinterface.cpp \
   versionbits.cpp \
+  spork.cpp \
   $(BITCOIN_CORE_H) \
   $(LIBZCASH_H)
 

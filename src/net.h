@@ -467,7 +467,7 @@ public:
     int GetRefCount()
     {
         LOCK(cs_nRefCount);
-        assert(nRefCount >= 0);
+//        assert(nRefCount >= 0);
         return nRefCount;
     }
 
@@ -502,7 +502,7 @@ public:
     {
         LOCK(cs_nRefCount);
         nRefCount--;
-        assert(nRefCount >= 0);
+        //assert(nRefCount >= 0);
     }
 
 

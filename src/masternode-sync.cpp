@@ -8,6 +8,7 @@
 #include "masternode.h"
 #include "masternode-payments.h"
 #include "masternode-sync.h"
+#include "sync.h"
 #include "masternodeman.h"
 #include "netfulfilledman.h"
 #include "spork.h"
@@ -380,7 +381,7 @@ void CMasternodeSync::ProcessTick()
             {
                 int nMnCount = mnodeman.CountMasternodes();
                 pnode->PushMessage(NetMsgType::MASTERNODEPAYMENTSYNC, nMnCount); //sync payment votes
-                SendGovernanceSyncRequest(pnode);
+                // SendGovernanceSyncRequest(pnode);
             }
             else
             {
@@ -478,8 +479,8 @@ void CMasternodeSync::ProcessTick()
                 // check for data
                 // if mnpayments already has enough blocks and votes, switch to the next asset
                 // try to fetch data from at least two peers though
-                if (nRequestedMasternodeAttempt > 1 && mnpayments.IsEnoughData())
-                {
+                // if (nRequestedMasternodeAttempt > 1 && mnpayments.IsEnoughData())
+                if (nRequestedMasternodeAttempt > 1) {
                     LogPrintf("CMasternodeSync::ProcessTick -- nTick %d nRequestedMasternodeAssets %d -- found enough data\n", nTick, nRequestedMasternodeAssets);
                     SwitchToNextAsset();
                     ReleaseNodeVector(vNodesCopy);
@@ -498,7 +499,7 @@ void CMasternodeSync::ProcessTick()
                 // ask node for all payment votes it has (new nodes will only return votes for future payments)
                 pnode->PushMessage(NetMsgType::MASTERNODEPAYMENTSYNC, mnpayments.GetStorageLimit());
                 // ask node for missing pieces only (old nodes will not be asked)
-                mnpayments.RequestLowDataPaymentBlocks(pnode);
+                // mnpayments.RequestLowDataPaymentBlocks(pnode);
 
                 ReleaseNodeVector(vNodesCopy);
                 return; //this will cause each peer to get one request each six seconds for the various assets we need

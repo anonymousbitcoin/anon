@@ -8,6 +8,7 @@
 #include "masternode.h"
 #include "masternode-payments.h"
 #include "masternode-sync.h"
+#include "sync.h"
 #include "masternodeman.h"
 #include "util.h"
 

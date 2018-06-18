@@ -77,6 +77,7 @@ public:
     const Checkpoints::CCheckpointData& Checkpoints() const { return checkpointData; }
     /** Enforce coinbase consensus rule in regtest mode */
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
+    int FulfilledRequestExpireTime() const { return nFulfilledRequestExpireTime; }
 
     uint64_t ForkStartHeight() const { return nForkStartHeight; };
     uint64_t ForkHeightRange() const { return nForkHeightRange; };
@@ -104,6 +105,7 @@ protected:
     bool fMineBlocksOnDemand = false;
     bool fTestnetToBeDeprecatedFieldRPC = false;
     Checkpoints::CCheckpointData checkpointData;
+    int nFulfilledRequestExpireTime;
     std::vector<std::string> vFoundersRewardAddress;
 
     uint64_t nForkStartHeight;

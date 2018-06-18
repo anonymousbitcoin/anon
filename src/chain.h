@@ -344,7 +344,7 @@ public:
         READWRITE(hashAnchor);
 
         // block hash
-        READWRITE(hash);
+        // READWRITE(hash);
         // block header
         READWRITE(this->nVersion);
         READWRITE(hashPrev);

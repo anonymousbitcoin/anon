@@ -11,7 +11,7 @@
 #include "serialize.h"
 #include "uint256.h"
 #include "version.h"
-
+#include "prevector.h"
 #include <vector>
 
 typedef uint256 ChainCode;
@@ -114,6 +114,13 @@ inline uint160 Hash160(const T1 pbegin, const T1 pend)
 
 /** Compute the 160-bit hash of a vector. */
 inline uint160 Hash160(const std::vector<unsigned char>& vch)
+{
+    return Hash160(vch.begin(), vch.end());
+}
+
+/** Compute the 160-bit hash of a vector. */
+template<unsigned int N>
+inline uint160 Hash160(const prevector<N, unsigned char>& vch)
 {
     return Hash160(vch.begin(), vch.end());
 }

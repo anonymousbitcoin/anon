@@ -9,6 +9,11 @@
 #include "tinyformat.h"
 #include "utilstrencodings.h"
 
+std::string COutPoint::ToStringShort() const
+{
+    return strprintf("%s-%u", hash.ToString().substr(0,64), n);
+}
+
 JSDescription::JSDescription(ZCJoinSplit& params,
             const uint256& pubKeyHash,
             const uint256& anchor,

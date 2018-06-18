@@ -8,7 +8,9 @@
 #include "masternode-sync.h"
 #include "masternodeman.h"
 #include "netfulfilledman.h"
+#include "sync.h"
 #include "util.h"
+#include "chain.h"
 
 /** Masternode manager */
 CMasternodeMan mnodeman;
@@ -669,8 +671,8 @@ CMasternode *CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight
     sort(vecMasternodeLastPaid.begin(), vecMasternodeLastPaid.end(), CompareLastPaidBlock());
 
     uint256 blockHash;
-    if (!GetBlockHash(blockHash, nBlockHeight - 101))
-    {
+    if (!GetBlockHash(blockHash, nBlockHeight - 101)) {
+        // if (!GetBlockHash()) {
         LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment -- ERROR: GetBlockHash() failed at nBlockHeight %d\n", nBlockHeight - 101);
         return NULL;
     }
@@ -753,6 +755,7 @@ int CMasternodeMan::GetMasternodeRank(const CTxIn &vin, int nBlockHeight, int nM
     //make sure we know about this block
     uint256 blockHash = uint256();
     if (!GetBlockHash(blockHash, nBlockHeight))
+    // if (!GetBlockHash())
         return -1;
 
     LOCK(cs);
@@ -798,6 +801,7 @@ std::vector<std::pair<int, CMasternode>> CMasternodeMan::GetMasternodeRanks(int 
     //make sure we know about this block
     uint256 blockHash = uint256();
     if (!GetBlockHash(blockHash, nBlockHeight))
+    // if (!GetBlockHash())
         return vecMasternodeRanks;
 
     LOCK(cs);
@@ -834,6 +838,7 @@ CMasternode *CMasternodeMan::GetMasternodeByRank(int nRank, int nBlockHeight, in
 
     uint256 blockHash;
     if (!GetBlockHash(blockHash, nBlockHeight))
+    // if (!GetBlockHash())
     {
         LogPrintf("CMasternode::GetMasternodeByRank -- ERROR: GetBlockHash() failed at nBlockHeight %d\n", nBlockHeight);
         return NULL;
@@ -1310,8 +1315,8 @@ void CMasternodeMan::SendVerifyReply(CNode *pnode, CMasternodeVerification &mnv)
     }
 
     uint256 blockHash;
-    if (!GetBlockHash(blockHash, mnv.nBlockHeight))
-    {
+    if (!GetBlockHash(blockHash, mnv.nBlockHeight)) {
+    // if (!GetBlockHash())
         LogPrintf("MasternodeMan::SendVerifyReply -- can't get block hash for unknown block height %d, peer=%d\n", mnv.nBlockHeight, pnode->id);
         return;
     }
@@ -1367,8 +1372,8 @@ void CMasternodeMan::ProcessVerifyReply(CNode *pnode, CMasternodeVerification &m
     }
 
     uint256 blockHash;
-    if (!GetBlockHash(blockHash, mnv.nBlockHeight))
-    {
+    if (!GetBlockHash(blockHash, mnv.nBlockHeight)) {
+    // if (!GetBlockHash()) {
         // this shouldn't happen...
         LogPrintf("MasternodeMan::ProcessVerifyReply -- can't get block hash for unknown block height %d, peer=%d\n", mnv.nBlockHeight, pnode->id);
         return;
@@ -1490,8 +1495,8 @@ void CMasternodeMan::ProcessVerifyBroadcast(CNode *pnode, const CMasternodeVerif
     }
 
     uint256 blockHash;
-    if (!GetBlockHash(blockHash, mnv.nBlockHeight))
-    {
+    if (!GetBlockHash(blockHash, mnv.nBlockHeight)) {
+    // if (!GetBlockHash()) {
         // this shouldn't happen...
         LogPrintf("MasternodeMan::ProcessVerifyBroadcast -- Can't get block hash for unknown block height %d, peer=%d\n", mnv.nBlockHeight, pnode->id);
         return;

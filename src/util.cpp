@@ -98,6 +98,17 @@ namespace boost {
 
 using namespace std;
 
+//Dash only features
+bool fMasterNode = false;
+bool fLiteMode = false;
+/**
+    nWalletBackups:
+        1..10   - number of automatic backups to keep
+        0       - disabled by command-line
+        -1      - disabled because of some error during run-time
+        -2      - disabled because wallet was locked and we were not able to replenish keypool
+*/
+
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
 bool fDebug = false;
