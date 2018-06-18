@@ -120,7 +120,11 @@ struct CNodeSignals
 {
     boost::signals2::signal<int ()> GetHeight;
     boost::signals2::signal<bool (CNode*), CombinerAll> ProcessMessages;
-    boost::signals2::signal<bool (CNode*), CombinerAll> SendMessages;
+    // DASH
+    // boost::signals2::signal<bool (CNode*), CombinerAll> SendMessages;
+    // BTCP
+    boost::signals2::signal<bool(CNode*, bool), CombinerAll> SendMessages;
+    
     boost::signals2::signal<void (NodeId, const CNode*)> InitializeNode;
     boost::signals2::signal<void (NodeId)> FinalizeNode;
 };
@@ -426,7 +430,10 @@ public:
 
     std::vector<unsigned char> vchKeyedNetGroup;
 
-    CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNameIn = "", bool fInboundIn = false, bool fNetworkNodeIn = false);
+    // DASH
+    // CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNameIn = "", bool fInboundIn = false, bool fNetworkNodeIn = false);
+    // BTCP
+    CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNameIn = "", bool fInboundIn = false);
     ~CNode();
 
 private:
@@ -778,12 +785,22 @@ public:
     static void ClearBanned(); // needed for unit testing
     static bool IsBanned(CNetAddr ip);
     static bool IsBanned(CSubNet subnet);
+    // BTCP
     static void Ban(const CNetAddr &ip, int64_t bantimeoffset = 0, bool sinceUnixEpoch = false);
     static void Ban(const CSubNet &subNet, int64_t bantimeoffset = 0, bool sinceUnixEpoch = false);
+    // DASH
+    // static void Ban(const CNetAddr& ip, const BanReason& banReason, int64_t bantimeoffset = 0, bool sinceUnixEpoch = false);
+    // static void Ban(const CSubNet& subNet, const BanReason& banReason, int64_t bantimeoffset = 0, bool sinceUnixEpoch = false);
+
     static bool Unban(const CNetAddr& ip);
     static bool Unban(const CSubNet& ip);
+
+    //  Imported from Dash
     static void GetBanned(banmap_t& banmap);
     static void SetBanned(const banmap_t& banmap);
+
+    // Imported from BTCP
+    static void GetBanned(std::map<CSubNet, int64_t>& banmap);
 
     //!check is the banlist has unwritten changes
     static bool BannedSetIsDirty();
