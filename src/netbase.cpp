@@ -871,6 +871,9 @@ enum Network CNetAddr::GetNetwork() const
     return NET_IPV6;
 }
 
+// DASH
+// std::string CNetAddr::ToStringIP(bool fUseGetnameinfo) const
+// BTCP
 std::string CNetAddr::ToStringIP() const
 {
     if (IsTor())

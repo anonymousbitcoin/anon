@@ -1316,7 +1316,7 @@ void CMasternodeMan::SendVerifyReply(CNode *pnode, CMasternodeVerification &mnv)
         return;
     }
 
-    std::string strMessage = strprintf("%s%d%s", activeMasternode.service.ToString(false), mnv.nonce, blockHash.ToString());
+    std::string strMessage = strprintf("%s%d%s", activeMasternode.service.ToString(), mnv.nonce, blockHash.ToString());
 
     // if (!darkSendSigner.SignMessage(strMessage, mnv.vchSig1, activeMasternode.keyMasternode))
     // {
@@ -1388,7 +1388,7 @@ void CMasternodeMan::ProcessVerifyReply(CNode *pnode, CMasternodeVerification &m
         CMasternode *prealMasternode = NULL;
         std::vector<CMasternode *> vpMasternodesToBan;
         std::vector<CMasternode>::iterator it = vMasternodes.begin();
-        std::string strMessage1 = strprintf("%s%d%s", pnode->addr.ToString(false), mnv.nonce, blockHash.ToString());
+        std::string strMessage1 = strprintf("%s%d%s", pnode->addr.ToString(), mnv.nonce, blockHash.ToString());
         while (it != vMasternodes.end())
         {
             if ((CAddress)it->addr == pnode->addr)
@@ -1410,7 +1410,7 @@ void CMasternodeMan::ProcessVerifyReply(CNode *pnode, CMasternodeVerification &m
                     mnv.addr = it->addr;
                     mnv.vin1 = it->vin;
                     mnv.vin2 = activeMasternode.vin;
-                    std::string strMessage2 = strprintf("%s%d%s%s%s", mnv.addr.ToString(false), mnv.nonce, blockHash.ToString(),
+                    std::string strMessage2 = strprintf("%s%d%s%s%s", mnv.addr.ToString(), mnv.nonce, blockHash.ToString(),
                                                         mnv.vin1.prevout.ToStringShort(), mnv.vin2.prevout.ToStringShort());
                     // ... and sign it
                     // if (!darkSendSigner.SignMessage(strMessage2, mnv.vchSig2, activeMasternode.keyMasternode))
@@ -1516,8 +1516,8 @@ void CMasternodeMan::ProcessVerifyBroadcast(CNode *pnode, const CMasternodeVerif
     {
         LOCK(cs);
 
-        std::string strMessage1 = strprintf("%s%d%s", mnv.addr.ToString(false), mnv.nonce, blockHash.ToString());
-        std::string strMessage2 = strprintf("%s%d%s%s%s", mnv.addr.ToString(false), mnv.nonce, blockHash.ToString(),
+        std::string strMessage1 = strprintf("%s%d%s", mnv.addr.ToString(), mnv.nonce, blockHash.ToString());
+        std::string strMessage2 = strprintf("%s%d%s%s%s", mnv.addr.ToString(), mnv.nonce, blockHash.ToString(),
                                             mnv.vin1.prevout.ToStringShort(), mnv.vin2.prevout.ToStringShort());
 
         CMasternode *pmn1 = Find(mnv.vin1);

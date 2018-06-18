@@ -286,7 +286,10 @@ bool IsInitialBlockDownload(bool includeFork=false);
  */
 std::string GetWarnings(const std::string& strFor);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
-bool GetTransaction(const uint256& hash, CTransaction& tx, const Consensus::Params& params, uint256& hashBlock, bool fAllowSlow = false);
+// DASH
+// bool GetTransaction(const uint256& hash, CTransaction& tx, const Consensus::Params& params, uint256& hashBlock, bool fAllowSlow = false);
+// BTCP
+bool GetTransaction(const uint256& hash, CTransaction& tx, uint256& hashBlock, bool fAllowSlow = false);
 /** Find the best known block, and make it the tip of the block chain */
 bool ActivateBestChain(CValidationState& state, const CBlock* pblock = NULL);
 
@@ -952,7 +955,10 @@ public:
 CBlockIndex* FindForkInGlobalIndex(const CChain& chain, const CBlockLocator& locator);
 
 /** Mark a block as invalid. */
-bool InvalidateBlock(CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex);
+// DASH
+// bool InvalidateBlock(CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex);
+// BTCP
+bool InvalidateBlock(CValidationState& state, CBlockIndex* pindex);
 
 /** Remove invalidity status from a block and its descendants. */
 bool ReconsiderBlock(CValidationState& state, CBlockIndex* pindex);

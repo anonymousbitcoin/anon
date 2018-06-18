@@ -30,6 +30,9 @@
 #include <miniupnpc/upnperrors.h>
 #endif
 
+#include "masternode-sync.h"
+#include "masternodeman.h"
+
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
@@ -55,6 +58,7 @@ using namespace std;
 
 namespace {
     const int MAX_OUTBOUND_CONNECTIONS = 8;
+    const int MAX_OUTBOUND_MASTERNODE_CONNECTIONS = 20;
 
     struct ListenSocket {
         SOCKET socket;
@@ -100,6 +104,7 @@ NodeId nLastNodeId = 0;
 CCriticalSection cs_nLastNodeId;
 
 static CSemaphore *semOutbound = NULL;
+static CSemaphore* semMasternodeOutbound = NULL;
 boost::condition_variable messageHandlerCondition;
 
 // Signals for message handling
@@ -1660,6 +1665,52 @@ void ThreadOpenAddedConnections()
     }
 }
 
+void ThreadMnbRequestConnections()
+{
+    // Connecting to specific addresses, no masternode connections available
+    if (mapArgs.count("-connect") && mapMultiArgs["-connect"].size() > 0)
+        return;
+
+    while (true) {
+        MilliSleep(1000);
+
+        CSemaphoreGrant grant(*semMasternodeOutbound);
+        boost::this_thread::interruption_point();
+
+        std::pair<CService, std::set<uint256>> p = mnodeman.PopScheduledMnbRequestConnection();
+        if (p.first == CService() || p.second.empty())
+            continue;
+
+        CNode* pnode = NULL;
+        {
+            LOCK2(cs_main, cs_vNodes);
+            pnode = ConnectNode(CAddress(p.first), NULL, true);
+            if (!pnode)
+                continue;
+            pnode->AddRef();
+        }
+
+        grant.MoveTo(pnode->grantMasternodeOutbound);
+
+        // compile request vector
+        std::vector<CInv> vToFetch;
+        std::set<uint256>::iterator it = p.second.begin();
+        while (it != p.second.end()) {
+            if (*it != uint256()) {
+                vToFetch.push_back(CInv(MSG_MASTERNODE_ANNOUNCE, *it));
+                LogPrint("masternode", "ThreadMnbRequestConnections -- asking for mnb %s from addr=%s\n", it->ToString(), p.first.ToString());
+            }
+            ++it;
+        }
+
+        // ask for data
+        pnode->PushMessage(NetMsgType::GETDATA, vToFetch);
+
+        pnode->Release();
+    }
+}
+
+
 // if successful, this moves the passed grant to the constructed node
 bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound, const char *pszDest, bool fOneShot)
 {
@@ -1932,6 +1983,11 @@ void StartNode(boost::thread_group& threadGroup, CScheduler& scheduler)
         semOutbound = new CSemaphore(nMaxOutbound);
     }
 
+    if (semMasternodeOutbound == NULL) {
+        // initialize semaphore
+        semMasternodeOutbound = new CSemaphore(MAX_OUTBOUND_MASTERNODE_CONNECTIONS);
+    }
+
     if (pnodeLocalHost == NULL)
         pnodeLocalHost = new CNode(INVALID_SOCKET, CAddress(CService("127.0.0.1", 0), nLocalServices));
 
@@ -1975,7 +2031,9 @@ bool StopNode()
     if (semOutbound)
         for (int i=0; i<MAX_OUTBOUND_CONNECTIONS; i++)
             semOutbound->post();
-
+    if (semMasternodeOutbound)
+        for (int i = 0; i < MAX_OUTBOUND_MASTERNODE_CONNECTIONS; i++)
+            semMasternodeOutbound->post();
     if (fAddressesInitialized)
     {
         DumpAddresses();
@@ -2011,6 +2069,8 @@ public:
         vhListenSocket.clear();
         delete semOutbound;
         semOutbound = NULL;
+        delete semMasternodeOutbound;
+        semMasternodeOutbound = NULL;
         delete pnodeLocalHost;
         pnodeLocalHost = NULL;
 

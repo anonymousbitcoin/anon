@@ -405,7 +405,7 @@ public:
 
     // inventory based relay
     mruset<CInv> setInventoryKnown;
-    CRollingBloomFilter filterInventoryKnown;
+    // CRollingBloomFilter filterInventoryKnown;
     std::vector<CInv> vInventoryToSend;
     CCriticalSection cs_inventory;
     std::set<uint256> setAskFor;
@@ -531,7 +531,10 @@ public:
     {
         {
             LOCK(cs_inventory);
-            filterInventoryKnown.insert(inv.hash);
+            // DASH
+            // filterInventoryKnown.insert(inv.hash);
+            // BTCP
+            setInventoryKnown.insert(inv);
         }
     }
 
@@ -539,12 +542,15 @@ public:
     {
         {
             LOCK(cs_inventory);
-            if (inv.type == MSG_TX && filterInventoryKnown.contains(inv.hash)) {
-                LogPrint("net", "PushInventory --  filtered inv: %s peer=%d\n", inv.ToString(), id);
-                return;
-            }
-            LogPrint("net", "PushInventory --  inv: %s peer=%d\n", inv.ToString(), id);
-            vInventoryToSend.push_back(inv);
+            // DASH
+            // if (inv.type == MSG_TX && filterInventoryKnown.contains(inv.hash)) {
+            //     LogPrint("net", "PushInventory --  filtered inv: %s peer=%d\n", inv.ToString(), id);
+            //     return;
+            // }
+            // LogPrint("net", "PushInventory --  inv: %s peer=%d\n", inv.ToString(), id);
+            // BTCP
+            if (!setInventoryKnown.count(inv))
+                vInventoryToSend.push_back(inv);
         }
     }
 
