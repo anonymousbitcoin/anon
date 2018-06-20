@@ -1727,6 +1727,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     LogPrintf("Using masternode config file %s\n", GetMasternodeConfigFile().string());
 
+    threadGroup.create_thread(boost::bind(&ThreadMasternodeInit));
+
     if (!CheckDiskSpace())
         return false;
 

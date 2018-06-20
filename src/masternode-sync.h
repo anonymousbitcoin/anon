@@ -89,4 +89,6 @@ class CMasternodeSync
     void UpdatedBlockTip(const CBlockIndex *pindex);
 };
 
+void ThreadMasternodeInit();
+
 #endif
