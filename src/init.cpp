@@ -19,6 +19,7 @@
 #include "checkpoints.h"
 #include "compat/sanity.h"
 #include "consensus/validation.h"
+#include "flat-database.h"
 #include "httprpc.h"
 #include "httpserver.h"
 #include "key.h"
@@ -214,6 +215,16 @@ void Shutdown()
     StopNode();
     StopTorControl();
     UnregisterNodeSignals(GetNodeSignals());
+
+    // STORE DATA CACHES INTO SERIALIZED DAT FILES
+    CFlatDB<CMasternodeMan> flatdb1("mncache.dat", "magicMasternodeCache");
+    flatdb1.Dump(mnodeman);
+    CFlatDB<CMasternodePayments> flatdb2("mnpayments.dat", "magicMasternodePaymentsCache");
+    flatdb2.Dump(mnpayments);
+    // CFlatDB<CGovernanceManager> flatdb3("governance.dat", "magicGovernanceCache");
+    // flatdb3.Dump(governance);
+    CFlatDB<CNetFulfilledRequestManager> flatdb4("netfulfilled.dat", "magicFulfilledCache");
+    flatdb4.Dump(netfulfilledman);
 
     if (fFeeEstimatesInitialized)
     {
@@ -1720,24 +1731,58 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         }
     }
 
-    // UPDATE MASTERNODE MODULES WITH BLOCKTIP/CURRENTBLOCKINDEX
-    mnodeman.UpdatedBlockTip(chainActive.Tip());
-    mnpayments.UpdatedBlockTip(chainActive.Tip());
-    masternodeSync.UpdatedBlockTip(chainActive.Tip());
 
-    LogPrintf("Using masternode config file %s\n", GetMasternodeConfigFile().string());
+        // ********************************************************* Step 11b: Load cache data
 
-    threadGroup.create_thread(boost::bind(&ThreadMasternodeInit));
+        // LOAD SERIALIZED DAT FILES INTO DATA CACHES FOR INTERNAL USE
 
-    if (!CheckDiskSpace())
-        return false;
+        uiInterface.InitMessage(_("Loading masternode cache..."));
+        CFlatDB<CMasternodeMan> flatdb1("mncache.dat", "magicMasternodeCache");
+        if (!flatdb1.Load(mnodeman)) {
+            return InitError("Failed to load masternode cache from mncache.dat");
+        }
 
-    if (!strErrors.str().empty())
-        return InitError(strErrors.str());
+        if (mnodeman.size()) {
+            uiInterface.InitMessage(_("Loading masternode payment cache..."));
+            CFlatDB<CMasternodePayments> flatdb2("mnpayments.dat", "magicMasternodePaymentsCache");
+            if (!flatdb2.Load(mnpayments)) {
+                return InitError("Failed to load masternode payments cache from mnpayments.dat");
+            }
 
-    //// debug print
-    LogPrintf("mapBlockIndex.size() = %u\n",   mapBlockIndex.size());
-    LogPrintf("nBestHeight = %d\n",                   chainActive.Height());
+            // uiInterface.InitMessage(_("Loading governance cache..."));
+            // CFlatDB<CGovernanceManager> flatdb3("governance.dat", "magicGovernanceCache");
+            // if (!flatdb3.Load(governance)) {
+            //     return InitError("Failed to load governance cache from governance.dat");
+            // }
+            // governance.InitOnLoad();
+        } else {
+            uiInterface.InitMessage(_("Masternode cache is empty, skipping payments and governance cache..."));
+        }
+
+        uiInterface.InitMessage(_("Loading fulfilled requests cache..."));
+        CFlatDB<CNetFulfilledRequestManager> flatdb4("netfulfilled.dat", "magicFulfilledCache");
+        if (!flatdb4.Load(netfulfilledman)) {
+            return InitError("Failed to load fulfilled requests cache from netfulfilled.dat");
+        }
+
+        // UPDATE MASTERNODE MODULES WITH BLOCKTIP/CURRENTBLOCKINDEX
+        mnodeman.UpdatedBlockTip(chainActive.Tip());
+        mnpayments.UpdatedBlockTip(chainActive.Tip());
+        masternodeSync.UpdatedBlockTip(chainActive.Tip());
+
+        LogPrintf("Using masternode config file %s\n", GetMasternodeConfigFile().string());
+
+        threadGroup.create_thread(boost::bind(&ThreadMasternodeInit));
+
+        if (!CheckDiskSpace())
+            return false;
+
+        if (!strErrors.str().empty())
+            return InitError(strErrors.str());
+
+        //// debug print
+        LogPrintf("mapBlockIndex.size() = %u\n", mapBlockIndex.size());
+        LogPrintf("nBestHeight = %d\n", chainActive.Height());
 #ifdef ENABLE_WALLET
     LogPrintf("setKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
     LogPrintf("mapWallet.size() = %u\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);

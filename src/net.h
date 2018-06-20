@@ -433,7 +433,7 @@ public:
     // DASH
     // CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNameIn = "", bool fInboundIn = false, bool fNetworkNodeIn = false);
     // BTCP
-    CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNameIn = "", bool fInboundIn = false);
+    CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNameIn = "", bool fInboundIn = false, bool fNetworkNodeIn = false);
     ~CNode();
 
 private:

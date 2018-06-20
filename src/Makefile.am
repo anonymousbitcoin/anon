@@ -126,6 +126,7 @@ BITCOIN_CORE_H = \
   core_io.h \
   core_memusage.h \
   deprecation.h \
+  flat-database.h \
   hash.h \
   httprpc.h \
   httpserver.h \

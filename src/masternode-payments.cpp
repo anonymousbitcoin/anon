@@ -1048,14 +1048,14 @@ bool CMasternodePayments::ProcessBlock(int nBlockHeight)
 //     }
 // }
 
-// std::string CMasternodePayments::ToString() const
-// {
-//     std::ostringstream info;
+std::string CMasternodePayments::ToString() const
+{
+    std::ostringstream info;
 
-//     info << "Votes: " << (int)mapMasternodePaymentVotes.size() << ", Blocks: " << (int)mapMasternodeBlocks.size();
+    info << "Votes: " << (int)mapMasternodePaymentVotes.size() << ", Blocks: " << (int)mapMasternodeBlocks.size();
 
-//     return info.str();
-// }
+    return info.str();
+}
 
 // bool CMasternodePayments::IsEnoughData()
 // {

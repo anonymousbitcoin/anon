@@ -191,6 +191,7 @@ void CActiveMasternode::ManageStateInitial()
     if(!ConnectNode((CAddress)service, NULL, true)) {
         nState = ACTIVE_MASTERNODE_NOT_CAPABLE;
         strNotCapableReason = "Could not connect to " + service.ToString();
+        // std::cout << CAddress << std::endl;
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: %s\n", GetStateString(), strNotCapableReason);
         return;
     }
