@@ -4548,8 +4548,8 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
     // case MSG_SPORK:
     //     return mapSporks.count(inv.hash);
 
-    // case MSG_MASTERNODE_PAYMENT_VOTE:
-        // return mnpayments.mapMasternodePaymentVotes.count(inv.hash);
+    case MSG_MASTERNODE_PAYMENT_VOTE:
+        return mnpayments.mapMasternodePaymentVotes.count(inv.hash);
 // 
     case MSG_MASTERNODE_PAYMENT_BLOCK: {
         BlockMap::iterator mi = mapBlockIndex.find(inv.hash);
@@ -4715,15 +4715,15 @@ void static ProcessGetData(CNode* pfrom)
                 //     }
                 // }
 
-                // if (!pushed && inv.type == MSG_MASTERNODE_PAYMENT_VOTE) {
-                //     if (mnpayments.HasVerifiedPaymentVote(inv.hash)) {
-                //         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
-                //         ss.reserve(1000);
-                //         ss << mnpayments.mapMasternodePaymentVotes[inv.hash];
-                //         pfrom->PushMessage(NetMsgType::MASTERNODEPAYMENTVOTE, ss);
-                //         pushed = true;
-                //     }
-                // }
+                if (!pushed && inv.type == MSG_MASTERNODE_PAYMENT_VOTE) {
+                    if (mnpayments.HasVerifiedPaymentVote(inv.hash)) {
+                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                        ss.reserve(1000);
+                        ss << mnpayments.mapMasternodePaymentVotes[inv.hash];
+                        pfrom->PushMessage(NetMsgType::MASTERNODEPAYMENTVOTE, ss);
+                        pushed = true;
+                    }
+                }
 
                 if (!pushed && inv.type == MSG_MASTERNODE_PAYMENT_BLOCK) {
                     BlockMap::iterator mi = mapBlockIndex.find(inv.hash);

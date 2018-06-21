@@ -883,14 +883,14 @@ bool CMasternodePayments::ProcessBlock(int nBlockHeight)
     return false;
 }
 
-// void CMasternodePaymentVote::Relay()
-// {
-//     // do not relay until synced
-//     if (!masternodeSync.IsWinnersListSynced())
-//         return;
-//     CInv inv(MSG_MASTERNODE_PAYMENT_VOTE, GetHash());
-//     RelayInv(inv);
-// }
+void CMasternodePaymentVote::Relay()
+{
+    // do not relay until synced
+    if (!masternodeSync.IsWinnersListSynced())
+        return;
+    CInv inv(MSG_MASTERNODE_PAYMENT_VOTE, GetHash());
+    RelayInv(inv);
+}
 
 // bool CMasternodePaymentVote::CheckSignature(const CPubKey &pubKeyMasternode, int nValidationHeight, int &nDos)
 // {
@@ -927,36 +927,36 @@ bool CMasternodePayments::ProcessBlock(int nBlockHeight)
 // }
 
 // Send only votes for future blocks, node should request every other missing payment block individually
-// void CMasternodePayments::Sync(CNode *pnode)
-// {
-//     LOCK(cs_mapMasternodeBlocks);
+void CMasternodePayments::Sync(CNode *pnode)
+{
+    LOCK(cs_mapMasternodeBlocks);
 
-//     if (!pCurrentBlockIndex)
-//         return;
+    if (!pCurrentBlockIndex)
+        return;
 
-//     int nInvCount = 0;
+    int nInvCount = 0;
 
-//     for (int h = pCurrentBlockIndex->nHeight; h < pCurrentBlockIndex->nHeight + 20; h++)
-//     {
-//         if (mapMasternodeBlocks.count(h))
-//         {
-//             BOOST_FOREACH (CMasternodePayee &payee, mapMasternodeBlocks[h].vecPayees)
-//             {
-//                 std::vector<uint256> vecVoteHashes = payee.GetVoteHashes();
-//                 BOOST_FOREACH (uint256 &hash, vecVoteHashes)
-//                 {
-//                     if (!HasVerifiedPaymentVote(hash))
-//                         continue;
-//                     pnode->PushInventory(CInv(MSG_MASTERNODE_PAYMENT_VOTE, hash));
-//                     nInvCount++;
-//                 }
-//             }
-//         }
-//     }
+    for (int h = pCurrentBlockIndex->nHeight; h < pCurrentBlockIndex->nHeight + 20; h++)
+    {
+        if (mapMasternodeBlocks.count(h))
+        {
+            BOOST_FOREACH (CMasternodePayee &payee, mapMasternodeBlocks[h].vecPayees)
+            {
+                std::vector<uint256> vecVoteHashes = payee.GetVoteHashes();
+                BOOST_FOREACH (uint256 &hash, vecVoteHashes)
+                {
+                    if (!HasVerifiedPaymentVote(hash))
+                        continue;
+                    pnode->PushInventory(CInv(MSG_MASTERNODE_PAYMENT_VOTE, hash));
+                    nInvCount++;
+                }
+            }
+        }
+    }
 
-//     LogPrintf("CMasternodePayments::Sync -- Sent %d votes to peer %d\n", nInvCount, pnode->id);
-//     pnode->PushMessage(NetMsgType::SYNCSTATUSCOUNT, MASTERNODE_SYNC_MNW, nInvCount);
-// }
+    LogPrintf("CMasternodePayments::Sync -- Sent %d votes to peer %d\n", nInvCount, pnode->id);
+    pnode->PushMessage(NetMsgType::SYNCSTATUSCOUNT, MASTERNODE_SYNC_MNW, nInvCount);
+}
 
 // Request low data/unknown payment blocks in batches directly from some node instead of/after preliminary Sync.
 // void CMasternodePayments::RequestLowDataPaymentBlocks(CNode *pnode)
