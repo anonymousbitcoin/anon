@@ -5680,16 +5680,37 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
     }
 
+
+
     else if (strCommand == "notfound") {
         // We do not care about the NOTFOUND message, but logging an Unknown Command
         // message would be undesirable as we transmit it ourselves.
     }
 
     else {
-        // Ignore unknown commands for extensibility
-        LogPrint("net", "Unknown command \"%s\" from peer=%d\n", SanitizeString(strCommand), pfrom->id);
-    }
+        bool found = false;
+        const std::vector<std::string>& allMessages = getAllNetMessageTypes();
+        BOOST_FOREACH (const std::string msg, allMessages) {
+            if (msg == strCommand) {
+                found = true;
+                break;
+            }
+        }
 
+        if (found) {
+            //probably one the extensions
+            // darkSendPool.ProcessMessage(pfrom, strCommand, vRecv);
+            mnodeman.ProcessMessage(pfrom, strCommand, vRecv);
+            mnpayments.ProcessMessage(pfrom, strCommand, vRecv);
+            // instantsend.ProcessMessage(pfrom, strCommand, vRecv);
+            // sporkManager.ProcessSpork(pfrom, strCommand, vRecv);
+            masternodeSync.ProcessMessage(pfrom, strCommand, vRecv);
+            // governance.ProcessMessage(pfrom, strCommand, vRecv);
+        } else {
+            // Ignore unknown commands for extensibility
+            LogPrint("net", "Unknown command \"%s\" from peer=%d\n", SanitizeString(strCommand), pfrom->id);
+        }
+    }
 
 
     return true;
