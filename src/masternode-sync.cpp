@@ -203,12 +203,12 @@ void CMasternodeSync::SwitchToNextAsset()
     //     break;
     case (MASTERNODE_SYNC_LIST):
         nTimeLastPaymentVote = GetTime();
-        nRequestedMasternodeAssets = MASTERNODE_SYNC_MNW;
+        // nRequestedMasternodeAssets = MASTERNODE_SYNC_MNW;
         // LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
         LogPrintf("CMasternodeSync::SwitchToNextAsset -- Sync has finished\n");
         nRequestedMasternodeAssets = MASTERNODE_SYNC_FINISHED;
+        // uiInterface.NotifyAdditionalDataSyncProgressChanged(1);
         activeMasternode.ManageState();
-        break;
     // case (MASTERNODE_SYNC_MNW):
     //     nTimeLastGovernanceItem = GetTime();
     //     nRequestedMasternodeAssets = MASTERNODE_SYNC_GOVERNANCE;

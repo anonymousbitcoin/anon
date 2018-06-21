@@ -366,7 +366,7 @@ CNode* FindNode(const CService& addr)
 CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool fConnectToMasternode)
 {
     if (pszDest == NULL) {
-        if (IsLocal(addrConnect))
+        if (IsLocal(addrConnect) && !fConnectToMasternode)
             return NULL;
 
         // Look for an existing connection
