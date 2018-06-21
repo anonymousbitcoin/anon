@@ -185,7 +185,7 @@ void CActiveMasternode::ManageStateInitial()
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: %s\n", GetStateString(), strNotCapableReason);
         return;
     }
-
+    LogPrint("masternode", "CActiveMasternode::ManageStateInitial -- End status = %s, type = %s, pinger enabled = %d\n", GetStatus(), GetTypeString(), fPingerEnabled);
     LogPrintf("CActiveMasternode::ManageStateInitial -- Checking inbound connection to '%s'\n", service.ToString());
 
     if(!ConnectNode((CAddress)service, NULL, true)) {
@@ -195,7 +195,7 @@ void CActiveMasternode::ManageStateInitial()
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: %s\n", GetStateString(), strNotCapableReason);
         return;
     }
-
+    LogPrintf("1");
     // Default to REMOTE
     eType = MASTERNODE_REMOTE;
 
@@ -204,13 +204,13 @@ void CActiveMasternode::ManageStateInitial()
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet not available\n", GetStateString());
         return;
     }
-
+    LogPrintf("2");
     if(pwalletMain->IsLocked()) {
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet is locked\n", GetStateString());
         return;
     }
-
-    if(pwalletMain->GetBalance() < 1000*COIN) {
+    LogPrintf("3");
+    if(pwalletMain->GetBalance() < 100*COIN) {
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet balance is < 1000 DASH\n", GetStateString());
         return;
     }
@@ -218,12 +218,12 @@ void CActiveMasternode::ManageStateInitial()
     // Choose coins to use
     CPubKey pubKeyCollateral;
     CKey keyCollateral;
-
+    LogPrintf("4");
     // If collateral is found switch to LOCAL mode
     if(pwalletMain->GetMasternodeVinAndKeys(vin, pubKeyCollateral, keyCollateral)) {
         eType = MASTERNODE_LOCAL;
     }
-
+    LogPrintf("5");
     LogPrint("masternode", "CActiveMasternode::ManageStateInitial -- End status = %s, type = %s, pinger enabled = %d\n", GetStatus(), GetTypeString(), fPingerEnabled);
 }
 

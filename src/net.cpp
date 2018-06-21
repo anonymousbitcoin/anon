@@ -365,23 +365,44 @@ CNode* FindNode(const CService& addr)
 
 CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool fConnectToMasternode)
 {
+    // if (pszDest == NULL) {
+    //     if (IsLocal(addrConnect) && !fConnectToMasternode)
+    //         return NULL;
+    //     LOCK(cs_vNodes);
+    //     // Look for an existing connection
+    //     CNode* pnode = FindNode((CService)addrConnect);
+    //     if (pnode) {
+    //         pnode->AddRef();
+    //         return pnode;
+    //     }
+    //     if (fConnectToMasternode && !pnode->fMasternode) {
+    //         pnode->AddRef();
+    //         pnode->fMasternode = true;
+    //     }
+
+    //     return pnode;
+    // }
+
     if (pszDest == NULL) {
+        // we clean masternode connections in CMasternodeMan::ProcessMasternodeConnections()
+        // so should be safe to skip this and connect to local Hot MN on CActiveMasternode::ManageState()
         if (IsLocal(addrConnect) && !fConnectToMasternode)
             return NULL;
 
+        LOCK(cs_vNodes);
         // Look for an existing connection
         CNode* pnode = FindNode((CService)addrConnect);
         if (pnode) {
-            pnode->AddRef();
+            // we have existing connection to this node but it was not a connection to masternode,
+            // change flag and add reference so that we can correctly clear it later
+            if (fConnectToMasternode && !pnode->fMasternode) {
+                pnode->AddRef();
+                pnode->fMasternode = true;
+            }
             return pnode;
         }
-        if (fConnectToMasternode && !pnode->fMasternode) {
-            pnode->AddRef();
-            pnode->fMasternode = true;
-        }
-
-        return pnode;
     }
+
 
     /// debug print
     LogPrint("net", "trying connection %s lastseen=%.1fhrs\n",
@@ -434,70 +455,7 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool fConnectToMas
     return NULL;
 }
 
-// CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool fConnectToMasternode)
-// {
-//     if (pszDest == NULL) {
-//         // we clean masternode connections in CMasternodeMan::ProcessMasternodeConnections()
-//         // so should be safe to skip this and connect to local Hot MN on CActiveMasternode::ManageState()
-//         if (IsLocal(addrConnect) && !fConnectToMasternode)
-//             return NULL;
 
-//         LOCK(cs_vNodes);
-//         // Look for an existing connection
-//         CNode* pnode = FindNode((CService)addrConnect);
-//         if (pnode) {
-//             // we have existing connection to this node but it was not a connection to masternode,
-//             // change flag and add reference so that we can correctly clear it later
-//             if (fConnectToMasternode && !pnode->fMasternode) {
-//                 pnode->AddRef();
-//                 pnode->fMasternode = true;
-//             }
-//             return pnode;
-//         }
-//     }
-
-//     /// debug print
-//     LogPrint("net", "trying connection %s lastseen=%.1fhrs\n",
-//              pszDest ? pszDest : addrConnect.ToString(),
-//              pszDest ? 0.0 : (double)(GetAdjustedTime() - addrConnect.nTime) / 3600.0);
-
-//     // Connect
-//     SOCKET hSocket;
-//     bool proxyConnectionFailed = false;
-//     if (pszDest ? ConnectSocketByName(addrConnect, hSocket, pszDest, Params().GetDefaultPort(), nConnectTimeout, &proxyConnectionFailed) :
-//                   ConnectSocket(addrConnect, hSocket, nConnectTimeout, &proxyConnectionFailed)) {
-//         if (!IsSelectableSocket(hSocket)) {
-//             LogPrintf("Cannot create connection: non-selectable socket created (fd >= FD_SETSIZE ?)\n");
-//             CloseSocket(hSocket);
-//             return NULL;
-//         }
-
-//         addrman.Attempt(addrConnect);
-
-//         // Add node
-//         // DASH 
-//         // CNode* pnode = new CNode(hSocket, addrConnect, pszDest ? pszDest : "", false, true);
-//         // BTCP
-//         CNode* pnode = new CNode(hSocket, addrConnect, pszDest ? pszDest : "", false);
-
-//         pnode->nTimeConnected = GetTime();
-//         if (fConnectToMasternode) {
-//             pnode->AddRef();
-//             pnode->fMasternode = true;
-//         }
-
-//         LOCK(cs_vNodes);
-//         vNodes.push_back(pnode);
-
-//         return pnode;
-//     } else if (!proxyConnectionFailed) {
-//         // If connecting to the node failed, and failure is not caused by a problem connecting to
-//         // the proxy, mark this as an attempt.
-//         addrman.Attempt(addrConnect);
-//     }
-
-//     return NULL;
-// }
 
 
 void CNode::CloseSocketDisconnect()

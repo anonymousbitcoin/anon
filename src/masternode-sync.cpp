@@ -209,14 +209,14 @@ void CMasternodeSync::SwitchToNextAsset()
         nRequestedMasternodeAssets = MASTERNODE_SYNC_FINISHED;
         // uiInterface.NotifyAdditionalDataSyncProgressChanged(1);
         activeMasternode.ManageState();
-    // case (MASTERNODE_SYNC_MNW):
-    //     nTimeLastGovernanceItem = GetTime();
-    //     nRequestedMasternodeAssets = MASTERNODE_SYNC_GOVERNANCE;
-    //     LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
-    //     break;
-    // case (MASTERNODE_SYNC_GOVERNANCE):
-    //     //uiInterface.NotifyAdditionalDataSyncProgressChanged(1);
-    //     //try to activate our masternode if possible
+        // case (MASTERNODE_SYNC_MNW):
+        //     nTimeLastGovernanceItem = GetTime();
+        //     nRequestedMasternodeAssets = MASTERNODE_SYNC_GOVERNANCE;
+        //     LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
+        //     break;
+        // case (MASTERNODE_SYNC_GOVERNANCE):
+        //     //uiInterface.NotifyAdditionalDataSyncProgressChanged(1);
+        //     //try to activate our masternode if possible
 
         TRY_LOCK(cs_vNodes, lockRecv);
         if (!lockRecv)
