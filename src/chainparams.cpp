@@ -38,7 +38,7 @@ public:
         strNetworkID = "main";
         strCurrencyUnits = "BTCP";
         consensus.fCoinbaseMustBeProtected = true;
-        consensus.nSubsidySlowStartInterval = 2;
+        consensus.nSubsidySlowStartInterval = 0;
         consensus.nSubsidyHalvingInterval = 840000;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
