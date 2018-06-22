@@ -706,7 +706,7 @@ bool CMasternodeBroadcast::CheckOutpoint(int &nDos)
             LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
             return false;
         }
-        if (coins.vout[vin.prevout.n].nValue != 100 * COIN)
+        if (coins.vout[vin.prevout.n].nValue != 10 * COIN)
         {
             LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO should have 1000 DASH, masternode=%s\n", vin.prevout.ToStringShort());
             return false;

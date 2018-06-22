@@ -59,6 +59,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
 #include <boost/interprocess/sync/file_lock.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
 
@@ -1771,6 +1772,26 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         masternodeSync.UpdatedBlockTip(chainActive.Tip());
 
         LogPrintf("Using masternode config file %s\n", GetMasternodeConfigFile().string());
+
+        if (GetBoolArg("-mnconflock", true) && pwalletMain && (masternodeConfig.getCount() > 0)) {
+            LOCK(pwalletMain->cs_wallet);
+            LogPrintf("Locking Masternodes:\n");
+            uint256 mnTxHash;
+            int outputIndex;
+            BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
+                mnTxHash.SetHex(mne.getTxHash());
+                outputIndex = boost::lexical_cast<unsigned int>(mne.getOutputIndex());
+                COutPoint outpoint = COutPoint(mnTxHash, outputIndex);
+                // don't lock non-spendable outpoint (i.e. it's already spent or it's not from this wallet at all)
+                if (pwalletMain->IsMine(CTxIn(outpoint)) != ISMINE_SPENDABLE) {
+                    LogPrintf("  %s %s - IS NOT SPENDABLE, was not locked\n", mne.getTxHash(), mne.getOutputIndex());
+                    continue;
+                }
+                pwalletMain->LockCoin(outpoint);
+                LogPrintf("  %s %s - locked successfully\n", mne.getTxHash(), mne.getOutputIndex());
+            }
+        }
+
 
         threadGroup.create_thread(boost::bind(&ThreadMasternodeInit));
 
