@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "primitives/transaction.h"
-
+#include "util.h"
 #include "hash.h"
 #include "tinyformat.h"
 #include "utilstrencodings.h"
@@ -164,6 +164,22 @@ uint256 CMutableTransaction::GetHash() const
     return SerializeHash(*this);
 }
 
+std::string CMutableTransaction::ToString() const
+{
+    std::string str;
+    str += strprintf("CMutableTransaction(hash=%s, ver=%d, vin.size=%u, vout.size=%u, nLockTime=%u)\n",
+                     GetHash().ToString().substr(0, 10),
+                     nVersion,
+                     vin.size(),
+                     vout.size(),
+                     nLockTime);
+    for (unsigned int i = 0; i < vin.size(); i++)
+        str += "    " + vin[i].ToString() + "\n";
+    for (unsigned int i = 0; i < vout.size(); i++)
+        str += "    " + vout[i].ToString() + "\n";
+    return str;
+}
+
 void CTransaction::UpdateHash() const
 {
     *const_cast<uint256*>(&hash) = SerializeHash(*this);
@@ -178,13 +194,21 @@ CTransaction::CTransaction(const CMutableTransaction &tx) : nVersion(tx.nVersion
 }
 
 CTransaction& CTransaction::operator=(const CTransaction &tx) {
+    LogPrintf("1\n");
     *const_cast<int*>(&nVersion) = tx.nVersion;
+    LogPrintf("2\n");
     *const_cast<std::vector<CTxIn>*>(&vin) = tx.vin;
+    LogPrintf("3\n");
     *const_cast<std::vector<CTxOut>*>(&vout) = tx.vout;
+    LogPrintf("4\n");
     *const_cast<unsigned int*>(&nLockTime) = tx.nLockTime;
+    LogPrintf("5\n");
     *const_cast<std::vector<JSDescription>*>(&vjoinsplit) = tx.vjoinsplit;
+    LogPrintf("6\n");
     *const_cast<uint256*>(&joinSplitPubKey) = tx.joinSplitPubKey;
+    LogPrintf("7\n");
     *const_cast<joinsplit_sig_t*>(&joinSplitSig) = tx.joinSplitSig;
+    LogPrintf("8\n");
     *const_cast<uint256*>(&hash) = tx.hash;
     return *this;
 }

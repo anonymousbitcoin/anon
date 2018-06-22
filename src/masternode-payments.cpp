@@ -238,35 +238,35 @@ CCriticalSection cs_mapMasternodePaymentVotes;
 //     return true;
 // }
 
-// void FillBlockPayments(CMutableTransaction &txNew, int nBlockHeight, CAmount blockReward, CTxOut &txoutMasternodeRet, std::vector<CTxOut> &voutSuperblockRet)
-// {
-//     // only create superblocks if spork is enabled AND if superblock is actually triggered
-//     // (height should be validated inside)
-//     if (sporkManager.IsSporkActive(SPORK_9_SUPERBLOCKS_ENABLED) &&
-//         CSuperblockManager::IsSuperblockTriggered(nBlockHeight))
-//     {
-//         LogPrint("gobject", "FillBlockPayments -- triggered superblock creation at height %d\n", nBlockHeight);
-//         CSuperblockManager::CreateSuperblock(txNew, nBlockHeight, voutSuperblockRet);
-//         return;
-//     }
+void FillBlockPayments(CMutableTransaction &txNew, int nBlockHeight, CAmount blockReward, CTxOut &txoutMasternodeRet)
+{
+    // only create superblocks if spork is enabled AND if superblock is actually triggered
+    // (height should be validated inside)
+    // if (sporkManager.IsSporkActive(SPORK_9_SUPERBLOCKS_ENABLED) &&
+    //     CSuperblockManager::IsSuperblockTriggered(nBlockHeight))
+    // {
+    //     LogPrint("gobject", "FillBlockPayments -- triggered superblock creation at height %d\n", nBlockHeight);
+    //     CSuperblockManager::CreateSuperblock(txNew, nBlockHeight, voutSuperblockRet);
+    //     return;
+    // }
 
-//     // FILL BLOCK PAYEE WITH MASTERNODE PAYMENT OTHERWISE
-//     mnpayments.FillBlockPayee(txNew, nBlockHeight, blockReward, txoutMasternodeRet);
-//     LogPrint("mnpayments", "FillBlockPayments -- nBlockHeight %d blockReward %lld txoutMasternodeRet %s txNew %s",
-//              nBlockHeight, blockReward, txoutMasternodeRet.ToString(), txNew.ToString());
-// }
+    // FILL BLOCK PAYEE WITH MASTERNODE PAYMENT OTHERWISE
+    mnpayments.FillBlockPayee(txNew, nBlockHeight, blockReward, txoutMasternodeRet);
+    LogPrint("mnpayments", "FillBlockPayments -- nBlockHeight %d blockReward %lld txoutMasternodeRet %s txNew %s",
+             nBlockHeight, blockReward, txoutMasternodeRet.ToString(), txNew.ToString());
+}
 
-// std::string GetRequiredPaymentsString(int nBlockHeight)
-// {
-//     // IF WE HAVE A ACTIVATED TRIGGER FOR THIS HEIGHT - IT IS A SUPERBLOCK, GET THE REQUIRED PAYEES
-//     if (CSuperblockManager::IsSuperblockTriggered(nBlockHeight))
-//     {
-//         return CSuperblockManager::GetRequiredPaymentsString(nBlockHeight);
-//     }
+std::string GetRequiredPaymentsString(int nBlockHeight)
+{
+    // IF WE HAVE A ACTIVATED TRIGGER FOR THIS HEIGHT - IT IS A SUPERBLOCK, GET THE REQUIRED PAYEES
+    // if (CSuperblockManager::IsSuperblockTriggered(nBlockHeight))
+    // {
+    //     return CSuperblockManager::GetRequiredPaymentsString(nBlockHeight);
+    // }
 
-//     // OTHERWISE, PAY MASTERNODE
-//     return mnpayments.GetRequiredPaymentsString(nBlockHeight);
-// }
+    // OTHERWISE, PAY MASTERNODE
+    return mnpayments.GetRequiredPaymentsString(nBlockHeight);
+}
 
 void CMasternodePayments::Clear()
 {
@@ -669,42 +669,42 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction &txNew)
     return false;
 }
 
-// std::string CMasternodeBlockPayees::GetRequiredPaymentsString()
-// {
-//     LOCK(cs_vecPayees);
+std::string CMasternodeBlockPayees::GetRequiredPaymentsString()
+{
+    LOCK(cs_vecPayees);
 
-//     std::string strRequiredPayments = "Unknown";
+    std::string strRequiredPayments = "Unknown";
 
-//     BOOST_FOREACH (CMasternodePayee &payee, vecPayees)
-//     {
-//         CTxDestination address1;
-//         ExtractDestination(payee.GetPayee(), address1);
-//         CBitcoinAddress address2(address1);
+    BOOST_FOREACH (CMasternodePayee &payee, vecPayees)
+    {
+        CTxDestination address1;
+        ExtractDestination(payee.GetPayee(), address1);
+        CBitcoinAddress address2(address1);
 
-//         if (strRequiredPayments != "Unknown")
-//         {
-//             strRequiredPayments += ", " + address2.ToString() + ":" + boost::lexical_cast<std::string>(payee.GetVoteCount());
-//         }
-//         else
-//         {
-//             strRequiredPayments = address2.ToString() + ":" + boost::lexical_cast<std::string>(payee.GetVoteCount());
-//         }
-//     }
+        if (strRequiredPayments != "Unknown")
+        {
+            strRequiredPayments += ", " + address2.ToString() + ":" + boost::lexical_cast<std::string>(payee.GetVoteCount());
+        }
+        else
+        {
+            strRequiredPayments = address2.ToString() + ":" + boost::lexical_cast<std::string>(payee.GetVoteCount());
+        }
+    }
 
-//     return strRequiredPayments;
-// }
+    return strRequiredPayments;
+}
 
-// std::string CMasternodePayments::GetRequiredPaymentsString(int nBlockHeight)
-// {
-//     LOCK(cs_mapMasternodeBlocks);
+std::string CMasternodePayments::GetRequiredPaymentsString(int nBlockHeight)
+{
+    LOCK(cs_mapMasternodeBlocks);
 
-//     if (mapMasternodeBlocks.count(nBlockHeight))
-//     {
-//         return mapMasternodeBlocks[nBlockHeight].GetRequiredPaymentsString();
-//     }
+    if (mapMasternodeBlocks.count(nBlockHeight))
+    {
+        return mapMasternodeBlocks[nBlockHeight].GetRequiredPaymentsString();
+    }
 
-//     return "Unknown";
-// }
+    return "Unknown";
+}
 
 bool CMasternodePayments::IsTransactionValid(const CTransaction &txNew, int nBlockHeight)
 {
@@ -743,7 +743,7 @@ void CMasternodePayments::CheckAndRemove()
             ++it;
         }
     }
-    // LogPrintf("CMasternodePayments::CheckAndRemove -- %s\n", ToString());
+    LogPrintf("CMasternodePayments::CheckAndRemove -- %s\n", ToString());
 }
 
 // bool CMasternodePaymentVote::IsValid(CNode *pnode, int nValidationHeight, std::string &strError)

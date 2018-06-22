@@ -2189,7 +2189,7 @@ CAmount CWallet::GetImmatureWatchOnlyBalance() const
 /**
  * populate vCoins with vector of available COutputs.
  */
-void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue, bool fIncludeCoinBase) const
+void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl* coinControl, bool fIncludeZeroValue, bool fIncludeCoinBase, AvailableCoinsType nCoinType) const
 {
     vCoins.clear();
 
@@ -2217,11 +2217,61 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                 continue;
 
             for (unsigned int i = 0; i < pcoin->vout.size(); i++) {
+
+                // MASTERNODE SPECIFIC QUERY
+                // ************************
+                // DECLARE FOUND TO 0
+                bool found = false;
+                // #1 Condition
+                // if (nCoinType == ONLY_DENOMINATED) {
+                //     found = IsDenominatedAmount(pcoin->vout[i].nValue);
+                // }
+                // #2 Condition
+                // IF NODE IS MASTERNODE AND OUTPUTS DO NOT EQUAL EXACTLY 1000 COIN
+                if (nCoinType == ONLY_NOT1000IFMN) {
+                    found = !(fMasterNode && pcoin->vout[i].nValue == 10 * COIN);}
+                // #3 Condition
+                // IF NODE IS MASTERNODE AND OUTPUTS DO NOT EQUAL EXACTLY 1000 COIN
+                else if (nCoinType == ONLY_NONDENOMINATED_NOT1000IFMN) {
+                    // #3.1 Condition
+                    // if (IsCollateralAmount(pcoin->vout[i].nValue)) {
+                    //     continue; // do not use collateral amounts
+                    // }
+                    // found = !IsDenominatedAmount(pcoin->vout[i].nValue);
+                    // #3.2 Condition
+                    if (found && fMasterNode) {
+                        found = pcoin->vout[i].nValue != 10 * COIN; // do not use Hot MN funds
+                    }
+                }
+                // #4 Condition
+                // WHEN WE ARE LOOKING FOR OUTPUTS THAT EQUAL EXACTLY 100 COIN
+                if (nCoinType == ONLY_1000) {
+                    found = pcoin->vout[i].nValue == 10 * COIN;
+                }
+                // #5 Condition
+                // WHEN WE DONT FIND
+                else {
+                    found = true;
+                }
+                // #CLEAR
+                if (!found){
+                    continue;
+                }
+                // MASTERNODE SPECIFIC QUERY
+                // ************************
                 isminetype mine = IsMine(pcoin->vout[i]);
-                if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
-                    !IsLockedCoin((*it).first, i) && (pcoin->vout[i].nValue > 0 || fIncludeZeroValue) &&
-                    (!coinControl || !coinControl->HasSelected() || coinControl->fAllowOtherInputs || coinControl->IsSelected((*it).first, i)))
-                        vCoins.push_back(COutput(pcoin, i, nDepth, (mine & ISMINE_SPENDABLE) != ISMINE_NO));
+                if (
+                    !(IsSpent(wtxid, i))
+                    && mine != ISMINE_NO
+                    && (!IsLockedCoin((*it).first, i) || nCoinType == ONLY_1000)
+                    && (pcoin->vout[i].nValue > 0 || fIncludeZeroValue)
+                    && (!coinControl || !coinControl->HasSelected() || coinControl->fAllowOtherInputs || coinControl->IsSelected((*it).first, i)))
+                    vCoins.push_back(COutput(pcoin, i, nDepth,
+                                             (mine & ISMINE_SPENDABLE) != ISMINE_NO));
+                    // DASH
+                    // vCoins.push_back(COutput(pcoin, i, nDepth,
+                    //                         ((mine & ISMINE_SPENDABLE) != ISMINE_NO) ||
+                    //                             (coinControl && coinControl->fAllowWatchOnly && (mine & ISMINE_WATCH_SOLVABLE) != ISMINE_NO)));
             }
         }
     }
@@ -2374,7 +2424,7 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
     return true;
 }
 
-bool CWallet::SelectCoins(const CAmount& nTargetValue, set<pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet,  bool& fOnlyCoinbaseCoinsRet, bool& fNeedCoinbaseCoinsRet, const CCoinControl* coinControl) const
+bool CWallet::SelectCoins(const CAmount& nTargetValue, set<pair<const CWalletTx*, unsigned int>>& setCoinsRet, CAmount& nValueRet, bool& fOnlyCoinbaseCoinsRet, bool& fNeedCoinbaseCoinsRet, const CCoinControl* coinControl, AvailableCoinsType nCoinType) const
 {
     // Output parameter fOnlyCoinbaseCoinsRet is set to true when the only available coins are coinbase utxos.
     vector<COutput> vCoinsNoCoinbase, vCoinsWithCoinbase;
@@ -2496,16 +2546,18 @@ bool CWallet::GetVinAndKeysFromOutput(COutput out, CTxIn& txinRet, CPubKey& pubK
 
 bool CWallet::GetMasternodeVinAndKeys(CTxIn& txinRet, CPubKey& pubKeyRet, CKey& keyRet, std::string strTxHash, std::string strOutputIndex)
 {
+    strprintf("Could not allocate txin %s: for masternode %s", strTxHash, strOutputIndex);
     // wait for reindex and/or import to finish
     if (fImporting || fReindex) return false;
 
     // Find possible candidates
     std::vector<COutput> vPossibleCoins;
-    AvailableCoins(vPossibleCoins, true, NULL, false, ONLY_1000);
+    AvailableCoins(vPossibleCoins, true, NULL, false, false, ONLY_1000);
     if(vPossibleCoins.empty()) {
-        LogPrintf("CWallet::GetMasternodeVinAndKeys -- Could not locate any valid masternode vin\n");
+        LogPrintf("CWallet::GetMasternodeVinAndKeys -- Could not locate any valid masternode vin\n if(vPossibleCoins.empty()) {\n");
         return false;
     }
+
 
     if(strTxHash.empty()) // No output specified, select the first one
         return GetVinAndKeysFromOutput(vPossibleCoins[0], txinRet, pubKeyRet, keyRet);
@@ -2514,11 +2566,14 @@ bool CWallet::GetMasternodeVinAndKeys(CTxIn& txinRet, CPubKey& pubKeyRet, CKey& 
     uint256 txHash = uint256S(strTxHash);
     int nOutputIndex = atoi(strOutputIndex.c_str());
 
-    BOOST_FOREACH(COutput& out, vPossibleCoins)
-        if(out.tx->GetHash() == txHash && out.i == nOutputIndex) // found it!
-            return GetVinAndKeysFromOutput(out, txinRet, pubKeyRet, keyRet);
+    BOOST_FOREACH(COutput& out, vPossibleCoins){
+            if (out.tx->GetHash() == txHash && out.i == nOutputIndex) { // found it!
+                LogPrintf("EVALUATES TRUE ----> FOUND THE VIN %d \n", strOutputIndex);
+                return GetVinAndKeysFromOutput(out, txinRet, pubKeyRet, keyRet);
+            }
+    }
 
-    LogPrintf("CWallet::GetMasternodeVinAndKeys -- Could not locate specified masternode vin\n");
+    LogPrintf("CWallet::GetMasternodeVinAndKeys -- Could not locate specified masternode vin THIS IS THE SECOND TIME\n");
     return false;
 }
 
@@ -2566,8 +2621,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount &nFeeRet, int& nC
     return true;
 }
 
-bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet,
-                                int& nChangePosRet, std::string& strFailReason, const CCoinControl* coinControl, bool sign)
+bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, int& nChangePosRet, std::string& strFailReason, const CCoinControl* coinControl, bool sign, AvailableCoinsType nCoinType)
 {
     CAmount nValue = 0;
     unsigned int nSubtractFeeFromAmount = 0;
