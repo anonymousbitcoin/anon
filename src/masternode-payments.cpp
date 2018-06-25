@@ -530,7 +530,7 @@ bool CMasternodePayments::IsScheduled(CMasternode &mn, int nNotBlockHeight)
 bool CMasternodePayments::AddPaymentVote(const CMasternodePaymentVote &vote)
 {
     uint256 blockHash = uint256();
-    if (!GetBlockHash(blockHash, vote.nBlockHeight - 101))
+    if (!GetBlockHash(blockHash, vote.nBlockHeight - 10))
     // if (!GetBlockHash())
             return false;
 
