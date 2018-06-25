@@ -907,7 +907,9 @@ bool operator==(const CNetAddr& a, const CNetAddr& b)
 }
 
 bool operator!=(const CNetAddr& a, const CNetAddr& b)
-{
+{   
+    LogPrintf("Ip a: %s\n", a.ToString());
+    LogPrintf("Ip b: %s\n", b.ToString());
     return (memcmp(a.ip, b.ip, 16) != 0);
 }
 
@@ -1169,6 +1171,8 @@ bool operator==(const CService& a, const CService& b)
 
 bool operator!=(const CService& a, const CService& b)
 {
+    LogPrintf("PORT A %hu\n", a.port);
+    LogPrintf("PORT B %hu\n", b.port);
     return (CNetAddr)a != (CNetAddr)b || a.port != b.port;
 }
 

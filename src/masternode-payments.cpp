@@ -826,7 +826,8 @@ bool CMasternodePayments::ProcessBlock(int nBlockHeight)
     if (!masternodeSync.IsMasternodeListSynced())
         return false;
 
-    int nRank = mnodeman.GetMasternodeRank(activeMasternode.vin, nBlockHeight - 101, GetMinMasternodePaymentsProto(), false);
+    // int nRank = mnodeman.GetMasternodeRank(activeMasternode.vin, nBlockHeight - 101, GetMinMasternodePaymentsProto(), false);
+    int nRank = mnodeman.GetMasternodeRank(activeMasternode.vin, nBlockHeight - 10, GetMinMasternodePaymentsProto(), false);
 
     if (nRank == -1)
     {
