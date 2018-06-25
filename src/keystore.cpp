@@ -5,6 +5,8 @@
 
 #include "keystore.h"
 
+#include "darksend.h"
+#include "pubkey.h"
 #include "key.h"
 #include "util.h"
 
@@ -12,6 +14,18 @@
 
 bool CKeyStore::GetPubKey(const CKeyID &address, CPubKey &vchPubKeyOut) const
 {
+    // CKey key;
+    // if (!GetKey(address, key)) {
+    //     LOCK(cs_KeyStore);
+    //     WatchKeyMap::const_iterator it = mapWatchKeys.find(address);
+    //     if (it != mapWatchKeys.end()) {
+    //         vchPubKeyOut = it->second;
+    //         return true;
+    //     }
+    //     return false;
+    // }
+    // vchPubKeyOut = key.GetPubKey();
+    // return true;
     CKey key;
     if (!GetKey(address, key))
         return false;
@@ -59,7 +73,14 @@ bool CBasicKeyStore::GetCScript(const CScriptID &hash, CScript& redeemScriptOut)
 }
 
 bool CBasicKeyStore::AddWatchOnly(const CScript &dest)
-{
+{   
+//     LOCK(cs_KeyStore);
+//     setWatchOnly.insert(dest);
+//     CPubKey pubKey;
+//     if (ExtractPubKey(dest, pubKey))
+//         mapWatchKeys[pubKey.GetID()] = pubKey;
+//     return true;
+    //BTCP
     LOCK(cs_KeyStore);
     setWatchOnly.insert(dest);
     return true;
@@ -67,6 +88,12 @@ bool CBasicKeyStore::AddWatchOnly(const CScript &dest)
 
 bool CBasicKeyStore::RemoveWatchOnly(const CScript &dest)
 {
+    //  LOCK(cs_KeyStore);
+    // setWatchOnly.erase(dest);
+    // CPubKey pubKey;
+    // if (ExtractPubKey(dest, pubKey))
+    //     mapWatchKeys.erase(pubKey.GetID());
+    // return true;
     LOCK(cs_KeyStore);
     setWatchOnly.erase(dest);
     return true;

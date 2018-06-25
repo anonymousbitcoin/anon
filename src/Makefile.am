@@ -125,6 +125,7 @@ BITCOIN_CORE_H = \
   consensus/validation.h \
   core_io.h \
   core_memusage.h \
+  darksend.h\
   deprecation.h \
   flat-database.h \
   hash.h \
@@ -221,6 +222,7 @@ libbitcoin_server_a_SOURCES = \
   sendalert.cpp \
   addrman.cpp \
   activemasternode.cpp \
+  darksend.cpp \
   alert.cpp \
   alertkeys.h \
   asyncrpcoperation.cpp \

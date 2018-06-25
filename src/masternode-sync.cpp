@@ -607,12 +607,17 @@ void CMasternodeSync::UpdatedBlockTip(const CBlockIndex *pindex)
 //TODO: Rename/move to core
 void ThreadMasternodeInit()
 {
-    if (fLiteMode)
+    if (fLiteMode) {
+        LogPrintf("Disabling all Dash specific functionality...\n");
         return; // disable all Dash specific functionality
+    }
+        
 
     static bool fOneThread;
-    if (fOneThread)
+    if (fOneThread) {
+        LogPrintf("fOneThread is true....returning....\n");
         return;
+    }
     fOneThread = true;
 
     // Make this thread recognisable as the PrivateSend thread
@@ -648,9 +653,9 @@ void ThreadMasternodeInit()
                 mnodeman.DoFullVerificationStep();
             }
 
-            if (nTick % (60 * 5) == 0) {
-                // governance.DoMaintenance();
-            }
+            // if (nTick % (60 * 5) == 0) {
+            //     // governance.DoMaintenance();
+            // }
 
             // darkSendPool.CheckTimeout();
             // darkSendPool.CheckForCompleteQueue();

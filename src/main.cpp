@@ -1541,9 +1541,10 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 bool IsInitialBlockDownload(bool includeFork)
 {
     const CChainParams& chainParams = Params();
-    LOCK(cs_main);
+    
     if (fImporting || fReindex)
         return true;
+    LOCK(cs_main);
     if (fCheckpointsEnabled && chainActive.Height() < Checkpoints::GetTotalBlocksEstimate(chainParams.Checkpoints()))
         return true;
     if (includeFork && chainActive.Height() < forkStartHeight + forkHeightRange)
@@ -4859,9 +4860,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         return true;
     }
 
-
-
-
     if (strCommand == "version")
     {
         // Each connection can only send one version message
@@ -4921,6 +4919,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             pfrom->PushVersion();
 
         pfrom->fClient = !(pfrom->nServices & NODE_NETWORK);
+    //DASH
+        CNodeState* pNodeState = NULL;
+        {
+            LOCK(cs_main);
+            pNodeState = State(pfrom->GetId());
+            assert(pNodeState);
+        }
+    //DASH END
 
         // Potentially mark this peer as a preferred download peer.
         UpdatePreferredDownload(pfrom, State(pfrom->GetId()));

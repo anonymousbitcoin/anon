@@ -58,6 +58,7 @@ public:
 };
 
 typedef std::map<CKeyID, CKey> KeyMap;
+typedef std::map<CKeyID, CPubKey> WatchKeyMap;
 typedef std::map<CScriptID, CScript > ScriptMap;
 typedef std::set<CScript> WatchOnlySet;
 typedef std::map<libzcash::PaymentAddress, libzcash::SpendingKey> SpendingKeyMap;
@@ -69,6 +70,7 @@ class CBasicKeyStore : public CKeyStore
 protected:
     KeyMap mapKeys;
     ScriptMap mapScripts;
+    WatchKeyMap mapWatchKeys;
     WatchOnlySet setWatchOnly;
     SpendingKeyMap mapSpendingKeys;
     NoteDecryptorMap mapNoteDecryptors;
