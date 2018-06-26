@@ -424,7 +424,7 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool fConnectToMas
 
         // Add node
         CNode* pnode = new CNode(hSocket, addrConnect, pszDest ? pszDest : "", false, true);
-        pnode->AddRef();
+        // pnode->AddRef();
 
         // {
         //     LOCK(cs_vNodes);
@@ -439,11 +439,11 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool fConnectToMas
             pnode->fMasternode = true;
         }
 
-        pnode->AddRef();
-        {
+        // pnode->AddRef();
+        // {
             LOCK(cs_vNodes);
             vNodes.push_back(pnode);
-        }
+        // }
 
         return pnode;
     } else if (!proxyConnectionFailed) {

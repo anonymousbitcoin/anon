@@ -126,3 +126,14 @@ contrib/debian/substvars
 ../../src/zcash-tx.dSYM/Contents/Resources/DWARF/zcash-tx
 ../../src/zcash/CreateJoinSplit.dSYM/Contents/Resources/DWARF/CreateJoinSplit
 ../../src/zcash/GenerateParams.dSYM/Contents/Resources/DWARF/GenerateParams
+btcp-cli.dSYM/*
+zcash-tx.dSYM/Contents/*
+zcash/CreateJoinSplit.dSYM/*
+zcash/GenerateParams.dSYM/*
+zcash-tx.dSYM/*
+**/btcp-cli.dSYM
+**/zcash-tx.dSYM
+**/zcash/CreateJoinSplit.dSYM
+**/zcash/GenerateParams.dSYM
+**/zcash-tx.dSYM
+**/zcash-gtest.dSYM
