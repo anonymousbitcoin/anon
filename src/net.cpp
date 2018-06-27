@@ -389,7 +389,7 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool fConnectToMas
         if (IsLocal(addrConnect) && !fConnectToMasternode)
             return NULL;
 
-        LOCK(cs_vNodes);
+        // LOCK(cs_vNodes);
         // Look for an existing connection
         CNode* pnode = FindNode((CService)addrConnect);
         if (pnode) {
@@ -423,7 +423,8 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool fConnectToMas
         addrman.Attempt(addrConnect);
 
         // Add node
-        CNode* pnode = new CNode(hSocket, addrConnect, pszDest ? pszDest : "", false, true);
+        // CNode* pnode = new CNode(hSocket, addrConnect, pszDest ? pszDest : "", false, true);
+        CNode* pnode = new CNode(hSocket, addrConnect, pszDest ? pszDest : "", false);
         // pnode->AddRef();
 
         // {
@@ -437,13 +438,15 @@ CNode* ConnectNode(CAddress addrConnect, const char* pszDest, bool fConnectToMas
         if (fConnectToMasternode) {
             pnode->AddRef();
             pnode->fMasternode = true;
+        } else {
+            pnode->AddRef();
         }
 
         // pnode->AddRef();
-        // {
+        {
             LOCK(cs_vNodes);
             vNodes.push_back(pnode);
-        // }
+        }
 
         return pnode;
     } else if (!proxyConnectionFailed) {

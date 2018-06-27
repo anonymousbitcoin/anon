@@ -158,6 +158,7 @@ class CService : public CNetAddr
         // std::string ToString(bool fUseGetnameinfo = true) const;
         // BTCP
         std::string ToString() const;
+        std::string ToStringPort() const;
 
         // DASH
         // std::string ToStringIPPort(bool fUseGetnameinfo = true) const;

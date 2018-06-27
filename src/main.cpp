@@ -4920,12 +4920,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         pfrom->fClient = !(pfrom->nServices & NODE_NETWORK);
     //DASH
-        CNodeState* pNodeState = NULL;
-        {
-            LOCK(cs_main);
-            pNodeState = State(pfrom->GetId());
-            assert(pNodeState);
-        }
+        // CNodeState* pNodeState = NULL;
+        // {
+        //     LOCK(cs_main);
+        //     pNodeState = State(pfrom->GetId());
+        //     assert(pNodeState);
+        // }
     //DASH END
 
         // Potentially mark this peer as a preferred download peer.

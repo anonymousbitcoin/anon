@@ -194,21 +194,13 @@ CTransaction::CTransaction(const CMutableTransaction &tx) : nVersion(tx.nVersion
 }
 
 CTransaction& CTransaction::operator=(const CTransaction &tx) {
-    LogPrintf("1\n");
     *const_cast<int*>(&nVersion) = tx.nVersion;
-    LogPrintf("2\n");
     *const_cast<std::vector<CTxIn>*>(&vin) = tx.vin;
-    LogPrintf("3\n");
     *const_cast<std::vector<CTxOut>*>(&vout) = tx.vout;
-    LogPrintf("4\n");
     *const_cast<unsigned int*>(&nLockTime) = tx.nLockTime;
-    LogPrintf("5\n");
     *const_cast<std::vector<JSDescription>*>(&vjoinsplit) = tx.vjoinsplit;
-    LogPrintf("6\n");
     *const_cast<uint256*>(&joinSplitPubKey) = tx.joinSplitPubKey;
-    LogPrintf("7\n");
     *const_cast<joinsplit_sig_t*>(&joinSplitSig) = tx.joinSplitSig;
-    LogPrintf("8\n");
     *const_cast<uint256*>(&hash) = tx.hash;
     return *this;
 }
