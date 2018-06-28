@@ -132,6 +132,12 @@ BITCOIN_CORE_H = \
   httprpc.h \
   httpserver.h \
   init.h \
+  governance.h \
+  governance-classes.h \
+  governance-exceptions.h \
+  governance-object.h \
+  governance-vote.h \
+  governance-votedb.h \
   key.h \
   keystore.h \
   leveldbwrapper.h \
@@ -234,6 +240,11 @@ libbitcoin_server_a_SOURCES = \
   httprpc.cpp \
   httpserver.cpp \
   init.cpp \
+  governance.cpp \
+  governance-classes.cpp \
+  governance-object.cpp \
+  governance-vote.cpp \
+  governance-votedb.cpp \
   leveldbwrapper.cpp \
   main.cpp \
   merkleblock.cpp \
@@ -255,6 +266,7 @@ libbitcoin_server_a_SOURCES = \
   rpcmisc.cpp \
   rpcnet.cpp \
   rpcrawtransaction.cpp \
+  rpcgovernance.cpp \
   rpcserver.cpp \
   rpcmasternode.cpp \
   script/sigcache.cpp \

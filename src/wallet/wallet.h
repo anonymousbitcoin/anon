@@ -300,6 +300,7 @@ class CMerkleTx : public CTransaction
 {
 private:
     int GetDepthInMainChainINTERNAL(const CBlockIndex* &pindexRet) const;
+    static const uint256 ABANDON_HASH;
 
 public:
     uint256 hashBlock;
@@ -350,6 +351,7 @@ public:
      */
     int GetDepthInMainChain(const CBlockIndex* &pindexRet) const;
     int GetDepthInMainChain() const { const CBlockIndex *pindexRet; return GetDepthInMainChain(pindexRet); }
+    bool isAbandoned() const { return (hashBlock == ABANDON_HASH); }
     bool IsInMainChain() const { const CBlockIndex *pindexRet; return GetDepthInMainChainINTERNAL(pindexRet) > 0; }
     int GetBlocksToMaturity() const;
     bool AcceptToMemoryPool(bool fLimitFree=true, bool fRejectAbsurdFee=true);
@@ -534,13 +536,15 @@ public:
     }
 
     bool IsTrusted() const;
-
+    bool InMempool() const;
+    
     bool WriteToDisk(CWalletDB *pwalletdb);
 
     int64_t GetTxTime() const;
     int GetRequestCount() const;
 
     bool RelayWalletTransaction();
+    bool RelayWalletTransactionWithMessage(std::string strCommand);
 
     std::set<uint256> GetConflicts() const;
 };
@@ -946,6 +950,7 @@ public:
     bool FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, int& nChangePosRet, std::string& strFailReason);
     bool CreateTransaction(const std::vector<CRecipient>& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, int& nChangePosRet, std::string& strFailReason, const CCoinControl* coinControl = NULL, bool sign = true, AvailableCoinsType nCoinType = ALL_COINS);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
+    bool CommitTransactionWithMessage(CWalletTx& wtxNew, CReserveKey& reservekey, std::string strCommand);
 
     static CFeeRate minTxFee;
     static CAmount GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarget, const CTxMemPool& pool);

@@ -789,9 +789,14 @@ bool CMasternodePaymentVote::IsValid(CNode *pnode, int nValidationHeight, std::s
     if (!fMasterNode && nBlockHeight < nValidationHeight)
         return true;
 
+<<<<<<< HEAD
     int nRank = mnodeman.GetMasternodeRank(vinMasternode, nBlockHeight - 10, nMinRequiredProtocol, false);
     LogPrintf("Masternode rank %d\n", nRank);
     LogPrintf("nValidationHeight %d\n", nValidationHeight);
+=======
+    int nRank = mnodeman.GetMasternodeRank(vinMasternode, nBlockHeight - 101, nMinRequiredProtocol, false);
+
+>>>>>>> 2a8feaa0c... added code for voting, and for checkencoding
     if (nRank == -1)
     {
         LogPrint("mnpayments", "CMasternodePaymentVote::IsValid -- Can't calculate rank for masternode %s\n",

@@ -45,6 +45,8 @@ bool fPayAtLeastCustomFee = true;
  */
 CFeeRate CWallet::minTxFee = CFeeRate(1000);
 
+
+const uint256 CMerkleTx::ABANDON_HASH(uint256S("0000000000000000000000000000000000000000000000000000000000000001"));
 /** @defgroup mapWallet
  *
  * @{
@@ -1839,6 +1841,25 @@ bool CWalletTx::RelayWalletTransaction()
     return false;
 }
 
+bool CWalletTx::RelayWalletTransactionWithMessage(std::string strCommand)
+{
+    assert(pwallet->GetBroadcastTransactions());
+    if (!IsCoinBase())
+    {
+        if (GetDepthInMainChain() == 0 && !isAbandoned() && InMempool()) {
+            uint256 hash = GetHash();
+            LogPrintf("Relaying wtx %s\n", hash.ToString());
+
+            // if(strCommand == NetMsgType::TXLOCKREQUEST) {
+            //     // instantsend.ProcessTxLockRequest(((CTxLockRequest)*this));
+            // }
+            RelayTransaction((CTransaction)*this);
+            return true;
+        }
+    }
+    return false;
+}
+
 set<uint256> CWalletTx::GetConflicts() const
 {
     set<uint256> result;
@@ -2970,6 +2991,63 @@ bool CWallet::CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey)
     return true;
 }
 
+/**
+ * Call after CreateTransaction unless you want to abort
+ */
+bool CWallet::CommitTransactionWithMessage(CWalletTx& wtxNew, CReserveKey& reservekey, std::string strCommand)
+{
+    {
+        LOCK2(cs_main, cs_wallet);
+        LogPrintf("CommitTransaction:\n%s", wtxNew.ToString());
+        {
+            // This is only to keep the database open to defeat the auto-flush for the
+            // duration of this scope.  This is the only place where this optimization
+            // maybe makes sense; please don't do it anywhere else.
+            CWalletDB* pwalletdb = fFileBacked ? new CWalletDB(strWalletFile,"r+") : NULL;
+
+            // Take key pair from key pool so it won't be used again
+            reservekey.KeepKey();
+
+            // Add tx to wallet, because if it has change it's also ours,
+            // otherwise just for transaction history.
+            AddToWallet(wtxNew, false, pwalletdb);
+
+            // Notify that old coins are spent
+            set<uint256> updated_hahes;
+            BOOST_FOREACH(const CTxIn& txin, wtxNew.vin)
+            {
+                // notify only once
+                if(updated_hahes.find(txin.prevout.hash) != updated_hahes.end()) continue;
+
+                CWalletTx &coin = mapWallet[txin.prevout.hash];
+                coin.BindWallet(this);
+                NotifyTransactionChanged(this, txin.prevout.hash, CT_UPDATED);
+                updated_hahes.insert(txin.prevout.hash);
+            }
+            if (fFileBacked)
+                delete pwalletdb;
+        }
+
+        // Track how many getdata requests our transaction gets
+        mapRequestCount[wtxNew.GetHash()] = 0;
+
+        if (fBroadcastTransactions)
+        {
+            // Broadcast
+            if (!wtxNew.AcceptToMemoryPool(false))
+            {
+                // This must not fail. The transaction has already been signed and recorded.
+                LogPrintf("CommitTransaction(): Error: Transaction not valid\n");
+                return false;
+            }
+            wtxNew.RelayWalletTransactionWithMessage(strCommand);
+        }
+    }
+    return true;
+}
+
+
+
 CAmount CWallet::GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarget, const CTxMemPool& pool)
 {
     // payTxFee is user-set "I want to pay this much"
@@ -3899,4 +3977,15 @@ CTxDestination CWallet::AddAndGetDestinationForScript(const CScript& script, Out
     default:
         assert(false);
     }
+}
+
+
+
+bool CWalletTx::InMempool() const
+{
+    LOCK(mempool.cs);
+    if (mempool.exists(GetHash())) {
+        return true;
+    }
+    return false;
 }
