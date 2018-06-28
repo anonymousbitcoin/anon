@@ -201,6 +201,9 @@ bool static UsesForkId(const valtype &vchSig) {
     return UsesForkId(nHashType);
 }
 
+
+
+// BTCP
 bool static CheckSignatureEncoding(const valtype &vchSig, unsigned int flags, ScriptError* serror) {
     // Empty signature. Not strictly DER encoded, but allowed to provide a
     // compact way to provide an invalid signature for use with CHECK(MULTI)SIG
@@ -214,6 +217,24 @@ bool static CheckSignatureEncoding(const valtype &vchSig, unsigned int flags, Sc
     } else if ((flags & SCRIPT_VERIFY_STRICTENC) != 0 &&  !IsDefinedHashtypeSignature(vchSig)) {
         return set_error(serror, SCRIPT_ERR_SIG_HASHTYPE);
     } else if ((flags & SCRIPT_VERIFY_FORKID) != 0 && !UsesForkId(vchSig)) {
+        return set_error(serror, SCRIPT_ERR_SIG_HASHTYPE);
+    }
+    return true;
+}
+
+// DASH
+bool CheckSignatureEncoding_2(const std::vector<unsigned char> &vchSig, unsigned int flags, ScriptError* serror) {
+    // Empty signature. Not strictly DER encoded, but allowed to provide a
+    // compact way to provide an invalid signature for use with CHECK(MULTI)SIG
+    if (vchSig.size() == 0) {
+        return true;
+    }
+    if ((flags & (SCRIPT_VERIFY_DERSIG | SCRIPT_VERIFY_LOW_S | SCRIPT_VERIFY_STRICTENC)) != 0 && !IsValidSignatureEncoding(vchSig)) {
+        return set_error(serror, SCRIPT_ERR_SIG_DER);
+    } else if ((flags & SCRIPT_VERIFY_LOW_S) != 0 && !IsLowDERSignature(vchSig, serror)) {
+        // serror is set
+        return false;
+    } else if ((flags & SCRIPT_VERIFY_STRICTENC) != 0 && !IsDefinedHashtypeSignature(vchSig)) {
         return set_error(serror, SCRIPT_ERR_SIG_HASHTYPE);
     }
     return true;

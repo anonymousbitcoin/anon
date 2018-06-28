@@ -41,6 +41,7 @@
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h"
 #endif
+#include "darksend.h"
 #include "masternode-payments.h"
 #include "masternode-sync.h"
 #include "masternodeconfig.h"
@@ -1735,10 +1736,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
         std::string strMasterNodePrivKey = GetArg("-masternodeprivkey", "");
         if (!strMasterNodePrivKey.empty()) {
-            // if (!darkSendSigner.GetKeysFromSecret(strMasterNodePrivKey, activeMasternode.keyMasternode, activeMasternode.pubKeyMasternode))
-                // return InitError(_("Invalid masternodeprivkey. Please see documenation."));
+            if (!darkSendSigner.GetKeysFromSecret(strMasterNodePrivKey, activeMasternode.keyMasternode, activeMasternode.pubKeyMasternode))
+                return InitError(_("Invalid masternodeprivkey. Please see documenation."));
 
             LogPrintf("  pubKeyMasternode: %s\n", CBitcoinAddress(activeMasternode.pubKeyMasternode.GetID()).ToString());
+            // LogPrintf("  pubKeyMasternode ---> 1B: %s\n", activeMasternode.pubKeyMasternode.GetID().ToString());
         } else {
             return InitError(_("You must specify a masternodeprivkey in the configuration. Please see documentation for help."));
         }

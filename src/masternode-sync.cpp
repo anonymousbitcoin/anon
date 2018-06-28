@@ -193,27 +193,29 @@ void CMasternodeSync::SwitchToNextAsset()
         break;
     case (MASTERNODE_SYNC_INITIAL):
         ClearFulfilledRequests();
+            // nTimeLastMasternodzeList = GetTime();
         nRequestedMasternodeAssets = MASTERNODE_SYNC_LIST;
         LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
         break;
-    // case (MASTERNODE_SYNC_SPORKS):
-    //     nTimeLastMasternodeList = GetTime();
-    //     nRequestedMasternodeAssets = MASTERNODE_SYNC_LIST;
-    //     LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
-    //     break;
+        // case (MASTERNODE_SYNC_SPORKS):
+        //     nRequestedMasternodeAssets = MASTERNODE_SYNC_LIST;
+        //     LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
+        //     break;
     case (MASTERNODE_SYNC_LIST):
+        nTimeLastMasternodeList = GetTime();
         nTimeLastPaymentVote = GetTime();
         // nRequestedMasternodeAssets = MASTERNODE_SYNC_MNW;
         // LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
         LogPrintf("CMasternodeSync::SwitchToNextAsset -- Sync has finished\n");
-        nRequestedMasternodeAssets = MASTERNODE_SYNC_FINISHED;
+        nRequestedMasternodeAssets = MASTERNODE_SYNC_MNW;
         // uiInterface.NotifyAdditionalDataSyncProgressChanged(1);
+        break;
+    case (MASTERNODE_SYNC_MNW):
+        // nTimeLastGovernanceItem = GetTime();
+        //nTimeLastMasternodeList = GetTime();
+        nRequestedMasternodeAssets = MASTERNODE_SYNC_FINISHED;
+        LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
         activeMasternode.ManageState();
-        // case (MASTERNODE_SYNC_MNW):
-        //     nTimeLastGovernanceItem = GetTime();
-        //     nRequestedMasternodeAssets = MASTERNODE_SYNC_GOVERNANCE;
-        //     LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
-        //     break;
         // case (MASTERNODE_SYNC_GOVERNANCE):
         //     //uiInterface.NotifyAdditionalDataSyncProgressChanged(1);
         //     //try to activate our masternode if possible
@@ -483,8 +485,7 @@ void CMasternodeSync::ProcessTick()
                 // check for data
                 // if mnpayments already has enough blocks and votes, switch to the next asset
                 // try to fetch data from at least two peers though
-                // if (nRequestedMasternodeAttempt > 1 && mnpayments.IsEnoughData())
-                if (nRequestedMasternodeAttempt > 1) {
+                if (nRequestedMasternodeAttempt > 1 && mnpayments.IsEnoughData()) {
                     LogPrintf("CMasternodeSync::ProcessTick -- nTick %d nRequestedMasternodeAssets %d -- found enough data\n", nTick, nRequestedMasternodeAssets);
                     SwitchToNextAsset();
                     ReleaseNodeVector(vNodesCopy);
@@ -503,7 +504,7 @@ void CMasternodeSync::ProcessTick()
                 // ask node for all payment votes it has (new nodes will only return votes for future payments)
                 pnode->PushMessage(NetMsgType::MASTERNODEPAYMENTSYNC, mnpayments.GetStorageLimit());
                 // ask node for missing pieces only (old nodes will not be asked)
-                // mnpayments.RequestLowDataPaymentBlocks(pnode);
+                mnpayments.RequestLowDataPaymentBlocks(pnode);
 
                 ReleaseNodeVector(vNodesCopy);
                 return; //this will cause each peer to get one request each six seconds for the various assets we need

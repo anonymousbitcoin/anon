@@ -4,6 +4,7 @@
 
 #include "activemasternode.h"
 #include "addrman.h"
+#include "darksend.h"
 #include "masternode-payments.h"
 #include "masternode-sync.h"
 #include "masternodeman.h"
@@ -1324,19 +1325,19 @@ void CMasternodeMan::SendVerifyReply(CNode *pnode, CMasternodeVerification &mnv)
 
     std::string strMessage = strprintf("%s%d%s", activeMasternode.service.ToString(), mnv.nonce, blockHash.ToString());
 
-    // if (!darkSendSigner.SignMessage(strMessage, mnv.vchSig1, activeMasternode.keyMasternode))
-    // {
-    //     LogPrintf("MasternodeMan::SendVerifyReply -- SignMessage() failed\n");
-    //     return;
-    // }
+    if (!darkSendSigner.SignMessage(strMessage, mnv.vchSig1, activeMasternode.keyMasternode))
+    {
+        LogPrintf("MasternodeMan::SendVerifyReply -- SignMessage() failed\n");
+        return;
+    }
 
     std::string strError;
 
-    // if (!darkSendSigner.VerifyMessage(activeMasternode.pubKeyMasternode, mnv.vchSig1, strMessage, strError))
-    // {
-    //     LogPrintf("MasternodeMan::SendVerifyReply -- VerifyMessage() failed, error: %s\n", strError);
-    //     return;
-    // }
+    if (!darkSendSigner.VerifyMessage(activeMasternode.pubKeyMasternode, mnv.vchSig1, strMessage, strError))
+    {
+        LogPrintf("MasternodeMan::SendVerifyReply -- VerifyMessage() failed, error: %s\n", strError);
+        return;
+    }
 
     pnode->PushMessage(NetMsgType::MNVERIFY, mnv);
     netfulfilledman.AddFulfilledRequest(pnode->addr, strprintf("%s", NetMsgType::MNVERIFY) + "-reply");
@@ -1399,8 +1400,8 @@ void CMasternodeMan::ProcessVerifyReply(CNode *pnode, CMasternodeVerification &m
         {
             if ((CAddress)it->addr == pnode->addr)
             {
-                // if (darkSendSigner.VerifyMessage(it->pubKeyMasternode, mnv.vchSig1, strMessage1, strError))
-                // {
+                if (darkSendSigner.VerifyMessage(it->pubKeyMasternode, mnv.vchSig1, strMessage1, strError))
+                {
                     // found it!
                     prealMasternode = &(*it);
                     if (!it->IsPoSeVerified())
@@ -1419,27 +1420,27 @@ void CMasternodeMan::ProcessVerifyReply(CNode *pnode, CMasternodeVerification &m
                     std::string strMessage2 = strprintf("%s%d%s%s%s", mnv.addr.ToString(), mnv.nonce, blockHash.ToString(),
                                                         mnv.vin1.prevout.ToStringShort(), mnv.vin2.prevout.ToStringShort());
                     // ... and sign it
-                    // if (!darkSendSigner.SignMessage(strMessage2, mnv.vchSig2, activeMasternode.keyMasternode))
-                    // {
-                    //     LogPrintf("MasternodeMan::ProcessVerifyReply -- SignMessage() failed\n");
-                    //     return;
-                    // }
+                    if (!darkSendSigner.SignMessage(strMessage2, mnv.vchSig2, activeMasternode.keyMasternode))
+                    {
+                        LogPrintf("MasternodeMan::ProcessVerifyReply -- SignMessage() failed\n");
+                        return;
+                    }
 
                     std::string strError;
 
-                    // if (!darkSendSigner.VerifyMessage(activeMasternode.pubKeyMasternode, mnv.vchSig2, strMessage2, strError))
-                    // {
-                    //     LogPrintf("MasternodeMan::ProcessVerifyReply -- VerifyMessage() failed, error: %s\n", strError);
-                    //     return;
-                    // }
+                    if (!darkSendSigner.VerifyMessage(activeMasternode.pubKeyMasternode, mnv.vchSig2, strMessage2, strError))
+                    {
+                        LogPrintf("MasternodeMan::ProcessVerifyReply -- VerifyMessage() failed, error: %s\n", strError);
+                        return;
+                    }
 
                     mWeAskedForVerification[pnode->addr] = mnv;
                     mnv.Relay();
-                // }
-                // else
-                // {
-                //     vpMasternodesToBan.push_back(&(*it));
-                // }
+                }
+                else
+                {
+                    vpMasternodesToBan.push_back(&(*it));
+                }
             }
             ++it;
         }
@@ -1546,17 +1547,17 @@ void CMasternodeMan::ProcessVerifyBroadcast(CNode *pnode, const CMasternodeVerif
             return;
         }
 
-        // if (darkSendSigner.VerifyMessage(pmn1->pubKeyMasternode, mnv.vchSig1, strMessage1, strError))
-        // {
-        //     LogPrintf("MasternodeMan::ProcessVerifyBroadcast -- VerifyMessage() for masternode1 failed, error: %s\n", strError);
-        //     return;
-        // }
+        if (darkSendSigner.VerifyMessage(pmn1->pubKeyMasternode, mnv.vchSig1, strMessage1, strError))
+        {
+            LogPrintf("MasternodeMan::ProcessVerifyBroadcast -- VerifyMessage() for masternode1 failed, error: %s\n", strError);
+            return;
+        }
 
-        // if (darkSendSigner.VerifyMessage(pmn2->pubKeyMasternode, mnv.vchSig2, strMessage2, strError))
-        // {
-        //     LogPrintf("MasternodeMan::ProcessVerifyBroadcast -- VerifyMessage() for masternode2 failed, error: %s\n", strError);
-        //     return;
-        // }
+        if (darkSendSigner.VerifyMessage(pmn2->pubKeyMasternode, mnv.vchSig2, strMessage2, strError))
+        {
+            LogPrintf("MasternodeMan::ProcessVerifyBroadcast -- VerifyMessage() for masternode2 failed, error: %s\n", strError);
+            return;
+        }
 
         if (!pmn1->IsPoSeVerified())
         {
@@ -1705,6 +1706,10 @@ bool CMasternodeMan::CheckMnbAndUpdateMasternodeList(CNode *pfrom, CMasternodeBr
         // if it matches our Masternode privkey...
         if (fMasterNode && mnb.pubKeyMasternode == activeMasternode.pubKeyMasternode)
         {
+            // LogPrintf(" CheckMnbAndUpdateMasternodeList FUNCTION --> mnb.pubKeyMasternode %s\n",
+            //             mnb.pubKeyMasternode.ToString());
+            // // LogPrintf(" CheckMnbAndUpdateMasternodeList FUNCTION --> activeMasternode.pubKeyMasternode %s\n",
+            //             // activeMasternode.pubKeyMasternode.ToString());
             mnb.nPoSeBanScore = -MASTERNODE_POSE_BAN_MAX_SCORE;
             if (mnb.nProtocolVersion == PROTOCOL_VERSION)
             {
@@ -1744,8 +1749,8 @@ void CMasternodeMan::UpdateLastPaid()
     // (MNs should update this info on every block, so limited scan should be enough for them)
     int nMaxBlocksToScanBack = (IsFirstRun || !fMasterNode) ? mnpayments.GetStorageLimit() : LAST_PAID_SCAN_BLOCKS;
 
-    // LogPrint("mnpayments", "CMasternodeMan::UpdateLastPaid -- nHeight=%d, nMaxBlocksToScanBack=%d, IsFirstRun=%s\n",
-    //                         pCurrentBlockIndex->nHeight, nMaxBlocksToScanBack, IsFirstRun ? "true" : "false");
+    LogPrint("mnpayments", "CMasternodeMan::UpdateLastPaid -- nHeight=%d, nMaxBlocksToScanBack=%d, IsFirstRun=%s\n",
+                            pCurrentBlockIndex->nHeight, nMaxBlocksToScanBack, IsFirstRun ? "true" : "false");
 
     BOOST_FOREACH (CMasternode &mn, vMasternodes)
     {

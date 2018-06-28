@@ -347,12 +347,12 @@ UniValue masternode(const UniValue& params, bool fHelp)
 
         UniValue obj(UniValue::VOBJ);
 
-        // for (int i = nHeight - nLast; i < nHeight + 20; i++) {
-        //     // std::string strPayment = GetRequiredPaymentsString(i);
-        //     // if (strFilter != "" && strPayment.find(strFilter) == std::string::npos)
-        //     //     continue;
-        //     obj.push_back(Pair(strprintf("%d", i), strPayment));
-        // }
+        for (int i = nHeight - nLast; i < nHeight + 20; i++) {
+            std::string strPayment = GetRequiredPaymentsString(i);
+            if (strFilter != "" && strPayment.find(strFilter) == std::string::npos)
+                continue;
+            obj.push_back(Pair(strprintf("%d", i), strPayment));
+        }
 
         return obj;
     }
@@ -462,6 +462,13 @@ UniValue masternodelist(const UniValue& params, bool fHelp)
                     strOutpoint.find(strFilter) == std::string::npos)
                     continue;
                 obj.push_back(Pair(strOutpoint, strStatus));
+            } else if (strMode == "pubkey") {
+                // CBitcoinAddress address(mn.pubKeyMasternode.GetID());
+                // std::string pubKeyMasternode = address.ToString();
+                if (strFilter != "" && strOutpoint.find(strFilter) == std::string::npos &&
+                    strOutpoint.find(strFilter) == std::string::npos)
+                    continue;
+                obj.push_back(Pair(strOutpoint, HexStr(mn.pubKeyMasternode)));
             }
         }
     }

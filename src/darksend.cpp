@@ -2270,48 +2270,48 @@ bool CDarkSendSigner::IsVinAssociatedWithPubkey(const CTxIn& txin, const CPubKey
     return false;
 }
 
-// bool CDarkSendSigner::GetKeysFromSecret(std::string strSecret, CKey& keyRet, CPubKey& pubkeyRet)
-// {
-//     CBitcoinSecret vchSecret;
+bool CDarkSendSigner::GetKeysFromSecret(std::string strSecret, CKey& keyRet, CPubKey& pubkeyRet)
+{
+    CBitcoinSecret vchSecret;
 
-//     if(!vchSecret.SetString(strSecret)) return false;
+    if(!vchSecret.SetString(strSecret)) return false;
 
-//     keyRet = vchSecret.GetKey();
-//     pubkeyRet = keyRet.GetPubKey();
+    keyRet = vchSecret.GetKey();
+    pubkeyRet = keyRet.GetPubKey();
 
-//     return true;
-// }
+    return true;
+}
 
-// bool CDarkSendSigner::SignMessage(std::string strMessage, std::vector<unsigned char>& vchSigRet, CKey key)
-// {
-//     CHashWriter ss(SER_GETHASH, 0);
-//     ss << strMessageMagic;
-//     ss << strMessage;
+bool CDarkSendSigner::SignMessage(std::string strMessage, std::vector<unsigned char>& vchSigRet, CKey key)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << strMessageMagic;
+    ss << strMessage;
 
-//     return key.SignCompact(ss.GetHash(), vchSigRet);
-// }
+    return key.SignCompact(ss.GetHash(), vchSigRet);
+}
 
-// bool CDarkSendSigner::VerifyMessage(CPubKey pubkey, const std::vector<unsigned char>& vchSig, std::string strMessage, std::string& strErrorRet)
-// {
-//     CHashWriter ss(SER_GETHASH, 0);
-//     ss << strMessageMagic;
-//     ss << strMessage;
+bool CDarkSendSigner::VerifyMessage(CPubKey pubkey, const std::vector<unsigned char>& vchSig, std::string strMessage, std::string& strErrorRet)
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << strMessageMagic;
+    ss << strMessage;
 
-//     CPubKey pubkeyFromSig;
-//     if(!pubkeyFromSig.RecoverCompact(ss.GetHash(), vchSig)) {
-//         strErrorRet = "Error recovering public key.";
-//         return false;
-//     }
+    CPubKey pubkeyFromSig;
+    if(!pubkeyFromSig.RecoverCompact(ss.GetHash(), vchSig)) {
+        strErrorRet = "Error recovering public key.";
+        return false;
+    }
 
-//     if(pubkeyFromSig.GetID() != pubkey.GetID()) {
-//         strErrorRet = strprintf("Keys don't match: pubkey=%s, pubkeyFromSig=%s, strMessage=%s, vchSig=%s",
-//                     pubkey.GetID().ToString(), pubkeyFromSig.GetID().ToString(), strMessage,
-//                     EncodeBase64(&vchSig[0], vchSig.size()));
-//         return false;
-//     }
+    if(pubkeyFromSig.GetID() != pubkey.GetID()) {
+        strErrorRet = strprintf("Keys don't match: pubkey=%s, pubkeyFromSig=%s, strMessage=%s, vchSig=%s",
+                    pubkey.GetID().ToString(), pubkeyFromSig.GetID().ToString(), strMessage,
+                    EncodeBase64(&vchSig[0], vchSig.size()));
+        return false;
+    }
 
-//     return true;
-// }
+    return true;
+}
 
 // bool CDarkSendEntry::AddScriptSig(const CTxIn& txin)
 // {

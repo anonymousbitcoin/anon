@@ -112,6 +112,8 @@ bool CMasternode::UpdateFromNewBroadcast(CMasternodeBroadcast &mnb)
         return false;
 
     pubKeyMasternode = mnb.pubKeyMasternode;
+    LogPrintf("UpdateFromNewBroadcast --> A: %s\n", pubKeyMasternode.GetID().ToString());
+    LogPrintf("UpdateFromNewBroadcast --> B: %s\n", activeMasternode.pubKeyMasternode.GetID().ToString());
     sigTime = mnb.sigTime;
     vchSig = mnb.vchSig;
     nProtocolVersion = mnb.nProtocolVersion;
@@ -448,7 +450,7 @@ void CMasternode::UpdateLastPaid(const CBlockIndex *pindex, int nMaxBlocksToScan
 
     // Last payment for this masternode wasn't found in latest mnpayments blocks
     // or it was found in mnpayments blocks but wasn't found in the blockchain.
-    // LogPrint("masternode", "CMasternode::UpdateLastPaidBlock -- searching for block with payment to %s -- keeping old %d\n", vin.prevout.ToStringShort(), nBlockLastPaid);
+    LogPrint("masternode", "CMasternode::UpdateLastPaidBlock -- searching for block with payment to %s -- keeping old %d\n", vin.prevout.ToStringShort(), nBlockLastPaid);
 }
 
 bool CMasternodeBroadcast::Create(std::string strService, std::string strKeyMasternode, std::string strTxHash, std::string strOutputIndex, std::string &strErrorRet, CMasternodeBroadcast &mnbRet, bool fOffline)
@@ -467,12 +469,12 @@ bool CMasternodeBroadcast::Create(std::string strService, std::string strKeyMast
         return false;
     }
 
-    // if (!darkSendSigner.GetKeysFromSecret(strKeyMasternode, keyMasternodeNew, pubKeyMasternodeNew))
-    // {
-    //     strErrorRet = strprintf("Invalid masternode key %s", strKeyMasternode);
-    //     LogPrintf("CMasternodeBroadcast::Create -- %s\n", strErrorRet);
-    //     return false;
-    // }
+    if (!darkSendSigner.GetKeysFromSecret(strKeyMasternode, keyMasternodeNew, pubKeyMasternodeNew))
+    {
+        strErrorRet = strprintf("Invalid masternode key %s", strKeyMasternode);
+        LogPrintf("CMasternodeBroadcast::Create -- %s\n", strErrorRet);
+        return false;
+    }
 
     if (!pwalletMain->GetMasternodeVinAndKeys(txin, pubKeyCollateralAddressNew, keyCollateralAddressNew, strTxHash, strOutputIndex))
     {
@@ -771,17 +773,17 @@ bool CMasternodeBroadcast::Sign(CKey &keyCollateralAddress)
                  pubKeyCollateralAddress.GetID().ToString() + pubKeyMasternode.GetID().ToString() +
                  boost::lexical_cast<std::string>(nProtocolVersion);
 
-    // if (!darkSendSigner.SignMessage(strMessage, vchSig, keyCollateralAddress))
-    // {
-    //     LogPrintf("CMasternodeBroadcast::Sign -- SignMessage() failed\n");
-    //     return false;
-    // }
+    if (!darkSendSigner.SignMessage(strMessage, vchSig, keyCollateralAddress))
+    {
+        LogPrintf("CMasternodeBroadcast::Sign -- SignMessage() failed\n");
+        return false;
+    }
 
-    // if (!darkSendSigner.VerifyMessage(pubKeyCollateralAddress, vchSig, strMessage, strError))
-    // {
-    //     LogPrintf("CMasternodeBroadcast::Sign -- VerifyMessage() failed, error: %s\n", strError);
-    //     return false;
-    // }
+    if (!darkSendSigner.VerifyMessage(pubKeyCollateralAddress, vchSig, strMessage, strError))
+    {
+        LogPrintf("CMasternodeBroadcast::Sign -- VerifyMessage() failed, error: %s\n", strError);
+        return false;
+    }
 
     return true;
 }
@@ -798,12 +800,12 @@ bool CMasternodeBroadcast::CheckSignature(int &nDos)
 
     LogPrint("masternode", "CMasternodeBroadcast::CheckSignature -- strMessage: %s  pubKeyCollateralAddress address: %s  sig: %s\n", strMessage, CBitcoinAddress(pubKeyCollateralAddress.GetID()).ToString(), EncodeBase64(&vchSig[0], vchSig.size()));
 
-    // if (!darkSendSigner.VerifyMessage(pubKeyCollateralAddress, vchSig, strMessage, strError))
-    // {
-    //     LogPrintf("CMasternodeBroadcast::CheckSignature -- Got bad Masternode announce signature, error: %s\n", strError);
-    //     nDos = 100;
-    //     return false;
-    // }
+    if (!darkSendSigner.VerifyMessage(pubKeyCollateralAddress, vchSig, strMessage, strError))
+    {
+        LogPrintf("CMasternodeBroadcast::CheckSignature -- Got bad Masternode announce signature, error: %s\n", strError);
+        nDos = 100;
+        return false;
+    }
 
     return true;
 }
@@ -834,17 +836,17 @@ bool CMasternodePing::Sign(CKey &keyMasternode, CPubKey &pubKeyMasternode)
     sigTime = GetAdjustedTime();
     std::string strMessage = vin.ToString() + blockHash.ToString() + boost::lexical_cast<std::string>(sigTime);
 
-    // if (!darkSendSigner.SignMessage(strMessage, vchSig, keyMasternode))
-    // {
-    //     LogPrintf("CMasternodePing::Sign -- SignMessage() failed\n");
-    //     return false;
-    // }
+    if (!darkSendSigner.SignMessage(strMessage, vchSig, keyMasternode))
+    {
+        LogPrintf("CMasternodePing::Sign -- SignMessage() failed\n");
+        return false;
+    }
 
-    // if (!darkSendSigner.VerifyMessage(pubKeyMasternode, vchSig, strMessage, strError))
-    // {
-    //     LogPrintf("CMasternodePing::Sign -- VerifyMessage() failed, error: %s\n", strError);
-    //     return false;
-    // }
+    if (!darkSendSigner.VerifyMessage(pubKeyMasternode, vchSig, strMessage, strError))
+    {
+        LogPrintf("CMasternodePing::Sign -- VerifyMessage() failed, error: %s\n", strError);
+        return false;
+    }
 
     return true;
 }
@@ -855,12 +857,12 @@ bool CMasternodePing::CheckSignature(CPubKey &pubKeyMasternode, int &nDos)
     std::string strError = "";
     nDos = 0;
 
-    // if (!darkSendSigner.VerifyMessage(pubKeyMasternode, vchSig, strMessage, strError))
-    // {
-    //     LogPrintf("CMasternodePing::CheckSignature -- Got bad Masternode ping signature, masternode=%s, error: %s\n", vin.prevout.ToStringShort(), strError);
-    //     nDos = 33;
-    //     return false;
-    // }
+    if (!darkSendSigner.VerifyMessage(pubKeyMasternode, vchSig, strMessage, strError))
+    {
+        LogPrintf("CMasternodePing::CheckSignature -- Got bad Masternode ping signature, masternode=%s, error: %s\n", vin.prevout.ToStringShort(), strError);
+        nDos = 33;
+        return false;
+    }
     return true;
 }
 
