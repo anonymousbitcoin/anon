@@ -33,7 +33,7 @@ UniValue masternode(const UniValue& params, bool fHelp)
         (strCommand != "start" && strCommand != "start-alias" && strCommand != "start-all" && strCommand != "start-missing" &&
          strCommand != "start-disabled" && strCommand != "list" && strCommand != "list-conf" && strCommand != "count" &&
          strCommand != "debug" && strCommand != "current" && strCommand != "winner" && strCommand != "winners" && strCommand != "genkey" &&
-         strCommand != "connect" && strCommand != "outputs" && strCommand != "status"))
+         strCommand != "connect" && strCommand != "outputs" && strCommand != "status" && strCommand != "mymasternodes"))
         throw std::runtime_error(
             "masternode \"command\"...\n"
             "Set of commands to execute masternode related actions\n"
@@ -287,6 +287,31 @@ UniValue masternode(const UniValue& params, bool fHelp)
         }
 
         return resultObj;
+    }
+
+    if (strCommand == "mymasternodes") {
+        UniValue alwaysEmptyArray(UniValue::VARR);
+        UniValue arr(UniValue::VARR);
+        UniValue wArr(UniValue::VARR);
+
+        BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
+            CTxIn vin = CTxIn(uint256S(mne.getTxHash()), uint32_t(atoi(mne.getOutputIndex().c_str())));
+            CMasternode* pmn = mnodeman.Find(vin);
+
+            std::string strStatus = pmn ? pmn->GetStatus() : "MISSING";
+
+            arr.push_back(mne.getAlias());
+            arr.push_back(mne.getIp());
+            arr.push_back(mne.getPrivKey());
+            arr.push_back(mne.getTxHash());
+            arr.push_back(mne.getOutputIndex());
+            arr.push_back(strStatus);
+
+            wArr.push_back(arr);
+            arr = alwaysEmptyArray;
+        }
+
+        return wArr;
     }
 
     if (strCommand == "outputs") {
