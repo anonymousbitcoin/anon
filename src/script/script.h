@@ -391,6 +391,7 @@ typedef prevector<28, unsigned char> CScriptBase;
 //     CScript(const_iterator pbegin, const_iterator pend) : CScriptBase(pbegin, pend) {}
 //     CScript(std::vector<unsigned char>::const_iterator pbegin, std::vector<unsigned char>::const_iterator pend) : CScriptBase(pbegin, pend) {}
 //     CScript(const unsigned char* pbegin, const unsigned char* pend) : CScriptBase(pbegin, pend) {}
+typedef prevector<28, unsigned char> CScriptBase;
 
 class CScript : public std::vector<unsigned char>
 {

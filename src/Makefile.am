@@ -126,6 +126,7 @@ BITCOIN_CORE_H = \
   core_io.h \
   core_memusage.h \
   darksend.h\
+  dsnotificationinterface.h \
   deprecation.h \
   flat-database.h \
   hash.h \
@@ -236,6 +237,7 @@ libbitcoin_server_a_SOURCES = \
   bloom.cpp \
   chain.cpp \
   checkpoints.cpp \
+  dsnotificationinterface.cpp \
   deprecation.cpp \
   httprpc.cpp \
   httpserver.cpp \

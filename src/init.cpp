@@ -42,6 +42,7 @@
 #include "wallet/walletdb.h"
 #endif
 #include "darksend.h"
+#include "dsnotificationinterface.h"
 #include "masternode-payments.h"
 #include "masternode-sync.h"
 #include "masternodeconfig.h"
@@ -92,6 +93,8 @@ static CZMQNotificationInterface* pzmqNotificationInterface = NULL;
 #if ENABLE_PROTON
 static AMQPNotificationInterface* pAMQPNotificationInterface = NULL;
 #endif
+
+static CDSNotificationInterface* pdsNotificationInterface = NULL;
 
 #ifdef WIN32
 // Win32 LevelDB doesn't use file descriptors, and the ones used for
@@ -265,6 +268,7 @@ void Shutdown()
         pzmqNotificationInterface = NULL;
     }
 #endif
+
 
 #if ENABLE_PROTON
     if (pAMQPNotificationInterface) {
@@ -1336,6 +1340,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         RegisterValidationInterface(pAMQPNotificationInterface);
     }
 #endif
+
+    pdsNotificationInterface = new CDSNotificationInterface();
+    RegisterValidationInterface(pdsNotificationInterface);
 
     // ********************************************************* Step 7: load block chain
 
