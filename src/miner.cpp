@@ -166,18 +166,22 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
 //////////Creates all the coinbases inside of fork block
 
 CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
+
+
 {
     const CChainParams& chainparams = Params();
 
     const int nForkHeight = nHeight - forkStartHeight;
 
     //Here is the UTXO directory, which file we will read from
+
     string utxo_file_path = GetUTXOFileName(nHeight);
 
     //Read from the specified UTXO file
-    std::ifstream if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
+    std::ifstream utxo_data(utxo_file_path, std::ios::binary | std::ios::in);
+    //If the file name has "zk" follow zk rules, else go to original rules
 
-    if (!if_utxo.is_open()) {
+    if (!utxo_data.is_open()) {
         bFileNotFound = true;
         LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
                   nHeight, nForkHeight, forkHeightRange, utxo_file_path);
@@ -197,15 +201,53 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     uint64_t nBlockSize = 1000;
     uint64_t nBlockTx = 0;
     uint64_t nBlockSigOps = 100;
-    //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
-    while (if_utxo && nBlockTx < forkCBPerBlock) {
+
+
+/////////////////////////////////zk-stuff////////////////////////////////////////
+    //TODO Test check to see if UTXO or ZK txs file
+    if (utxo_file_path.find('zk') != -1){
+      /////Test 1
+      cout << "We're In zk!" << endl
+
+      ///hopefully iteraties properly, newline needed after every JStx?
+      while (utxo_data && nBlockTx < forkCBPerBlock) {
+          char term = 0;
+
+          //Depends on length of JoinSplitObject, prob needs more than one byte?
+          char zkInfo[8] = {};
+          if (!utxo_data.read(zkInfo, 8)) {
+              ////Test 2, need to convert out of binary to make sure it's a whole JS field
+              cout << "ZK Byte Output:" << bytes2uint64(zkInfo) << endl
+
+
+              // the last file may be shorter than forkCBPerBlock <<Just breaks it?
+              if(!utxo_data.eof() || nForkHeight != forkHeightRange)
+                  LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - No more data (Amount)\n",
+                            nHeight, nForkHeight, forkHeightRange);
+              break;
+
+              //Need to convert to format needed to serialize into a valid zk transaction
+              int pbsize = bytes2uint64(zkInfo);
+              std::unique_ptr<char[]> pubKeyScript(new char[pbsize]);
+          break;
+          }
+
+
+        }
+
+      break;
+    }
+    ////////////////////////END ZK Stuff
+
+    //TODO Different While loop for ZK Stuff, grab all variables
+    while (utxo_data && nBlockTx < forkCBPerBlock) {
         char term = 0;
 ////////////////////////Format checks, explore more when looking at UTXO raw
         //Value
         char coin[8] = {};
-        if (!if_utxo.read(coin, 8)) {
+        if (!utxo_data.read(coin, 8)) {
             // the last file may be shorter than forkCBPerBlock
-            if(!if_utxo.eof() || nForkHeight != forkHeightRange)
+            if(!utxo_data.eof() || nForkHeight != forkHeightRange)
                 LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - No more data (Amount)\n",
                           nHeight, nForkHeight, forkHeightRange);
             break;
@@ -213,7 +255,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         //public key
         char pubkeysize[8] = {};
         //cout this guy
-        if (!if_utxo.read(pubkeysize, 8)) {
+        if (!utxo_data.read(pubkeysize, 8)) {
             LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Not more data (PubKeyScript size)\n",
                       nHeight, nForkHeight, forkHeightRange);
             break;
@@ -228,7 +270,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         //Initialize array of characters that is the size of pubkey?
         std::unique_ptr<char[]> pubKeyScript(new char[pbsize]);
 
-        if (!if_utxo.read(&pubKeyScript[0], pbsize)) {
+        if (!utxo_data.read(&pubKeyScript[0], pbsize)) {
             LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? Not more data (PubKeyScript)\n",
                       nHeight, nForkHeight, forkHeightRange);
             break;
@@ -281,7 +323,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         nBlockTotalAmount += amount;
         ++nBlockTx;
 
-        if (!if_utxo.read(&term, 1) || term != '\n') {
+        if (!utxo_data.read(&term, 1) || term != '\n') {
             LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: invalid record separator\n",
                       nHeight, nForkHeight, forkHeightRange);
             break;
