@@ -111,7 +111,7 @@ void UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, 
     if (consensusParams.fPowAllowMinDifficultyBlocks)
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams);
 }
-
+//block specific
 CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
 {
     /*
@@ -165,6 +165,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
 
     return ret;
 }
+//////////Creates all the coinbases inside of fork block
 
 CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 {
@@ -172,8 +173,12 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     const int nForkHeight = nHeight - forkStartHeight;
 
+    //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
+
+    //Read from the specified UTXO file
     std::ifstream if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
+
     if (!if_utxo.is_open()) {
         bFileNotFound = true;
         LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
@@ -194,10 +199,11 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     uint64_t nBlockSize = 1000;
     uint64_t nBlockTx = 0;
     uint64_t nBlockSigOps = 100;
-
+    //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
     while (if_utxo && nBlockTx < forkCBPerBlock) {
         char term = 0;
-
+////////////////////////Format checks, explore more when looking at UTXO raw
+        //Value
         char coin[8] = {};
         if (!if_utxo.read(coin, 8)) {
             // the last file may be shorter than forkCBPerBlock
@@ -206,39 +212,46 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                           nHeight, nForkHeight, forkHeightRange);
             break;
         }
-
+        //public key
         char pubkeysize[8] = {};
+        //cout this guy
         if (!if_utxo.read(pubkeysize, 8)) {
             LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Not more data (PubKeyScript size)\n",
                       nHeight, nForkHeight, forkHeightRange);
             break;
         }
-
+        //convert to base 64
         int pbsize = bytes2uint64(pubkeysize);
         if (pbsize == 0) {
             LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? -  PubKeyScript size = 0\n",
                       nHeight, nForkHeight, forkHeightRange);
             //but proceed
         }
-
+        //Initialize array of characters that is the size of pubkey?
         std::unique_ptr<char[]> pubKeyScript(new char[pbsize]);
+
         if (!if_utxo.read(&pubKeyScript[0], pbsize)) {
             LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? Not more data (PubKeyScript)\n",
                       nHeight, nForkHeight, forkHeightRange);
             break;
         }
+////////////////////////////////////////////////////////////////////////
 
+        //Needs ut64 for files? Part of .bin?
         uint64_t amount = bytes2uint64(coin);
+        //makes array into string
+        unsigned char* pks = (unsigned char*)pubKeyScript.get();
 
         // Add coinbase tx's
         CMutableTransaction txNew;
         txNew.vin.resize(1);
+        //No input cuz coinbase
         txNew.vin[0].prevout.SetNull();
+        //Just create
         txNew.vout.resize(1);
-
-        unsigned char* pks = (unsigned char*)pubKeyScript.get();
         txNew.vout[0].scriptPubKey = CScript(pks, pks+pbsize);
 
+        //coin value
         txNew.vout[0].nValue = amount;
         if(nBlockTx == 0)
             txNew.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
@@ -630,7 +643,7 @@ CBlockTemplate* CreateNewBlockWithKey()
     return CreateNewBlock(*scriptPubKey);
 }
 
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 //
 // Internal miner
 //
