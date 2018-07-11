@@ -165,6 +165,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
 }
 //////////Loops over all UTXO/Joinsplit data and adds to block as coinbase
 CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
+
+
 {
     const CChainParams& chainparams = Params();
 
@@ -172,25 +174,15 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
-    string zutxo_file_path = GetZKUTXOFileName(nHeight);
 
     //Read from the specified UTXO file
     std::ifstream utxo_data(utxo_file_path, std::ios::binary | std::ios::in);
-    std::ifstream zutxo_data(zutxo_file_path, std::ios::binary | std::ios::in);
 
     LogPrintf("UTXO FILE PATH: %s", utxo_file_path);
     if (!utxo_data.is_open()) {
         bFileNotFound = true;
         LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
                   nHeight, nForkHeight, forkHeightRange, utxo_file_path);
-        return NULL;
-    }
-
-    LogPrintf("ZUTXO FILE PATH: %s", zutxo_file_path);
-    if (!zutxo_data.is_open()) {
-        bFileNotFound = true;
-        LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
-                nHeight, nForkHeight, forkHeightRange, zutxo_file_path);
         return NULL;
     }
 
@@ -213,7 +205,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     //If the file name has "zk" follow zk rules, else go to original rules
 
     LogPrintf("ZKSHOULD BE STARTING HERE>>>>>>>>>>>>");
-    if (zutxo_file_path.find('z') != -1){
+    if (utxo_file_path.find('z') != -1){
     //   /////TODO Test 1 Test check to see if UTXO or ZK txs file is recognized
         std::cout << "We're In zk!" << std::endl;
         LogPrintf("ZK found >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
