@@ -109,7 +109,7 @@ void UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, 
     if (consensusParams.fPowAllowMinDifficultyBlocks)
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams);
 }
-//block specific
+//Called Every New Fork Block
 CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
 {
     /*
@@ -163,8 +163,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
 
     return ret;
 }
-//////////Creates all the coinbases inside of fork block
-
+//////////Loops over all UTXO/Joinsplit data and adds to block as coinbase
 CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
 
@@ -174,12 +173,10 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     const int nForkHeight = nHeight - forkStartHeight;
 
     //Here is the UTXO directory, which file we will read from
-
     string utxo_file_path = GetUTXOFileName(nHeight);
 
     //Read from the specified UTXO file
     std::ifstream utxo_data(utxo_file_path, std::ios::binary | std::ios::in);
-    //If the file name has "zk" follow zk rules, else go to original rules
 
     if (!utxo_data.is_open()) {
         bFileNotFound = true;
@@ -204,9 +201,10 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
 
 /////////////////////////////////zk-stuff////////////////////////////////////////
-    //TODO Test check to see if UTXO or ZK txs file
+    //If the file name has "zk" follow zk rules, else go to original rules
+
     if (utxo_file_path.find('zk') != -1){
-      /////Test 1
+      /////TODO Test 1 Test check to see if UTXO or ZK txs file is recognized
       cout << "We're In zk!" << endl
 
       ///hopefully iteraties properly, newline needed after every JStx?
@@ -216,7 +214,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
           //Depends on length of JoinSplitObject, prob needs more than one byte?
           char zkInfo[8] = {};
           if (!utxo_data.read(zkInfo, 8)) {
-              ////Test 2, need to convert out of binary to make sure it's a whole JS field
+              ////TODO Test 2, need to convert out of binary to make sure it's a whole JS field and we're
+              //Encoding and reading properly
               cout << "ZK Byte Output:" << bytes2uint64(zkInfo) << endl
 
 
@@ -237,7 +236,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
       break;
     }
-    ////////////////////////END ZK Stuff
+    ////////////////////////END ZK Stuff///////////////////////////
 
     //TODO Different While loop for ZK Stuff, grab all variables
     while (utxo_data && nBlockTx < forkCBPerBlock) {
