@@ -213,10 +213,6 @@ UniValue generate(const UniValue& params, bool fHelp)
     while (nHeight < nHeightEnd)
     {
 
-        // Added from btcz
-        validEHparameterList(ehparams,nHeight+1,chainparams);
-        n = ehparams[0].n;
-        k = ehparams[0].k;
 
 #ifdef ENABLE_WALLET
         std::unique_ptr<CBlockTemplate> pblocktemplate(CreateNewBlockWithKey(reservekey));
