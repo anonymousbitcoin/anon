@@ -2,7 +2,7 @@ while [ 1 ]; do
 	git fetch
 	status=$(git status)
 	if [[ $status = *"up-to-date"* ]]; then
-        	echo Anon Synced
+        	echo Anon up-to-date
 	else
 		echo ----------------
         	echo  Killing server
