@@ -94,13 +94,32 @@ std::string GetUTXOFileName(int nHeight)
     }
 
     std::stringstream ss;
-    // ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+    ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+    boost::filesystem::path utxo_file = utxo_path;
+    utxo_file /= ss.str();
+    LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
+    return utxo_file.generic_string();
+}
+
+///////kevin aditions
+std::string GetZKUTXOFileName(int nHeight)
+{
+    boost::filesystem::path zutxo_path(forkUtxoPath);
+    if (zutxo_path.empty() || !zutxo_path.has_filename())
+    {
+        LogPrintf("GetZKUTXOFileName(): ZKUTXO path is not specified, add utxo-path=<path-to-zutxop-files> to your btcprivate.conf and restart");
+        return "";
+    }
+
+    std::stringstream ss;
     ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
     boost::filesystem::path utxo_file = utxo_path;
     utxo_file /= ss.str();
     LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
     return utxo_file.generic_string();
 }
+///////kevin aditions
+
 #endif
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying and mining) */
