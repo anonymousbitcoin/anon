@@ -178,6 +178,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     //Read from the specified UTXO file
     std::ifstream utxo_data(utxo_file_path, std::ios::binary | std::ios::in);
 
+    LogPrintf("UTXO FILE PATH: %s", utxo_file_path);
     if (!utxo_data.is_open()) {
         bFileNotFound = true;
         LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
@@ -203,39 +204,45 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 /////////////////////////////////zk-stuff////////////////////////////////////////
     //If the file name has "zk" follow zk rules, else go to original rules
 
-    if (utxo_file_path.find('zk') != -1){
-      /////TODO Test 1 Test check to see if UTXO or ZK txs file is recognized
-      cout << "We're In zk!" << endl
-
-      ///hopefully iteraties properly, newline needed after every JStx?
-      while (utxo_data && nBlockTx < forkCBPerBlock) {
-          char term = 0;
-
-          //Depends on length of JoinSplitObject, prob needs more than one byte?
-          char zkInfo[8] = {};
-          if (!utxo_data.read(zkInfo, 8)) {
-              ////TODO Test 2, need to convert out of binary to make sure it's a whole JS field and we're
-              //Encoding and reading properly
-              cout << "ZK Byte Output:" << bytes2uint64(zkInfo) << endl
-
-
-              // the last file may be shorter than forkCBPerBlock <<Just breaks it?
-              if(!utxo_data.eof() || nForkHeight != forkHeightRange)
-                  LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - No more data (Amount)\n",
-                            nHeight, nForkHeight, forkHeightRange);
-              break;
-
-              //Need to convert to format needed to serialize into a valid zk transaction
-              int pbsize = bytes2uint64(zkInfo);
-              std::unique_ptr<char[]> pubKeyScript(new char[pbsize]);
-          break;
-          }
-
-
-        }
-
-      break;
+    LogPrintf("ZKSHOULD BE STARTING HERE>>>>>>>>>>>>");
+    if (utxo_file_path.find('z') != -1){
+    //   /////TODO Test 1 Test check to see if UTXO or ZK txs file is recognized
+        std::cout << "We're In zk!" << std::endl;
+        LogPrintf("ZK found >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        LogPrintf("BTCPrivate Miner: switching into fork mode\n");
+    } else {
+        std::cout << "zk not found" << std::endl;
+        LogPrintf("zk not found >>>>>>>>>>>>>>>>>>>>>");
     }
+    //   ///hopefully iteraties properly, newline needed after every JStx?
+    //   while (utxo_data && nBlockTx < forkCBPerBlock) {
+    //       char term = 0;
+
+    //       //Depends on length of JoinSplitObject, prob needs more than one byte?
+    //       char zkInfo[8] = {};
+    //       if (!utxo_data.read(zkInfo, 8)) {
+    //           ////TODO Test 2, need to convert out of binary to make sure it's a whole JS field and we're
+    //           //Encoding and reading properly
+    //           cout << "ZK Byte Output:" << bytes2uint64(zkInfo) << endl
+
+
+    //           // the last file may be shorter than forkCBPerBlock <<Just breaks it?
+    //           if(!utxo_data.eof() || nForkHeight != forkHeightRange)
+    //               LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - No more data (Amount)\n",
+    //                         nHeight, nForkHeight, forkHeightRange);
+    //           break;
+
+    //           //Need to convert to format needed to serialize into a valid zk transaction
+    //           int pbsize = bytes2uint64(zkInfo);
+    //           std::unique_ptr<char[]> pubKeyScript(new char[pbsize]);
+    //       break;
+    //       }
+
+
+    //     }
+
+    //   break;
+    // }
     ////////////////////////END ZK Stuff///////////////////////////
 
     //UTXO READ
