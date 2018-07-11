@@ -177,6 +177,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     //Read from the specified UTXO file
     std::ifstream utxo_data(utxo_file_path, std::ios::binary | std::ios::in);
+    std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<here is utxo_data:" << std::endl;
     std::cout << utxo_data << std::endl;
     if (!utxo_data.is_open()) {
         bFileNotFound = true;
@@ -203,6 +204,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 /////////////////////////////////zk-stuff////////////////////////////////////////
     //If the file name has "zk" follow zk rules, else go to original rules
 
+    std::cout << "ZKSHOULD BE STARTING HERE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
     if (utxo_file_path.find('z') != -1){
     //   /////TODO Test 1 Test check to see if UTXO or ZK txs file is recognized
         std::cout << "We're In zk!" << std::endl;
