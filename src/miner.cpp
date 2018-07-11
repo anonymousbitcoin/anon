@@ -177,7 +177,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     //Read from the specified UTXO file
     std::ifstream utxo_data(utxo_file_path, std::ios::binary | std::ios::in);
-
+    std::cout << utxo_data.toString() << std::endl;
     if (!utxo_data.is_open()) {
         bFileNotFound = true;
         LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
@@ -205,9 +205,9 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     if (utxo_file_path.find('zk') != -1){
     //   /////TODO Test 1 Test check to see if UTXO or ZK txs file is recognized
-        cout << "We're In zk!" << endl;
+        std::cout << "We're In zk!" << std::endl;
     } else {
-        cout << "zk not found" << endl;
+        std::cout << "zk not found" << std::endl;
     }
     //   ///hopefully iteraties properly, newline needed after every JStx?
     //   while (utxo_data && nBlockTx < forkCBPerBlock) {
