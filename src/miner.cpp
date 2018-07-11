@@ -204,14 +204,15 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 /////////////////////////////////zk-stuff////////////////////////////////////////
     //If the file name has "zk" follow zk rules, else go to original rules
 
-    LogPrintf("ZKSHOULD BE STARTING HERE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    LogPrintf("ZKSHOULD BE STARTING HERE>>>>>>>>>>>>");
     if (utxo_file_path.find('z') != -1){
     //   /////TODO Test 1 Test check to see if UTXO or ZK txs file is recognized
         std::cout << "We're In zk!" << std::endl;
-        LogPrintf('ZK found >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+        LogPrintf("ZK found >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        LogPrintf("BTCPrivate Miner: switching into fork mode\n");
     } else {
         std::cout << "zk not found" << std::endl;
-        LogPrintf('zk not found >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+        LogPrintf("zk not found >>>>>>>>>>>>>>>>>>>>>");
     }
     //   ///hopefully iteraties properly, newline needed after every JStx?
     //   while (utxo_data && nBlockTx < forkCBPerBlock) {
