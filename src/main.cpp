@@ -94,10 +94,11 @@ std::string GetUTXOFileName(int nHeight)
     }
 
     std::stringstream ss;
-    ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+    // ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+    ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
     boost::filesystem::path utxo_file = utxo_path;
     utxo_file /= ss.str();
-
+    LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
     return utxo_file.generic_string();
 }
 #endif
