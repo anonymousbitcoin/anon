@@ -204,12 +204,14 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 /////////////////////////////////zk-stuff////////////////////////////////////////
     //If the file name has "zk" follow zk rules, else go to original rules
 
-    std::cout << "ZKSHOULD BE STARTING HERE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+    LogPrintf("ZKSHOULD BE STARTING HERE>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
     if (utxo_file_path.find('z') != -1){
     //   /////TODO Test 1 Test check to see if UTXO or ZK txs file is recognized
         std::cout << "We're In zk!" << std::endl;
+        LogPrintf('ZK found >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     } else {
         std::cout << "zk not found" << std::endl;
+        LogPrintf('zk not found >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     }
     //   ///hopefully iteraties properly, newline needed after every JStx?
     //   while (utxo_data && nBlockTx < forkCBPerBlock) {
