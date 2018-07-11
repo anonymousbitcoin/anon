@@ -151,7 +151,7 @@ public:
         };
 
         nForkStartHeight = 272991;
-        nForkHeightRange = 5467;
+        nForkHeightRange = 2;
     }
 };
 static CMainParams mainParams;
@@ -234,8 +234,8 @@ public:
             0
         };
 
-        nForkStartHeight = 5;
-        nForkHeightRange = 0;
+        nForkStartHeight = 4;
+        nForkHeightRange = 1;
     }
 };
 static CTestNetParams testNetParams;
