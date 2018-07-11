@@ -203,10 +203,6 @@ UniValue generate(const UniValue& params, bool fHelp)
     unsigned int nExtraNonce = 0;
     UniValue blockHashes(UniValue::VARR);
 
-    // Added from btcz
-    EHparameters ehparams[MAX_EH_PARAM_LIST_LEN]; //allocate on-stack space for parameters list
-
-    const CChainParams& chainparams = Params();
 
     unsigned int n = Params().EquihashN();
     unsigned int k = Params().EquihashK();

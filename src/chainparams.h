@@ -24,20 +24,6 @@ struct SeedSpec6 {
     uint16_t port;
 };
 
-struct EHparameters {
-    unsigned char n;
-    unsigned char k;
-    unsigned short int nSolSize;
-};
-
-// Added from btcz
-//EH sol size = (pow(2, k) * ((n/(k+1))+1)) / 8;
-static const EHparameters eh200_9 = {200,9,1344};
-static const EHparameters eh144_5 = {144,5,100};
-static const EHparameters eh96_5 = {96,5,68};
-static const EHparameters eh48_5 = {48,5,36};
-static const unsigned int MAX_EH_PARAM_LIST_LEN = 2;
-
 
 /**
  * CChainParams defines various tweakable parameters of a given instance of the
