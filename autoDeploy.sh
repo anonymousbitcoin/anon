@@ -23,7 +23,7 @@ while [ 1 ]; do
 		echo ----------------
         	echo Running BTCP daemon
 		echo ----------------
-        	./src/btcpd -testnet -daemon -reindex
+        	./src/btcpd -testnet -reindex
 		echo ----------------
         	echo PROCESS FINISHED
 		echo ----------------
