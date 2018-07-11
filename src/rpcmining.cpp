@@ -202,10 +202,22 @@ UniValue generate(const UniValue& params, bool fHelp)
     }
     unsigned int nExtraNonce = 0;
     UniValue blockHashes(UniValue::VARR);
+
+    // Added from btcz
+    EHparameters ehparams[MAX_EH_PARAM_LIST_LEN]; //allocate on-stack space for parameters list
+
+    const CChainParams& chainparams = Params();
+
     unsigned int n = Params().EquihashN();
     unsigned int k = Params().EquihashK();
     while (nHeight < nHeightEnd)
     {
+
+        // Added from btcz
+        validEHparameterList(ehparams,nHeight+1,chainparams);
+        n = ehparams[0].n;
+        k = ehparams[0].k;
+
 #ifdef ENABLE_WALLET
         std::unique_ptr<CBlockTemplate> pblocktemplate(CreateNewBlockWithKey(reservekey));
 #else

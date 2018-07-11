@@ -72,6 +72,12 @@ public:
         nEquihashN = N;
         nEquihashK = K;
 
+        // Added from btcz
+        eh_epoch_1 = eh200_9;
+        eh_epoch_2 = eh144_5;
+        eh_epoch_1_endblock = 160010;
+        eh_epoch_2_startblock = 160000;
+
         /**
          * Build the genesis block. Note that the output of its generation
          * transaction cannot be spent since it did not originally exist in the
@@ -182,6 +188,12 @@ public:
         nDefaultPort = 33127;
         nPruneAfterHeight = 1000;
 
+        // Added from btcz
+        eh_epoch_1 = eh200_9;
+        eh_epoch_2 = eh144_5;
+        eh_epoch_1_endblock = 30000;
+        eh_epoch_2_startblock = 14500;
+
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
         genesis.nTime = 1528839802;
         genesis.nBits = 0x2007ffff;
@@ -266,6 +278,13 @@ public:
         pchMessageStart[2] = 0x3f;
         pchMessageStart[3] = 0x5f;
         nMaxTipAge = 24 * 60 * 60;
+
+        // Added from btcz
+        eh_epoch_1 = eh48_5;
+        eh_epoch_2 = eh48_5;
+        eh_epoch_1_endblock = 1;
+        eh_epoch_2_startblock = 1;
+        
         const size_t N = 48, K = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         nEquihashN = N;
@@ -341,4 +360,22 @@ bool SelectParamsFromCommandLine()
 
     SelectParams(network);
     return true;
+}
+
+
+int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, const CChainParams& params){
+    //if in overlap period, there will be two valid solutions, else 1.
+    //The upcoming version of EH is preferred so will always be first element
+    //returns number of elements in list
+    if(blockheight>=params.eh_epoch_2_start() && blockheight>params.eh_epoch_1_end()){
+        ehparams[0]=params.eh_epoch_2_params();
+        return 1;
+    }
+    if(blockheight<params.eh_epoch_2_start()){
+        ehparams[0]=params.eh_epoch_1_params();
+        return 1;
+    }
+    ehparams[0]=params.eh_epoch_2_params();
+    ehparams[1]=params.eh_epoch_1_params();
+    return 2;
 }
