@@ -238,10 +238,10 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     }
     ////////////////////////END ZK Stuff///////////////////////////
 
-    //TODO Different While loop for ZK Stuff, grab all variables
+    //UTXO READ
     while (utxo_data && nBlockTx < forkCBPerBlock) {
         char term = 0;
-////////////////////////Format checks, explore more when looking at UTXO raw
+/////////Format checks, explore more when looking at UTXO raw
         //Value
         char coin[8] = {};
         if (!utxo_data.read(coin, 8)) {
@@ -274,8 +274,9 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                       nHeight, nForkHeight, forkHeightRange);
             break;
         }
-////////////////////////////////////////////////////////////////////////
+//////////////READ END//////////////////////////////////////////////////////////
 
+        //UTXO FORMATING
         //Needs ut64 for files? Part of .bin?
         uint64_t amount = bytes2uint64(coin);
         //makes array into string
@@ -314,6 +315,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             break;
         }
 
+        //PUSHING INTO BLOCK
         pblock->vtx.push_back(txNew);
         pblocktemplate->vTxFees.push_back(0);
         pblocktemplate->vTxSigOps.push_back(nTxSigOps);
