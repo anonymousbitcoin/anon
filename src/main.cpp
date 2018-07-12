@@ -3415,9 +3415,9 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
             if (!if_utxo.is_open()) {
                 LogPrintf("AcceptBlock(): FORK Block - Cannot open UTXO file - %s\n", utxo_file_path);
                 utxo_file_path = GetUTXOFileName(nHeight, false);
-                if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
+                std::ifstream if_zutxo(utxo_file_path, std::ios::binary | std::ios::in);
 
-                if(!if_utxo.is_open()){
+                if(!if_zutxo.is_open()){
                     LogPrintf("AcceptBlock(): FORK Block - Cannot open UTXO file - %s\n", utxo_file_path);
                 } else {
                     LogPrintf("Do THE THINGS!-------------------------------------%s\n", utxo_file_path);
