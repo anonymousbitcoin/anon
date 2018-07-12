@@ -180,6 +180,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     LogPrintf("UTXO FILE PATH: %s", utxo_file_path);
     if (!utxo_data.is_open()) {
+        string zutxo_file_path = GetUTXOFileName(nHeight, false);
+        std::ifstream zutxo_data(utxo_file_path, std::ios::binary | std::ios::in)
         bFileNotFound = true;
         LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
                   nHeight, nForkHeight, forkHeightRange, utxo_file_path);
