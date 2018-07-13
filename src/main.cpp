@@ -89,7 +89,7 @@ std::string GetUTXOFileName(int nHeight)
     boost::filesystem::path utxo_path(forkUtxoPath);
     if (utxo_path.empty() || !utxo_path.has_filename())
     {
-        LogPrintf("GetUTXOFileName(): UTXO path is not specified, add utxo-path=<path-to-utxop-files> to your btcprivate.conf and restart");
+        LogPrintf("GetUTXOFileName(): UTXO path is not specified, add utxo-path=<path-to-utxop-files> to your btcprivate.conf and restart\n");
         return "";
     }
 
@@ -109,24 +109,24 @@ std::string GetUTXOFileName(int nHeight, bool isZUTXO)
     boost::filesystem::path utxo_path(forkUtxoPath);
     if (utxo_path.empty() || !utxo_path.has_filename())
     {
-        LogPrintf("GetUTXOFileName(): UTXO path is not specified, add utxo-path=<path-to-utxop-files> to your btcprivate.conf and restart");
+        LogPrintf("GetUTXOFileName(): UTXO path is not specified, add utxo-path=<path-to-utxop-files> to your btcprivate.conf and restart\n");
         return "";
     }
 
     std::stringstream ss;
     if (isZUTXO){
         ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
-        LogPrintf("UTXO is a ZUTXO");
+        LogPrintf("UTXO is a ZUTXO\n");
     } else {
         ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
-        LogPrintf("UTXO is standard UTXO");
+        LogPrintf("UTXO is standard UTXO\n");
     }
     
     
     //if ^ (this is empty then zk-%05i.bin )
     boost::filesystem::path utxo_file = utxo_path;
     utxo_file /= ss.str();
-    LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
+    LogPrintf("UTXO FILE FORMAT: %u\n", utxo_file.generic_string());
     return utxo_file.generic_string();
 }
 ///////kevin aditions

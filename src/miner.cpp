@@ -159,7 +159,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
 
             CValidationState state;
             if (!TestBlockValidity(state, *pblock, pindexPrev, false, false))
-                throw std::runtime_error("CreateNewForkBlock(): TestBlockValidity failed");
+                throw std::runtime_error("CreateNewForkBlock(): TestBlockValidity failed\n");
         }
     } while(snappedHeight != tipHeight);
 
@@ -181,7 +181,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     //Read from the specified UTXO file
     std::ifstream utxo_data(utxo_file_path, std::ios::binary | std::ios::in);
 
-    LogPrintf("UTXO FILE PATH: %s", utxo_file_path);
+    LogPrintf("UTXO FILE PATH: %s\n", utxo_file_path);
     if (!utxo_data.is_open()) {
 
         string zutxo_file_path = GetUTXOFileName(nHeight, true);
