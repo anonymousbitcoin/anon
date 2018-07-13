@@ -184,6 +184,8 @@ class CMasternodePayments
     std::map<uint256, CMasternodePaymentVote> mapMasternodePaymentVotes;
     std::map<int, CMasternodeBlockPayees> mapMasternodeBlocks;
     std::map<COutPoint, int> mapMasternodesLastVote;
+    std::map<COutPoint, int> mapMasternodesDidNotVote;
+
 
     CMasternodePayments() : nStorageCoeff(1.25), nMinBlocksToStore(5000) {}
 
@@ -205,6 +207,8 @@ class CMasternodePayments
     void Sync(CNode *node);
     void RequestLowDataPaymentBlocks(CNode *pnode);
     void CheckAndRemove();
+    void CheckPreviousBlockVotes(int nPrevBlockHeight);
+
 
     bool GetBlockPayee(int nBlockHeight, CScript &payee);
     bool IsTransactionValid(const CTransaction &txNew, int nBlockHeight);

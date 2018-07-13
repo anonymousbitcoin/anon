@@ -88,6 +88,14 @@ class CMasternodeMan
 
     typedef index_m_t::const_iterator index_m_cit;
 
+    typedef std::pair<int, CMasternode> rank_pair_t;
+    
+    typedef std::vector<rank_pair_t> rank_pair_vec_t;
+
+    typedef std::pair<int64_t, CMasternode*> score_pair_t;
+
+    typedef std::vector<score_pair_t> score_pair_vec_t;
+
   private:
     static const int MAX_EXPECTED_INDEX_SIZE = 30000;
 
@@ -132,6 +140,9 @@ class CMasternodeMan
     std::map<uint256, std::pair<int64_t, std::set<CNetAddr>>> mMnbRecoveryRequests;
     std::map<uint256, std::vector<CMasternodeBroadcast>> mMnbRecoveryGoodReplies;
     std::list<std::pair<CService, uint256>> listScheduledMnbRequestConnections;
+
+    bool GetMasternodeScores(const uint256& nBlockHash, score_pair_vec_t& vecMasternodeScoresRet, int nMinProtocol = 0);
+
 
     int64_t nLastIndexRebuildTime;
 
@@ -305,6 +316,8 @@ class CMasternodeMan
     std::vector<CMasternode> GetFullMasternodeVector() { return vMasternodes; }
 
     std::vector<std::pair<int, CMasternode>> GetMasternodeRanks(int nBlockHeight = -1, int nMinProtocol = 0);
+    bool GetMasternodeRanks(rank_pair_vec_t& vecMasternodeRanksRet, int nBlockHeight = -1, int nMinProtocol = 0);
+
     int GetMasternodeRank(const CTxIn &vin, int nBlockHeight, int nMinProtocol = 0, bool fOnlyActive = true);
     CMasternode *GetMasternodeByRank(int nRank, int nBlockHeight, int nMinProtocol = 0, bool fOnlyActive = true);
 

@@ -833,6 +833,49 @@ std::vector<std::pair<int, CMasternode>> CMasternodeMan::GetMasternodeRanks(int 
     return vecMasternodeRanks;
 }
 
+
+bool CMasternodeMan::GetMasternodeRanks(CMasternodeMan::rank_pair_vec_t& vecMasternodeRanksRet, int nBlockHeight, int nMinProtocol)
+{
+    vecMasternodeRanksRet.clear();
+
+    if (!masternodeSync.IsMasternodeListSynced())
+        return false;
+
+    // make sure we know about this block
+    uint256 nBlockHash = uint256();
+    if (!GetBlockHash(nBlockHash, nBlockHeight)) {
+        LogPrintf("CMasternodeMan::%s -- ERROR: GetBlockHash() failed at nBlockHeight %d\n", __func__, nBlockHeight);
+        return false;
+    }
+
+    LOCK(cs);
+
+    score_pair_vec_t vecMasternodeScores;
+    // if (!GetMasternodeScores(nBlockHash, vecMasternodeScores, nMinProtocol))
+    //     return false;
+
+    // scan for winner
+    BOOST_FOREACH (CMasternode &mn, vMasternodes)
+    {
+
+        if (mn.nProtocolVersion < nMinProtocol || !mn.IsEnabled())
+            continue;
+
+        int64_t nScore = mn.CalculateScore(nBlockHash).GetCompact(false);
+
+        vecMasternodeScores.push_back(std::make_pair(nScore, &mn));
+    }
+
+    sort(vecMasternodeScores.rbegin(), vecMasternodeScores.rend(), CompareScoreMN());
+
+    int nRank = 0;
+    for (const auto& scorePair : vecMasternodeScores) {
+        nRank++;
+        vecMasternodeRanksRet.push_back(std::make_pair(nRank, *scorePair.second));
+    }
+
+    return true;
+}
 CMasternode *CMasternodeMan::GetMasternodeByRank(int nRank, int nBlockHeight, int nMinProtocol, bool fOnlyActive)
 {
     std::vector<std::pair<int64_t, CMasternode *>> vecMasternodeScores;
@@ -875,6 +918,29 @@ CMasternode *CMasternodeMan::GetMasternodeByRank(int nRank, int nBlockHeight, in
 
     return NULL;
 }
+
+// bool CMasternodeMan::GetMasternodeScores(const uint256& nBlockHash, CMasternodeMan::score_pair_vec_t& vecMasternodeScoresRet, int nMinProtocol)
+// {
+//     vecMasternodeScoresRet.clear();
+
+//     if (!masternodeSync.IsMasternodeListSynced())
+//         return false;
+
+//     AssertLockHeld(cs);
+
+//     if (mapMasternodes.empty())
+//         return false;
+
+//     // calculate scores
+//     for (const auto& mnpair : mapMasternodes) {
+//         if (mnpair.second.nProtocolVersion >= nMinProtocol) {
+//             vecMasternodeScoresRet.push_back(std::make_pair(mnpair.second.CalculateScore(nBlockHash), &mnpair.second));
+//         }
+//     }
+
+//     sort(vecMasternodeScoresRet.rbegin(), vecMasternodeScoresRet.rend(), CompareScoreMN());
+//     return !vecMasternodeScoresRet.empty();
+// }
 
 void CMasternodeMan::ProcessMasternodeConnections()
 {
