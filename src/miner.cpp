@@ -194,7 +194,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             return NULL;
         } else {
             LogPrintf("Do THE THINGS!-------------------------------------%s\n", zutxo_file_path);
-            return;
         }
         
     }
