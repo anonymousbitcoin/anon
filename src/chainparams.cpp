@@ -234,8 +234,8 @@ public:
             0
         };
 
-        nForkStartHeight = 2;
-        nForkHeightRange = 3;
+        nForkStartHeight = 5;
+        nForkHeightRange = 5;
     }
 };
 static CTestNetParams testNetParams;
