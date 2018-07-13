@@ -21,6 +21,10 @@ while [ 1 ]; do
 		echo ----------------
         	./btcputil/fetch-params.sh
 		echo ----------------
+		echo deleting testnet folder
+		echo ----------------
+		rm -rf ../.btcprivate/testnet4
+		echo ----------------
         	echo Running BTCP daemon
 		echo ----------------
         	./src/btcpd -testnet -reindex
