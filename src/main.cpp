@@ -94,13 +94,43 @@ std::string GetUTXOFileName(int nHeight)
     }
 
     std::stringstream ss;
-    // ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
-    ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
+    // ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
+    ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+    //if ^ (this is empty then zk-%05i.bin )
     boost::filesystem::path utxo_file = utxo_path;
     utxo_file /= ss.str();
     LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
     return utxo_file.generic_string();
 }
+
+///////kevin aditions
+std::string GetUTXOFileName(int nHeight, bool isZUTXO)
+{
+    boost::filesystem::path utxo_path(forkUtxoPath);
+    if (utxo_path.empty() || !utxo_path.has_filename())
+    {
+        LogPrintf("GetUTXOFileName(): UTXO path is not specified, add utxo-path=<path-to-utxop-files> to your btcprivate.conf and restart");
+        return "";
+    }
+
+    std::stringstream ss;
+    if (isZUTXO){
+        ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
+        LogPrintf("UTXO is a ZUTXO");
+    } else {
+        ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+        LogPrintf("UTXO is standard UTXO");
+    }
+    
+    
+    //if ^ (this is empty then zk-%05i.bin )
+    boost::filesystem::path utxo_file = utxo_path;
+    utxo_file /= ss.str();
+    LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
+    return utxo_file.generic_string();
+}
+///////kevin aditions
+
 #endif
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying and mining) */
@@ -3384,6 +3414,14 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
             std::ifstream if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
             if (!if_utxo.is_open()) {
                 LogPrintf("AcceptBlock(): FORK Block - Cannot open UTXO file - %s\n", utxo_file_path);
+                utxo_file_path = GetUTXOFileName(nHeight, false);
+                std::ifstream if_zutxo(utxo_file_path, std::ios::binary | std::ios::in);
+
+                if(!if_zutxo.is_open()){
+                    LogPrintf("AcceptBlock(): FORK Block - Cannot open UTXO file - %s\n", utxo_file_path);
+                } else {
+                    LogPrintf("Do THE THINGS!-------------------------------------%s\n", utxo_file_path);
+                }
             } else {
                 LogPrintf("AcceptBlock(): FORK Block - Validating block - %u / %s  with UTXO file - %s\n",
                           nHeight, block.GetHash().ToString(), utxo_file_path);
