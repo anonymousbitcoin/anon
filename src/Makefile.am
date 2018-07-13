@@ -124,6 +124,7 @@ BITCOIN_CORE_H = \
   consensus/validation.h \
   core_io.h \
   core_memusage.h \
+  flat-database.h \
   deprecation.h \
   hash.h \
   httprpc.h \

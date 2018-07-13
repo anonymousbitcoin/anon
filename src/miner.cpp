@@ -27,6 +27,8 @@
 #include "ui_interface.h"
 #include "util.h"
 #include "utilmoneystr.h"
+
+#include "flat-database.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #endif
@@ -170,7 +172,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 {
     const CChainParams& chainparams = Params();
 
-    const int nForkHeight = nHeight - forkStartHeight;
+    //const int nForkHeight = nHeight - forkStartHeight;
+    const int nForkHeight = 0;
 
     //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
@@ -184,19 +187,51 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         string zutxo_file_path = GetUTXOFileName(nHeight, true);
         std::ifstream zutxo_data(zutxo_file_path, std::ios::binary | std::ios::in);
 
-        
+        //UT
+        CTransaction txZ;
         if(!zutxo_data.is_open()){
-            LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open ZUTXO file - %s\n",
-                  nHeight, nForkHeight, forkHeightRange, zutxo_file_path);
+            LogPrintf("ERROR: CreateNewForkBlock(): [%u, of ]: Cannot open ZUTXO file - %s\n",
+                  nHeight, zutxo_file_path);
             bFileNotFound = true;
-            LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
-                    nHeight, nForkHeight, forkHeightRange, utxo_file_path);
+            LogPrintf("ERROR: CreateNewForkBlock(): [%u,  of ]: Cannot open UTXO file - %s\n",
+                    nHeight, utxo_file_path);
             return NULL;
         } else {
+            
+             CFlatDB<CTransaction> flatdb2("z-address-test.dat", "zAddressCache");
+            if(!flatdb2.Load(txZ)) {
+                LogPrintf("Failed to load transactions from z-address.dat\n");
+                return NULL;
+            }
+         }
+            txZ.ToString();
+
+
+        // // Add coinbase tx's
+        // CMutableTransaction txNew;
+        // txNew.vin.resize(1);
+        // //No input cuz coinbase
+        // txNew.vin[0].prevout.SetNull();
+        // //Just create
+        // txNew.vout.resize(1);
+        // txNew.vout[0].scriptPubKey = CScript(pks, pks+pbsize);
+
+        // //coin value
+        // txNew.vout[0].nValue = amount;
+
+        //     //PUSHING INTO BLOCK
+        //     pblock->vtx.push_back(txNew);
+        //     pblocktemplate->vTxFees.push_back(0);
+        //     pblocktemplate->vTxSigOps.push_back(nTxSigOps);
+        //     nBlockSize += nTxSize;
+        //     nBlockSigOps += nTxSigOps;
+        //     nBlockTotalAmount += amount;
+        //     ++nBlockTx;
+
+
             LogPrintf("Do THE THINGS!-------------------------------------%s\n", zutxo_file_path);
         }
         
-    }
 
     // Create new block
     std::unique_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
