@@ -186,8 +186,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
         
         if(!zutxo_data.is_open()){
-            // LogPrintf("AcceptBlock(): FORK Block - Cannot open UTXO file - %s\n", zutxo_file_path);
-        LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open ZUTXO file - %s\n",
+            LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open ZUTXO file - %s\n",
                   nHeight, nForkHeight, forkHeightRange, zutxo_file_path);
         } else {
             LogPrintf("Do THE THINGS!-------------------------------------%s\n", zutxo_file_path);
