@@ -182,7 +182,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     if (!utxo_data.is_open()) {
 
         string zutxo_file_path = GetUTXOFileName(nHeight, true);
-        std::ifstream zutxo_data(utxo_file_path, std::ios::binary | std::ios::in);
+        std::ifstream zutxo_data(zutxo_file_path, std::ios::binary | std::ios::in);
 
         
         if(!zutxo_data.is_open()){
