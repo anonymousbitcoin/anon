@@ -554,8 +554,8 @@ extern int64_t forkHeightRange;
 extern int64_t forkCBPerBlock;
 extern uint256 forkExtraHashSentinel;
 
-std::string GetUTXOFileName(int nHeight);
-std::string GetUTXOFileName(int nHeight, bool isZUTXO);
+//std::string GetUTXOFileName(int nHeight);
+std::string GetUTXOFileName(int nHeight, bool isZUTXO = false);
 
 //ex: forkStartHeight = 300 000; forkHeightRange = 65K
 //A. for miner:

@@ -73,7 +73,7 @@ size_t nCoinCacheUsage = 5000 * 300;
 uint64_t nPruneTarget = 0;
 bool fAlerts = DEFAULT_ALERTS;
 
-#ifdef FORK_CB_INPUT
+// #ifdef FORK_CB_INPUT
 #include <boost/format.hpp>
 #include <boost/range/combine.hpp>
 
@@ -84,24 +84,24 @@ int64_t forkCBPerBlock;
 uint256 forkExtraHashSentinel = uint256S("f0f0f0f0fafafafaffffffffffffffffffffffffffffffffafafafaf0f0f0f0f");
 uint256 hashPid = GetRandHash();
 
-std::string GetUTXOFileName(int nHeight)
-{
-    boost::filesystem::path utxo_path(forkUtxoPath);
-    if (utxo_path.empty() || !utxo_path.has_filename())
-    {
-        LogPrintf("GetUTXOFileName(): UTXO path is not specified, add utxo-path=<path-to-utxop-files> to your btcprivate.conf and restart\n");
-        return "";
-    }
+// std::string GetUTXOFileName(int nHeight)
+// {
+    // boost::filesystem::path utxo_path(forkUtxoPath);
+    // if (utxo_path.empty() || !utxo_path.has_filename())
+    // {
+    //     LogPrintf("GetUTXOFileName(): UTXO path is not specified, add utxo-path=<path-to-utxop-files> to your btcprivate.conf and restart\n");
+    //     return "";
+    // }
 
-    std::stringstream ss;
-    // ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
-    ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
-    //if ^ (this is empty then zk-%05i.bin )
-    boost::filesystem::path utxo_file = utxo_path;
-    utxo_file /= ss.str();
-    LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
-    return utxo_file.generic_string();
-}
+    // std::stringstream ss;
+    // // ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
+    // ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+    // //if ^ (this is empty then zk-%05i.bin )
+    // boost::filesystem::path utxo_file = utxo_path;
+    // utxo_file /= ss.str();
+    // LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
+    // return utxo_file.generic_string();
+// }
 
 ///////kevin aditions
 std::string GetUTXOFileName(int nHeight, bool isZUTXO)
@@ -113,25 +113,31 @@ std::string GetUTXOFileName(int nHeight, bool isZUTXO)
         return "";
     }
 
-    std::stringstream ss;
-    if (isZUTXO){
+    if(!isZUTXO){
+         std::stringstream ss;
+        // ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
+        ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+        //if ^ (this is empty then zk-%05i.bin )
+        boost::filesystem::path utxo_file = utxo_path;
+        utxo_file /= ss.str();
+        LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
+        return utxo_file.generic_string();
+    } else {
+
+        std::stringstream ss;
         ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
         LogPrintf("UTXO is a ZUTXO\n");
-    } else {
-        ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
-        LogPrintf("UTXO is standard UTXO\n");
+        
+        //if ^ (this is empty then zk-%05i.bin )
+        boost::filesystem::path utxo_file = utxo_path;
+        utxo_file /= ss.str();
+        LogPrintf("UTXO FILE FORMAT: %u\n", utxo_file.generic_string());
+        return utxo_file.generic_string();
     }
-    
-    
-    //if ^ (this is empty then zk-%05i.bin )
-    boost::filesystem::path utxo_file = utxo_path;
-    utxo_file /= ss.str();
-    LogPrintf("UTXO FILE FORMAT: %u\n", utxo_file.generic_string());
-    return utxo_file.generic_string();
 }
 ///////kevin aditions
 
-#endif
+//#endif
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying and mining) */
 CFeeRate minRelayTxFee = CFeeRate(DEFAULT_MIN_RELAY_TX_FEE);

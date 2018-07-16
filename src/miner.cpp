@@ -44,6 +44,8 @@
 
 #include <fstream>
 
+#include "json.hh"
+
 
 
 using namespace std;
@@ -168,7 +170,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
 //////////Loops over all UTXO/Joinsplit data and adds to block as coinbase
 CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
-
 {
     const CChainParams& chainparams = Params();
 
@@ -204,8 +205,78 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 return NULL;
             }
          }
-            txZ.ToString();
+            LogPrintf("-------------------------------------------------\n");
+            LogPrintf("-------------------------------------------------\n");
+            LogPrintf("TX %s\n", txZ.ToString());
+            LogPrintf("TX vjointplit size: %d\n", txZ.vjoinsplit.size());
 
+             for(auto &vj : txZ.vjoinsplit) {
+                LogPrintf("Vpub_old: %s\n", vj.vpub_old);
+                LogPrintf("vpub_new: %s\n", vj.vpub_new);
+                LogPrintf("anchor: %s\n", vj.anchor.GetHex());
+                LogPrintf("ephemeralKey: %s\n", vj.ephemeralKey.GetHex());
+                LogPrintf("randomSeed: %s\n", vj.randomSeed.GetHex());
+
+                for(auto &nf : vj.nullifiers) {
+                    LogPrintf("nullifier: %s\n", nf.GetHex());
+                }
+                for(auto &cm : vj.commitments) {
+                    LogPrintf("commitment: %s\n", cm.GetHex());
+                }
+                for(auto &ct : vj.ciphertexts) {
+                    LogPrintf("ciphertext: ");
+                    for(auto &c : ct) {
+                        LogPrintf("%d",(int)c);
+                        }
+                    LogPrintf("\n");
+                }
+                for(auto &mac : vj.macs) {
+                    LogPrintf("mac: %s\n", mac.GetHex());
+                }
+            }
+            LogPrintf("-------------------------------------------------\n");
+            LogPrintf("-------------------------------------------------\n");
+            LogPrintf("-----------LOADING JSON--------------------------\n");
+        std::ifstream i("test.json");
+        LogPrintf("--after loading file\n");
+        nlohmann:: json j;
+        i >> j;
+        LogPrintf("--after parsing file\n");
+        LogPrintf("JSON -> vjoinsplit size: %d\n", j.at("blocks")[3].at("transactions")[0].at("vpub_old"));
+        //LogPrintf("JSON -> vjoinsplit size: \n%s\n", j.dump(4));
+
+
+        //JSON EXAMPLE
+
+//         int main()
+//  {
+//      // create JSON object
+//      json object =
+//      {
+//          {"the good", "il buono"},
+//          {"the bad", "il cativo"},
+//          {"the ugly", "il brutto"}
+//      };
+
+//      // output element with key "the ugly"
+//      std::cout << object.at("the ugly") << '\n';
+
+//      // change element with key "the bad"
+//      object.at("the bad") = "il cattivo";
+
+//      // output changed array
+//      std::cout << object << '\n';
+
+//      // try to write at a nonexisting key
+//      try
+//      {
+//          object.at("the fast") = "il rapido";
+//      }
+//      catch (std::out_of_range& e)
+//      {
+//          std::cout << "out of range: " << e.what() << '\n';
+//      }
+//  }
 
         // // Add coinbase tx's
         // CMutableTransaction txNew;

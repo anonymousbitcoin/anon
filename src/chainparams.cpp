@@ -182,10 +182,15 @@ public:
 
         consensus.nPowDifficultyBombHeight = 600000;
 
-        pchMessageStart[0] = 0xf6;
-        pchMessageStart[1] = 0x1b;
-        pchMessageStart[2] = 0xf6;
-        pchMessageStart[3] = 0xd6;
+        // pchMessageStart[0] = 0xf6;
+        // pchMessageStart[1] = 0x1b;
+        // pchMessageStart[2] = 0xf6;
+        // pchMessageStart[3] = 0xd6;
+
+        pchMessageStart[0] = 0xfa;
+        pchMessageStart[1] = 0x1a;
+        pchMessageStart[2] = 0xf9;
+        pchMessageStart[3] = 0xbf;
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
         nDefaultPort = 12345;
