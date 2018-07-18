@@ -45,7 +45,7 @@ private:
         int64_t nStart = GetTimeMillis();
 
         // serialize, checksum data up to that point, then append checksum
-        CDataStream ssObj(SER_DISK, CLIENT_VERSION);
+        CDataStream ssObj(SER_DISK, 1001051);
         ssObj << strMagicMessage; // specific magic message for this type of object
         ssObj << FLATDATA(Params().MessageStart()); // network specific magic number
         ssObj << objToSave;
@@ -54,7 +54,7 @@ private:
 
         // open output file, and associate with CAutoFile
         FILE *file = fopen(pathDB.string().c_str(), "wb");
-        CAutoFile fileout(file, SER_DISK, CLIENT_VERSION);
+        CAutoFile fileout(file, SER_DISK, 1001051);
         if (fileout.IsNull())
             return error("%s: Failed to open file %s", __func__, pathDB.string());
 
@@ -68,7 +68,7 @@ private:
         fileout.fclose();
 
         LogPrintf("Written info to %s  %dms\n", strFilename, GetTimeMillis() - nStart);
-        LogPrintf("     %s\n", objToSave.ToString());
+        //LogPrintf("     %s\n", objToSave.ToString());
 
         return true;
     }
@@ -80,7 +80,7 @@ private:
         int64_t nStart = GetTimeMillis();
         // open input file, and associate with CAutoFile
         FILE *file = fopen(pathDB.string().c_str(), "rb");
-        CAutoFile filein(file, SER_DISK, CLIENT_VERSION);
+        CAutoFile filein(file, SER_DISK, 1001051);
         if (filein.IsNull())
         {
             error("%s: Failed to open file %s", __func__, pathDB.string());
@@ -108,7 +108,7 @@ private:
         }
         filein.fclose();
 
-        CDataStream ssObj(vchData, SER_DISK, CLIENT_VERSION);
+        CDataStream ssObj(vchData, SER_DISK, 1001051);
 
         // verify stored checksum matches input data
         uint256 hashTmp = Hash(ssObj.begin(), ssObj.end());
@@ -153,11 +153,11 @@ private:
         }
 
         LogPrintf("Loaded info from %s  %dms\n", strFilename, GetTimeMillis() - nStart);
-        LogPrintf("     %s\n", objToLoad.ToString());
+        // LogPrintf("     %s\n", objToLoad.ToString());
         if(!fDryRun) {
             LogPrintf("%s: Cleaning....\n", __func__);
             //objToLoad.CheckAndRemove();
-            LogPrintf("     %s\n", objToLoad.ToString());
+            //LogPrintf("     %s\n", objToLoad.ToString());
         }
 
         return Ok;

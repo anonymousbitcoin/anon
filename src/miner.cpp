@@ -171,6 +171,22 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
 CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
 {
+
+
+    // Create new block
+    std::unique_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
+    if(!pblocktemplate.get())
+        return NULL;
+    CBlock *pblock = &pblocktemplate->block; // pointer for convenience
+
+      // Largest block you're willing to create:
+    unsigned int nBlockMaxSize = (unsigned int)(MAX_BLOCK_SIZE-1000);
+
+    uint64_t nBlockTotalAmount = 0;
+    uint64_t nBlockSize = 1000;
+    uint64_t nBlockTx = 0;
+    uint64_t nBlockSigOps = 100;
+    
     const CChainParams& chainparams = Params();
 
     //const int nForkHeight = nHeight - forkStartHeight;
@@ -189,7 +205,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         std::ifstream zutxo_data(zutxo_file_path, std::ios::binary | std::ios::in);
 
         //UT
-        CTransaction txZ;
+        CMutableTransaction txZ;
         if(!zutxo_data.is_open()){
             LogPrintf("ERROR: CreateNewForkBlock(): [%u, of ]: Cannot open ZUTXO file - %s\n",
                   nHeight, zutxo_file_path);
@@ -199,50 +215,102 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             return NULL;
         } else {
             
-             CFlatDB<CTransaction> flatdb2("z-address-test.dat", "zAddressCache");
-            if(!flatdb2.Load(txZ)) {
-                LogPrintf("Failed to load transactions from z-address.dat\n");
-                return NULL;
-            }
+            CTransaction txOut;
+            CFlatDB<CTransaction> flatdb2("z-address-test.dat", "zAddressCache");
+                if(!flatdb2.Load(txOut)) {
+                    return NULL;
+                    LogPrintf("Failed to load transactions from z-address.dat");
+                    }
+                LogPrintf("-------------------TX OUT----------------------");
+                LogPrintf("V1 size: %d\n", txOut.vjoinsplit.size());
+                LogPrintf("TX: %d\n", txOut.ToString());
+                LogPrintf("Vin: %d\n", txOut.vin[0].ToString());
+                LogPrintf("Vout: %d\n", txOut.vout[0].ToString());
+                LogPrintf("V size: %d\n", txOut.vjoinsplit.size());
+                LogPrintf("TXID: %d\n", txOut.GetHash().ToString());
+
+
+
+            //  CFlatDB<CMutableTransaction> flatdb2("z-address-test.dat", "zAddressCache");
+            // if(!flatdb2.Load(txZ)) {
+            //     LogPrintf("Failed to load transactions from z-address.dat\n");
+            //     return NULL;
+            // }
+
+                // // Add coinbase tx'
+            //txZ.vin = NULL;
+            //No input cuz coinbase
+            txZ.vin[0].prevout.SetNull();
+            //Just create
+            txZ.vout.clear();
+            //txZ.vout[0].scriptPubKey = CScript(pks, pks+pbsize);
+
+            //PUSHING INTO BLOCK
+            pblock->vtx.push_back(txZ);
+            pblocktemplate->vTxFees.push_back(0);
+            //pblocktemplate->vTxSigOps.push_back(nTxSigOps);
+            //nBlockSize += nTxSize;
+            // nBlockSigOps += nTxSigOps;
+            //nBlockTotalAmount += amount;
+            ++nBlockTx;
+
+            // Randomise nonce
+            arith_uint256 nonce = UintToArith256(GetRandHash());
+            // Clear the top and bottom 16 bits (for local use as thread flags and counters)
+            nonce <<= 32;
+            nonce >>= 16;
+            pblock->nNonce = ArithToUint256(nonce);
+
+            // Fill in header
+            pblock->hashReserved   = forkExtraHashSentinel;
+            pblock->nSolution.clear();
+
+            return pblocktemplate.release();
          }
             LogPrintf("-------------------------------------------------\n");
             LogPrintf("-------------------------------------------------\n");
-            LogPrintf("TX %s\n", txZ.ToString());
-            LogPrintf("TX vjointplit size: %d\n", txZ.vjoinsplit.size());
+            // LogPrintf("TX %s\n", txZ.ToString());
+            LogPrintf("TX vjoinsplit size: %d\n", txZ.vjoinsplit.size());
+            LogPrintf("TX joinSplitPubKey size: %d\n", txZ.joinSplitPubKey.GetHex());
+            
+            
+            LogPrintf("TX vjoinsplit size: %d\n", txZ.vjoinsplit[0].vpub_old);
+            
 
-             for(auto &vj : txZ.vjoinsplit) {
-                LogPrintf("Vpub_old: %s\n", vj.vpub_old);
-                LogPrintf("vpub_new: %s\n", vj.vpub_new);
-                LogPrintf("anchor: %s\n", vj.anchor.GetHex());
-                LogPrintf("ephemeralKey: %s\n", vj.ephemeralKey.GetHex());
-                LogPrintf("randomSeed: %s\n", vj.randomSeed.GetHex());
 
-                for(auto &nf : vj.nullifiers) {
-                    LogPrintf("nullifier: %s\n", nf.GetHex());
-                }
-                for(auto &cm : vj.commitments) {
-                    LogPrintf("commitment: %s\n", cm.GetHex());
-                }
-                for(auto &ct : vj.ciphertexts) {
-                    LogPrintf("ciphertext: ");
-                    for(auto &c : ct) {
-                        LogPrintf("%d",(int)c);
-                        }
-                    LogPrintf("\n");
-                }
-                for(auto &mac : vj.macs) {
-                    LogPrintf("mac: %s\n", mac.GetHex());
-                }
-            }
+            //  for(auto &vj : txZ.vjoinsplit) {
+            //     LogPrintf("Vpub_old: %s\n", vj.vpub_old);
+            //     LogPrintf("vpub_new: %s\n", vj.vpub_new);
+            //     LogPrintf("anchor: %s\n", vj.anchor.GetHex());
+            //     LogPrintf("ephemeralKey: %s\n", vj.ephemeralKey.GetHex());
+            //     LogPrintf("randomSeed: %s\n", vj.randomSeed.GetHex());
+
+            //     for(auto &nf : vj.nullifiers) {
+            //         LogPrintf("nullifier: %s\n", nf.GetHex());
+            //     }
+            //     for(auto &cm : vj.commitments) {
+            //         LogPrintf("commitment: %s\n", cm.GetHex());
+            //     }
+            //     for(auto &ct : vj.ciphertexts) {
+            //         LogPrintf("ciphertext: ");
+            //         for(auto &c : ct) {
+            //             LogPrintf("%d",(int)c);
+            //             }
+            //         LogPrintf("\n");
+            //     }
+            //     for(auto &mac : vj.macs) {
+            //         LogPrintf("mac: %s\n", mac.GetHex());
+            //     }
+            // }
             LogPrintf("-------------------------------------------------\n");
             LogPrintf("-------------------------------------------------\n");
-            LogPrintf("-----------LOADING JSON--------------------------\n");
-        std::ifstream i("test.json");
-        LogPrintf("--after loading file\n");
-        nlohmann:: json j;
-        i >> j;
-        LogPrintf("--after parsing file\n");
-        LogPrintf("JSON -> vjoinsplit size: %d\n", j.at("blocks")[3].at("transactions")[0].at("vpub_old"));
+            // LogPrintf("-----------LOADING JSON--------------------------\n");
+        // std::ifstream i("test.json");
+        // LogPrintf("--after loading file\n");
+        // nlohmann:: json j;
+        // i >> j;
+        //LogPrintf("--after parsing file\n");
+        //LogPrintf("JSON -> vjoinsplit size: %d\n", j.at("blocks")[3].at("transactions")[0].at("vpub_old"));
         //LogPrintf("JSON -> vjoinsplit size: \n%s\n", j.dump(4));
 
 
@@ -302,23 +370,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
             LogPrintf("Do THE THINGS!-------------------------------------%s\n", zutxo_file_path);
         }
-        
-
-    // Create new block
-    std::unique_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
-    if(!pblocktemplate.get())
-        return NULL;
-    CBlock *pblock = &pblocktemplate->block; // pointer for convenience
-
-    // Largest block you're willing to create:
-    unsigned int nBlockMaxSize = (unsigned int)(MAX_BLOCK_SIZE-1000);
-
-    uint64_t nBlockTotalAmount = 0;
-    uint64_t nBlockSize = 1000;
-    uint64_t nBlockTx = 0;
-    uint64_t nBlockSigOps = 100;
-
-
+    
 /////////////////////////////////zk-stuff////////////////////////////////////////
     //If the file name has "zk" follow zk rules, else go to original rules
 
@@ -332,35 +384,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         std::cout << "zk not found" << std::endl;
         LogPrintf("zk not found >>>>>>>>>>>>>>>>>>>>>");
     }
-    //   ///hopefully iteraties properly, newline needed after every JStx?
-    //   while (utxo_data && nBlockTx < forkCBPerBlock) {
-    //       char term = 0;
-
-    //       //Depends on length of JoinSplitObject, prob needs more than one byte?
-    //       char zkInfo[8] = {};
-    //       if (!utxo_data.read(zkInfo, 8)) {
-    //           ////TODO Test 2, need to convert out of binary to make sure it's a whole JS field and we're
-    //           //Encoding and reading properly
-    //           cout << "ZK Byte Output:" << bytes2uint64(zkInfo) << endl
-
-
-    //           // the last file may be shorter than forkCBPerBlock <<Just breaks it?
-    //           if(!utxo_data.eof() || nForkHeight != forkHeightRange)
-    //               LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - No more data (Amount)\n",
-    //                         nHeight, nForkHeight, forkHeightRange);
-    //           break;
-
-    //           //Need to convert to format needed to serialize into a valid zk transaction
-    //           int pbsize = bytes2uint64(zkInfo);
-    //           std::unique_ptr<char[]> pubKeyScript(new char[pbsize]);
-    //       break;
-    //       }
-
-
-    //     }
-
-    //   break;
-    // }
+  
     ////////////////////////END ZK Stuff///////////////////////////
 
     //UTXO READ
@@ -407,7 +431,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         //makes array into string
         unsigned char* pks = (unsigned char*)pubKeyScript.get();
 
-        // Add coinbase tx's
+        // // Add coinbase tx's
         CMutableTransaction txNew;
         txNew.vin.resize(1);
         //No input cuz coinbase
