@@ -66,8 +66,8 @@ struct Params {
     int nSuperblockStartBlock;
     int nSuperblockCycle;     // in blocks
     int nMasternodeMinimumConfirmations;
-    int nGovernanceFilterElements;
-    int nGovernanceMinQuorum;
+    // int nGovernanceFilterElements;
+    // int nGovernanceMinQuorum;
 
     /** Block height and hash at which BIP34 becomes active */
     int BIP34Height;

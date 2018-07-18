@@ -710,7 +710,7 @@ std::string CMasternodePayments::GetRequiredPaymentsString(int nBlockHeight)
         return mapMasternodeBlocks[nBlockHeight].GetRequiredPaymentsString();
     }
 
-    return "Unknown #3";
+    return "Unknown";
 }
 
 bool CMasternodePayments::IsTransactionValid(const CTransaction &txNew, int nBlockHeight)
