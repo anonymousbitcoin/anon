@@ -42,6 +42,8 @@
 #include "wallet/walletdb.h"
 #endif
 #include "darksend.h"
+#include "governance.h"
+
 #include "dsnotificationinterface.h"
 #include "masternode-payments.h"
 #include "masternode-sync.h"
@@ -226,8 +228,8 @@ void Shutdown()
     flatdb1.Dump(mnodeman);
     CFlatDB<CMasternodePayments> flatdb2("mnpayments.dat", "magicMasternodePaymentsCache");
     flatdb2.Dump(mnpayments);
-    // CFlatDB<CGovernanceManager> flatdb3("governance.dat", "magicGovernanceCache");
-    // flatdb3.Dump(governance);
+    CFlatDB<CGovernanceManager> flatdb3("governance.dat", "magicGovernanceCache");
+    flatdb3.Dump(governance);
     CFlatDB<CNetFulfilledRequestManager> flatdb4("netfulfilled.dat", "magicFulfilledCache");
     flatdb4.Dump(netfulfilledman);
 
@@ -1772,11 +1774,11 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             }
 
             // uiInterface.InitMessage(_("Loading governance cache..."));
-            // CFlatDB<CGovernanceManager> flatdb3("governance.dat", "magicGovernanceCache");
-            // if (!flatdb3.Load(governance)) {
-            //     return InitError("Failed to load governance cache from governance.dat");
-            // }
-            // governance.InitOnLoad();
+            CFlatDB<CGovernanceManager> flatdb3("governance.dat", "magicGovernanceCache");
+            if (!flatdb3.Load(governance)) {
+                return InitError("Failed to load governance cache from governance.dat");
+            }
+            governance.InitOnLoad();
         } else {
             uiInterface.InitMessage(_("Masternode cache is empty, skipping payments and governance cache..."));
         }
@@ -1791,6 +1793,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         mnodeman.UpdatedBlockTip(chainActive.Tip());
         mnpayments.UpdatedBlockTip(chainActive.Tip());
         masternodeSync.UpdatedBlockTip(chainActive.Tip());
+        governance.UpdatedBlockTip(chainActive.Tip());
 
         LogPrintf("Using masternode config file %s\n", GetMasternodeConfigFile().string());
 

@@ -1,5 +1,4 @@
-// Copyright (c) 2014-2017 The Dash Core developers
-// Distributed under the MIT/X11 software license, see the accompanying
+// Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef DARKSEND_H
@@ -222,7 +221,7 @@ extern CDarkSendSigner darkSendSigner;
 class CDarkSendSigner
 {
 public:
-    /// Is the input associated with this public key? (and there is 1000 DASH - checking if valid masternode)
+    /// Is the input associated with this public key? (and there is 100 ANON - checking if valid masternode)
     bool IsVinAssociatedWithPubkey(const CTxIn& vin, const CPubKey& pubkey);
     /// Set the private/public key values, returns true if successful
     bool GetKeysFromSecret(std::string strSecret, CKey& keyRet, CPubKey& pubkeyRet);
@@ -335,7 +334,7 @@ public:
 
 //     void CompletedTransaction(PoolMessage nMessageID);
 
-//     /// Get the denominations for a specific amount of dash.
+//     /// Get the denominations for a specific amount of ANON.
 //     int GetDenominationsByAmounts(const std::vector<CAmount>& vecAmount);
 
 //     std::string GetMessageByID(PoolMessage nMessageID);

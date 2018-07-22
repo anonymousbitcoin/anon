@@ -1,6 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
-// Copyright (c) 2014-2017 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -264,9 +263,6 @@ bool ProcessMessages(CNode* pfrom);
  * @param[in]   pto             The node which we are sending messages to.
  */
 
-// DASH
-// bool SendMessages(CNode* pto);
-
 // BTCP
 bool SendMessages(CNode* pto, bool fSendTrickle);
 
@@ -286,9 +282,6 @@ bool IsInitialBlockDownload(bool includeFork=false);
  */
 std::string GetWarnings(const std::string& strFor);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
-// DASH
-// bool GetTransaction(const uint256& hash, CTransaction& tx, const Consensus::Params& params, uint256& hashBlock, bool fAllowSlow = false);
-// BTCP
 bool GetTransaction(const uint256& hash, CTransaction& tx, uint256& hashBlock, bool fAllowSlow = false);
 /** Find the best known block, and make it the tip of the block chain */
 bool ActivateBestChain(CValidationState& state, CBlock* pblock = NULL);
@@ -956,9 +949,6 @@ public:
 CBlockIndex* FindForkInGlobalIndex(const CChain& chain, const CBlockLocator& locator);
 
 /** Mark a block as invalid. */
-// DASH
-// bool InvalidateBlock(CValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex);
-// BTCP
 bool InvalidateBlock(CValidationState& state, CBlockIndex* pindex);
 
 /** Remove invalidity status from a block and its descendants. */

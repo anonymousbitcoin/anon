@@ -1,10 +1,10 @@
-// Copyright (c) 2014-2017 The Dash Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "activemasternode.h"
 #include "addrman.h"
 #include "darksend.h"
+#include "governance.h"
 #include "masternode-payments.h"
 #include "masternode-sync.h"
 #include "masternodeman.h"
@@ -1997,15 +1997,15 @@ void CMasternodeMan::NotifyMasternodeUpdates()
         fMasternodesRemovedLocal = fMasternodesRemoved;
     }
 
-    // if (fMasternodesAddedLocal)
-    // {
-    //     governance.CheckMasternodeOrphanObjects();
-    //     governance.CheckMasternodeOrphanVotes();
-    // }
-    // if (fMasternodesRemovedLocal)
-    // {
-    //     governance.UpdateCachesAndClean();
-    // }
+    if (fMasternodesAddedLocal)
+    {
+        governance.CheckMasternodeOrphanObjects();
+        governance.CheckMasternodeOrphanVotes();
+    }
+    if (fMasternodesRemovedLocal)
+    {
+        governance.UpdateCachesAndClean();
+    }
 
     LOCK(cs);
     fMasternodesAdded = false;

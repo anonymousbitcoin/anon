@@ -35,6 +35,8 @@
 #include "masternode-payments.h"
 #include "masternode-sync.h"
 #include "masternodeman.h"
+#include "governance.h"
+
 
 
 #include <sstream>
@@ -1481,7 +1483,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     return nSubsidy;
 }
 
-//dash
+//ANON
 CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 {
     CAmount ret = blockValue/5; // start at 20%
@@ -1503,7 +1505,7 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
     return ret;
 }
 
-//DASH
+//ANON
 bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos, const Consensus::Params& consensusParams)
 {
     block.SetNull();
@@ -2410,12 +2412,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                REJECT_INVALID, "bad-cb-amount");
 
     if (!IsBlockValueValid(block, pindex->nHeight, blockReward, strError)) {
-        return state.DoS(0, error("ConnectBlock(DASH): %s", strError), REJECT_INVALID, "bad-cb-amount");
+        return state.DoS(0, error("ConnectBlock(ANON): %s", strError), REJECT_INVALID, "bad-cb-amount");
     }
 
     if (!IsBlockPayeeValid(block.vtx[0], pindex->nHeight, blockReward)) {
         mapRejectedBlocks.insert(make_pair(block.GetHash(), GetTime()));
-        return state.DoS(0, error("ConnectBlock(DASH): couldn't find masternode or superblock payments"),
+        return state.DoS(0, error("ConnectBlock(ANON): couldn't find masternode or superblock payments"),
                                 REJECT_INVALID, "bad-cb-payee");
     }
 
@@ -4545,7 +4547,7 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 
 
     /* 
-        Dash Related Inventory Messages
+        ANON Related Inventory Messages
 
         --
 
@@ -4579,9 +4581,9 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
     // case MSG_DSTX:
         // return mapDarksendBroadcastTxes.count(inv.hash);
 
-    // case MSG_GOVERNANCE_OBJECT:
-    // case MSG_GOVERNANCE_OBJECT_VOTE:
-    //     return !governance.ConfirmInventoryRequest(inv);
+    case MSG_GOVERNANCE_OBJECT:
+    case MSG_GOVERNANCE_OBJECT_VOTE:
+        return !governance.ConfirmInventoryRequest(inv);
 
     case MSG_MASTERNODE_VERIFY:
         return mnodeman.mapSeenMasternodeVerification.count(inv.hash);
@@ -4788,42 +4790,42 @@ void static ProcessGetData(CNode* pfrom)
                 //     }
                 // }
 
-                // if (!pushed && inv.type == MSG_GOVERNANCE_OBJECT) {
-                //     LogPrint("net", "ProcessGetData -- MSG_GOVERNANCE_OBJECT: inv = %s\n", inv.ToString());
-                //     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
-                //     bool topush = false;
-                //     {
-                //         if (governance.HaveObjectForHash(inv.hash)) {
-                //             ss.reserve(1000);
-                //             if (governance.SerializeObjectForHash(inv.hash, ss)) {
-                //                 topush = true;
-                //             }
-                //         }
-                //     }
-                //     LogPrint("net", "ProcessGetData -- MSG_GOVERNANCE_OBJECT: topush = %d, inv = %s\n", topush, inv.ToString());
-                //     if (topush) {
-                //         pfrom->PushMessage(NetMsgType::MNGOVERNANCEOBJECT, ss);
-                //         pushed = true;
-                //     }
-                // }
+                if (!pushed && inv.type == MSG_GOVERNANCE_OBJECT) {
+                    LogPrint("net", "ProcessGetData -- MSG_GOVERNANCE_OBJECT: inv = %s\n", inv.ToString());
+                    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                    bool topush = false;
+                    {
+                        if (governance.HaveObjectForHash(inv.hash)) {
+                            ss.reserve(1000);
+                            if (governance.SerializeObjectForHash(inv.hash, ss)) {
+                                topush = true;
+                            }
+                        }
+                    }
+                    LogPrint("net", "ProcessGetData -- MSG_GOVERNANCE_OBJECT: topush = %d, inv = %s\n", topush, inv.ToString());
+                    if (topush) {
+                        pfrom->PushMessage(NetMsgType::MNGOVERNANCEOBJECT, ss);
+                        pushed = true;
+                    }
+                }
 
-                // if (!pushed && inv.type == MSG_GOVERNANCE_OBJECT_VOTE) {
-                //     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
-                //     bool topush = false;
-                //     {
-                //         if (governance.HaveVoteForHash(inv.hash)) {
-                //             ss.reserve(1000);
-                //             if (governance.SerializeVoteForHash(inv.hash, ss)) {
-                //                 topush = true;
-                //             }
-                //         }
-                //     }
-                //     if (topush) {
-                //         LogPrint("net", "ProcessGetData -- pushing: inv = %s\n", inv.ToString());
-                //         pfrom->PushMessage(NetMsgType::MNGOVERNANCEOBJECTVOTE, ss);
-                //         pushed = true;
-                //     }
-                // }
+                if (!pushed && inv.type == MSG_GOVERNANCE_OBJECT_VOTE) {
+                    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                    bool topush = false;
+                    {
+                        if (governance.HaveVoteForHash(inv.hash)) {
+                            ss.reserve(1000);
+                            if (governance.SerializeVoteForHash(inv.hash, ss)) {
+                                topush = true;
+                            }
+                        }
+                    }
+                    if (topush) {
+                        LogPrint("net", "ProcessGetData -- pushing: inv = %s\n", inv.ToString());
+                        pfrom->PushMessage(NetMsgType::MNGOVERNANCEOBJECTVOTE, ss);
+                        pushed = true;
+                    }
+                }
 
                 if (!pushed && inv.type == MSG_MASTERNODE_VERIFY) {
                     if (mnodeman.mapSeenMasternodeVerification.count(inv.hash)) {
@@ -4932,14 +4934,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             pfrom->PushVersion();
 
         pfrom->fClient = !(pfrom->nServices & NODE_NETWORK);
-    //DASH
+    //ANON
         // CNodeState* pNodeState = NULL;
         // {
         //     LOCK(cs_main);
         //     pNodeState = State(pfrom->GetId());
         //     assert(pNodeState);
         // }
-    //DASH END
+    //ANON END
 
         // Potentially mark this peer as a preferred download peer.
         UpdatePreferredDownload(pfrom, State(pfrom->GetId()));
@@ -5724,7 +5726,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             // instantsend.ProcessMessage(pfrom, strCommand, vRecv);
             // sporkManager.ProcessSpork(pfrom, strCommand, vRecv);
             masternodeSync.ProcessMessage(pfrom, strCommand, vRecv);
-            // governance.ProcessMessage(pfrom, strCommand, vRecv);
+            governance.ProcessMessage(pfrom, strCommand, vRecv);
         } else {
             // Ignore unknown commands for extensibility
             LogPrint("net", "Unknown command \"%s\" from peer=%d\n", SanitizeString(strCommand), pfrom->id);

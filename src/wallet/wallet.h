@@ -952,6 +952,11 @@ public:
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey);
     bool CommitTransactionWithMessage(CWalletTx& wtxNew, CReserveKey& reservekey, std::string strCommand);
 
+    // METHODS FOR GOVERNANCE COLLATERAL
+    bool GetBudgetSystemCollateralTX(CTransaction& tx, uint256 hash, CAmount amount);
+    bool GetBudgetSystemCollateralTX(CWalletTx& tx, uint256 hash, CAmount amount);
+
+
     static CFeeRate minTxFee;
     static CAmount GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarget, const CTxMemPool& pool);
 

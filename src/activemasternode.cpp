@@ -1,4 +1,3 @@
-// Copyright (c) 2014-2017 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -204,26 +203,22 @@ void CActiveMasternode::ManageStateInitial()
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet not available\n", GetStateString());
         return;
     }
-    LogPrintf("2");
     if(pwalletMain->IsLocked()) {
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet is locked\n", GetStateString());
         return;
     }
-    LogPrintf("3");
     if(pwalletMain->GetBalance() < 10*COIN) {
-        LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet balance is < 1000 DASH\n", GetStateString());
+        LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet balance is < 100 ANON\n", GetStateString());
         return;
     }
 
     // Choose coins to use
     CPubKey pubKeyCollateral;
     CKey keyCollateral;
-    LogPrintf("4");
     // If collateral is found switch to LOCAL mode
     if(pwalletMain->GetMasternodeVinAndKeys(vin, pubKeyCollateral, keyCollateral)) {
         eType = MASTERNODE_LOCAL;
     }
-    LogPrintf("5");
     LogPrint("masternode", "CActiveMasternode::ManageStateInitial -- End status = %s, type = %s, pinger enabled = %d\n", GetStatus(), GetTypeString(), fPingerEnabled);
 }
 

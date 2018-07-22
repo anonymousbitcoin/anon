@@ -2079,7 +2079,6 @@ void RelayTransaction(const CTransaction& tx, const CDataStream& ss)
     }
 }
 
-//dash
 void RelayInv(CInv &inv, const int minProtoVersion) {
     LOCK(cs_vNodes);
     BOOST_FOREACH(CNode* pnode, vNodes)
@@ -2425,7 +2424,7 @@ std::vector<CNode*> CopyNodeVector()
     }
     return vecNodesCopy;
 }
-//dash
+
 void ReleaseNodeVector(const std::vector<CNode*>& vecNodes)
 {
     for(size_t i = 0; i < vecNodes.size(); ++i) {

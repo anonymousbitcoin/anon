@@ -1,5 +1,4 @@
-// Copyright (c) 2014-2017 The Dash Core developers
-// Distributed under the MIT/X11 software license, see the accompanying
+// Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "activemasternode.h"
@@ -30,7 +29,7 @@ CDarkSendSigner darkSendSigner;
 
 // void CDarksendPool::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 // {
-//     if(fLiteMode) return; // ignore all Dash related functionality
+//     if(fLiteMode) return; // 
 //     if(!masternodeSync.IsBlockchainSynced()) return;
 
 //     if(strCommand == NetMsgType::DSACCEPT) {
@@ -745,7 +744,7 @@ CDarkSendSigner darkSendSigner;
 
     Being that mixing has "no fees" we need to have some kind of cost associated
     with using it to stop abuse. Otherwise it could serve as an attack vector and
-    allow endless transaction that would bloat Dash and make it unusable. To
+    allow endless transaction that would bloat Anon and make it unusable. To
     stop these kinds of attacks 1 in 10 successful transactions are charged. This
     adds up to a cost of 0.001DRK per transaction on average.
 */
@@ -2194,10 +2193,10 @@ CDarkSendSigner darkSendSigner;
 // bool CDarksendPool::GetDenominationsBits(int nDenom, std::vector<int> &vecBitsRet)
 // {
 //     // ( bit on if present, 4 denominations example )
-//     // bit 0 - 100DASH+1
-//     // bit 1 - 10DASH+1
-//     // bit 2 - 1DASH+1
-//     // bit 3 - .1DASH+1
+//     // bit 0 - 100ANON+1
+//     // bit 1 - 10ANON+1
+//     // bit 2 - 1ANON+1
+//     // bit 3 - .1ANON+1
 
 //     int nMaxDenoms = vecPrivateSendDenominations.size();
 
@@ -2460,14 +2459,14 @@ bool CDarkSendSigner::VerifyMessage(CPubKey pubkey, const std::vector<unsigned c
 //TODO: Rename/move to core
 // void ThreadCheckDarkSendPool()
 // {
-//     if(fLiteMode) return; // disable all Dash specific functionality
+//     if(fLiteMode) return;
 
 //     static bool fOneThread;
 //     if(fOneThread) return;
 //     fOneThread = true;
 
 //     // Make this thread recognisable as the PrivateSend thread
-//     RenameThread("dash-privatesend");
+//     RenameThread("anon-privatesend");
 
 //     unsigned int nTick = 0;
 //     unsigned int nDoAutoNextRun = nTick + PRIVATESEND_AUTO_TIMEOUT_MIN;

@@ -304,11 +304,6 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
 
     // INSTEAD OF CREATING DUMMY TX, CREATE MUTABLE TX
     // Add dummy coinbase tx as first transaction
-    // BTCP
-    // pblock->vtx.push_back(CTransaction());
-    // pblocktemplate->vTxFees.push_back(-1); // updated at end
-    // pblocktemplate->vTxSigOps.push_back(-1); // updated at end
-    // DASH
     // Create coinbase tx
     CMutableTransaction txNew;
     txNew.vin.resize(1);

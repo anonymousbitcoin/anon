@@ -1,4 +1,3 @@
-// Copyright (c) 2014-2017 The Dash Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -45,7 +44,7 @@ UniValue masternode(const UniValue& params, bool fHelp)
             "  debug        - Print masternode status\n"
             "  genkey       - Generate new masternodeprivkey\n"
             "  outputs      - Print masternode compatible outputs\n"
-            "  start        - Start local Hot masternode configured in dash.conf\n"
+            "  start        - Start local Hot masternode configured in anon.conf\n"
             "  start-alias  - Start single remote masternode by assigned alias configured in masternode.conf\n"
             "  start-<mode> - Start remote masternodes configured in masternode.conf (<mode>: 'all', 'missing', 'disabled')\n"
             "  status       - Print masternode status information\n"
