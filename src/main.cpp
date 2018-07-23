@@ -122,17 +122,17 @@ std::string GetUTXOFileName(int nHeight, bool isZUTXO)
         utxo_file /= ss.str();
         LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
         return utxo_file.generic_string();
-    } else {
+    // } else {
 
-        std::stringstream ss;
-        ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
-        LogPrintf("UTXO is a ZUTXO\n");
+    //     std::stringstream ss;
+    //     ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
+    //     LogPrintf("UTXO is a ZUTXO\n");
         
-        //if ^ (this is empty then zk-%05i.bin )
-        boost::filesystem::path utxo_file = utxo_path;
-        utxo_file /= ss.str();
-        LogPrintf("UTXO FILE FORMAT: %u\n", utxo_file.generic_string());
-        return utxo_file.generic_string();
+    //     //if ^ (this is empty then zk-%05i.bin )
+    //     boost::filesystem::path utxo_file = utxo_path;
+    //     utxo_file /= ss.str();
+    //     LogPrintf("UTXO FILE FORMAT: %u\n", utxo_file.generic_string());
+    //     return utxo_file.generic_string();
     }
 }
 ///////kevin aditions
