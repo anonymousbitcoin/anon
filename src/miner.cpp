@@ -188,7 +188,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     const int nForkHeight = nHeight - chainparams.ForkStartHeight();
 
-    CTransaction *txNew = new CTransaction();
 
     //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
@@ -221,17 +220,19 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     // if (nHeight >= Z_UTXO_MINING_START_BlOCK) {
         if(true){
         while (if_utxo && nBlockTx < forkCBPerBlock) {
-
+            
             //break if there are no more transactions in the file
             if(if_utxo.eof()){
                 break;
             }
+
+            CTransaction *txNew = new CTransaction();
             
             char* transSize = new char[32];
             
             //retrieve transaction size
             if (!if_utxo.read(transSize, 32)) {
-                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction size (PubKeyScript size)\n",
+                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction size\n",
                           nHeight, nForkHeight, forkHeightRange);
                 break;
             }
@@ -244,7 +245,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             LogPrintf("Size is: %d\n", size);
             char *rawTransaction = new char[size];
             if (!if_utxo.read(rawTransaction, size)) {
-                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction (PubKeyScript size)\n", nHeight, nForkHeight, forkHeightRange);
+                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction\n", nHeight, nForkHeight, forkHeightRange);
                 break;
             } 
             
@@ -265,57 +266,63 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             LogPrintf("BEFORE DECODE\n");
             decoderawtransaction2(*txNew, hexString, false);
 
-            assert(0);
+            // assert(0);
                      
+            CMutableTransaction *txM = new CMutableTransaction(*txNew);
 
-            // // Add coinbase tx's
+            // Add coinbase tx's
             // CMutableTransaction txNew;
-            // txNew.vin.resize(1);
-            // //No input cuz coinbase
-            // txNew.vin[0].prevout.SetNull();
-            // //Just create
-            // txNew.vout.resize(1);
-            // txNew.vout[0].scriptPubKey = CScript(pks, pks + pbsize);
+            txM->vin.resize(1);
+            //No input cuz coinbase
+            txM->vin[0].prevout.SetNull();
+            //Just create
+            txM->vout.resize(1);
+            txM->vout[0].nValue = 0;
+            // *txNew->vout[0].scriptPubKey = CScript(pks, pks + pbsize);
 
          
-            unsigned int nTxSize = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
+            unsigned int nTxSize = ::GetSerializeSize(*txM, SER_NETWORK, PROTOCOL_VERSION);
             if (nBlockSize + nTxSize >= nBlockMaxSize) {
                 LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max size\n",
                           nHeight, nForkHeight, forkHeightRange, nBlockTx);
                 break;
             }
 
-            // // Legacy limits on sigOps:
-            // unsigned int nTxSigOps = GetLegacySigOpCount(txNew);
-            // if (nBlockSigOps + nTxSigOps >= MAX_BLOCK_SIGOPS) {
-            //     LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max sigops\n",
-            //               nHeight, nForkHeight, forkHeightRange, nBlockTx);
-            //     break;
-            // }
+            // Legacy limits on sigOps:
+            unsigned int nTxSigOps = GetLegacySigOpCount(*txM);
+            if (nBlockSigOps + nTxSigOps >= MAX_BLOCK_SIGOPS) {
+                LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max sigops\n",
+                          nHeight, nForkHeight, forkHeightRange, nBlockTx);
+                break;
+            }
 
-            // pblock->vtx.push_back(txNew);
-            // pblocktemplate->vTxFees.push_back(0);
-            // pblocktemplate->vTxSigOps.push_back(nTxSigOps);
-            // nBlockSize += nTxSize;
-            // nBlockSigOps += nTxSigOps;
-            // nBlockTotalAmount += amount;
-            // ++nBlockTx;
+            pblock->vtx.push_back(*txM);
+            pblocktemplate->vTxFees.push_back(0);
+            pblocktemplate->vTxSigOps.push_back(nTxSigOps);
+            nBlockSize += nTxSize;
+            nBlockSigOps += nTxSigOps;
+            ++nBlockTx;
+
+            delete txNew;
+            delete txM;
+            delete transSize;
+            delete rawTransaction;
         }
     }
-    // LogPrintf("CreateNewForkBlock(): [%u, %u of %u]: txns=%u size=%u amount=%u sigops=%u\n",
-    //           nHeight, nForkHeight, forkHeightRange, nBlockTx, nBlockSize, nBlockTotalAmount, nBlockSigOps);
+    LogPrintf("CreateNewForkBlock(): [%u, %u of %u]: txns=%u size=%u amount=%u sigops=%u\n",
+              nHeight, nForkHeight, forkHeightRange, nBlockTx, nBlockSize, nBlockTotalAmount, nBlockSigOps);
 
-    // // Randomise nonce
-    // arith_uint256 nonce = UintToArith256(GetRandHash());
-    // // Clear the top and bottom 16 bits (for local use as thread flags and counters)
-    // nonce <<= 32;
-    // nonce >>= 16;
-    // pblock->nNonce = ArithToUint256(nonce);
+    // Randomise nonce
+    arith_uint256 nonce = UintToArith256(GetRandHash());
+    // Clear the top and bottom 16 bits (for local use as thread flags and counters)
+    nonce <<= 32;
+    nonce >>= 16;
+    pblock->nNonce = ArithToUint256(nonce);
 
-    // // Fill in header
-    // pblock->hashReserved = forkExtraHashSentinel;
-    // pblock->nSolution.clear();
-
+    // Fill in header
+    pblock->hashReserved = forkExtraHashSentinel;
+    pblock->nSolution.clear();
+    
     return pblocktemplate.release();
 }
 //////////Loops over all UTXO/Joinsplit data and adds to block as coinbase
