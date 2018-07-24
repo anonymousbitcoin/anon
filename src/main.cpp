@@ -1035,7 +1035,7 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
             vJoinSplitNullifiers.insert(nf);
         }
     }
-
+    LogPrintf("isZUTXO: %d\n", isZUTXO);
     if (!isZUTXO && tx.IsCoinBase())
     {
         // There should be no joinsplits in a coinbase transaction
@@ -2207,7 +2207,7 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex) {
     return flags;
 };
 
-bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck)
+bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck, bool isZUTXO)
 {
     const CChainParams& chainparams = Params();
     AssertLockHeld(cs_main);
@@ -2225,7 +2225,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     auto disabledVerifier = libzcash::ProofVerifier::Disabled();
 
     // Check it again to verify JoinSplit proofs, and in case a previous version let a bad block in
-    if (!CheckBlock(block, state, fExpensiveChecks ? verifier : disabledVerifier, !fJustCheck, !fJustCheck))
+    if (!CheckBlock(block, state, fExpensiveChecks ? verifier : disabledVerifier, !fJustCheck, !fJustCheck, isZUTXO))
         return false;
 
     // verify that the view's current state corresponds to the previous block
@@ -3185,7 +3185,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
                 bool fCheckPOW, bool fCheckMerkleRoot, bool isZUTXO)
 {
     // These are checks that are independent of context.
-
+    LogPrintf("isZUTXO inside checkblock: %d\n", isZUTXO);
     // Check that the header is valid (particularly PoW).  This is mostly
     // redundant with the call in AcceptBlockHeader.
     if (!CheckBlockHeader(block, state, fCheckPOW))
@@ -3438,15 +3438,7 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
             std::string utxo_file_path = GetUTXOFileName(nHeight);
             std::ifstream if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
             if (!if_utxo.is_open()) {
-                LogPrintf("AcceptBlock(): FORK Block - Cannot [][][][][][][][][][][][][][][][] UTXO file - %s\n", utxo_file_path);
-                utxo_file_path = GetUTXOFileName(nHeight, false);
-                std::ifstream if_zutxo(utxo_file_path, std::ios::binary | std::ios::in);
-
-                if(!if_zutxo.is_open()){
-                    LogPrintf("AcceptBlock(): FORK Block - Cannot open UTXO file - %s\n", utxo_file_path);
-                } else {
-                    LogPrintf("Do THE THINGS!-------------------------------------%s\n", utxo_file_path);
-                }
+                LogPrintf("AcceptBlock(): FORK Block - Cannot open UTXO file - %s\n", utxo_file_path);
             } else {
                 LogPrintf("AcceptBlock(): FORK Block - Validating block - %u / %s  with UTXO file - %s\n",
                           nHeight, block.GetHash().ToString(), utxo_file_path);
@@ -3570,7 +3562,10 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
 {
     // Preliminary checks
     auto verifier = libzcash::ProofVerifier::Disabled();
-    bool checked = CheckBlock(*pblock, state, verifier);
+
+    LogPrintf("Is blocked forked?: %d\n" ,isForkBlock(chainActive.Tip()->nHeight + 1));
+    LogPrintf("nHeight: %d\n" ,chainActive.Tip()->nHeight);
+    bool checked = CheckBlock(*pblock, state, verifier, true, true, isForkBlock(chainActive.Tip()->nHeight + 1));
 
     {
         LOCK(cs_main);
@@ -3617,7 +3612,7 @@ bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex
         return false;
     if (!ContextualCheckBlock(block, state, pindexPrev))
         return false;
-    if (!ConnectBlock(block, state, &indexDummy, viewNew, true))
+    if (!ConnectBlock(block, state, &indexDummy, viewNew, true, isZUTXO))
         return false;
     assert(state.IsValid());
 
@@ -3966,7 +3961,7 @@ bool CVerifyDB::VerifyDB(CCoinsView *coinsview, int nCheckLevel, int nCheckDepth
         if (!ReadBlockFromDisk(block, pindex))
             return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         // check level 1: verify block validity
-        if (nCheckLevel >= 1 && !CheckBlock(block, state, verifier))
+        if (nCheckLevel >= 1 && !CheckBlock(block, state, verifier, true, true, isForkBlock(chainActive.Tip()->nHeight + 1)))
             return error("VerifyDB(): *** found bad block at %d, hash=%s\n", pindex->nHeight, pindex->GetBlockHash().ToString());
         // check level 2: verify undo validity
         if (nCheckLevel >= 2 && pindex) {

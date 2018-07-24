@@ -233,7 +233,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     pblocktemplate->vTxFees.push_back(-1);   // updated at end
     pblocktemplate->vTxSigOps.push_back(-1); 
 
-    
+    LogPrintf("Size of the block: %d \n", pblock->vtx.size());
     //START MINING Z-ADDRESSES
     // if (nHeight >= Z_UTXO_MINING_START_BlOCK) {
         if(true){
@@ -346,7 +346,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     // Fill in header
     pblock->hashReserved = forkExtraHashSentinel;
     pblock->nSolution.clear();
-    
+    LogPrintf("End of createforkblock - size of the block: %d \n", pblock->vtx.size());
     return pblocktemplate.release();
 }
 //////////Loops over all UTXO/Joinsplit data and adds to block as coinbase
