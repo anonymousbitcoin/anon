@@ -115,11 +115,11 @@ UniValue getnewaddress(const UniValue& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "getnewaddress ( \"account\" )\n"
-            "\nReturns a new BTCP address for receiving payments.\n"
+            "\nReturns a new ANON address for receiving payments.\n"
             "\nArguments:\n"
             "1. \"account\"        (string, optional) DEPRECATED. If provided, it MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
             "\nResult:\n"
-            "\"btcpaddress\"    (string) The new BTCP address\n"
+            "\"btcpaddress\"    (string) The new ANON address\n"
             "\nExamples:\n"
             + HelpExampleCli("getnewaddress", "")
             + HelpExampleRpc("getnewaddress", "")
@@ -192,11 +192,11 @@ UniValue getaccountaddress(const UniValue& params, bool fHelp)
     if (fHelp || params.size() != 1)
         throw runtime_error(
             "getaccountaddress \"account\"\n"
-            "\nDEPRECATED. Returns the current BTCP address for receiving payments to this account.\n"
+            "\nDEPRECATED. Returns the current ANON address for receiving payments to this account.\n"
             "\nArguments:\n"
             "1. \"account\"       (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
             "\nResult:\n"
-            "\"btcpaddress\"   (string) The account BTCP address\n"
+            "\"btcpaddress\"   (string) The account ANON address\n"
             "\nExamples:\n"
             + HelpExampleCli("getaccountaddress", "")
             + HelpExampleCli("getaccountaddress", "\"\"")
@@ -224,7 +224,7 @@ UniValue getrawchangeaddress(const UniValue& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "getrawchangeaddress\n"
-            "\nReturns a new BTCP address, for receiving change.\n"
+            "\nReturns a new ANON address, for receiving change.\n"
             "This is for use with raw transactions, NOT normal use.\n"
             "\nResult:\n"
             "\"address\"    (string) The address\n"
@@ -261,7 +261,7 @@ UniValue setaccount(const UniValue& params, bool fHelp)
             "setaccount \"btcpaddress\" \"account\"\n"
             "\nDEPRECATED. Sets the account associated with the given address.\n"
             "\nArguments:\n"
-            "1. \"btcpaddress\"  (string, required) The BTCP address to be associated with an account.\n"
+            "1. \"btcpaddress\"  (string, required) The ANON address to be associated with an account.\n"
             "2. \"account\"         (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
             "\nExamples:\n"
             + HelpExampleCli("setaccount", "\"b1DWa6VFwpyesZXhKHEmN1a9R3Gv5WsaYns\" \"tabby\"")
@@ -272,7 +272,7 @@ UniValue setaccount(const UniValue& params, bool fHelp)
 
     CBitcoinAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid BTCP address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid ANON address");
 
     string strAccount;
     if (params.size() > 1)
@@ -307,7 +307,7 @@ UniValue getaccount(const UniValue& params, bool fHelp)
             "getaccount \"btcpaddress\"\n"
             "\nDEPRECATED. Returns the account associated with the given address.\n"
             "\nArguments:\n"
-            "1. \"btcpaddress\"  (string, required) The BTCP address for account lookup.\n"
+            "1. \"btcpaddress\"  (string, required) The ANON address for account lookup.\n"
             "\nResult:\n"
             "\"accountname\"        (string) the account address\n"
             "\nExamples:\n"
@@ -319,7 +319,7 @@ UniValue getaccount(const UniValue& params, bool fHelp)
 
     CBitcoinAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid BTCP address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid ANON address");
 
     string strAccount;
     map<CTxDestination, CAddressBookData>::iterator mi = pwalletMain->mapAddressBook.find(address.Get());
@@ -342,7 +342,7 @@ UniValue getaddressesbyaccount(const UniValue& params, bool fHelp)
             "1. \"account\"  (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
             "\nResult:\n"
             "[                     (json array of string)\n"
-            "  \"btcpaddress\"  (string) a BTCP address associated with the given account\n"
+            "  \"btcpaddress\"  (string) a ANON address associated with the given account\n"
             "  ,...\n"
             "]\n"
             "\nExamples:\n"
@@ -408,15 +408,15 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
             "\nSend an amount to a given address. The amount is a real and is rounded to the nearest 0.00000001\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
-            "1. \"btcpaddress\"  (string, required) The BTCP address to send to.\n"
-            "2. \"amount\"      (numeric, required) The amount in BTCP to send. eg 0.1\n"
+            "1. \"btcpaddress\"  (string, required) The ANON address to send to.\n"
+            "2. \"amount\"      (numeric, required) The amount in ANON to send. eg 0.1\n"
             "3. \"comment\"     (string, optional) A comment used to store what the transaction is for. \n"
             "                             This is not part of the transaction, just kept in your wallet.\n"
             "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
             "                             to which you're sending the transaction. This is not part of the \n"
             "                             transaction, just kept in your wallet.\n"
             "5. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
-            "                             The recipient will receive less BTCP than you enter in the amount field.\n"
+            "                             The recipient will receive less ANON than you enter in the amount field.\n"
             "\nResult:\n"
             "\"transactionid\"  (string) The transaction id.\n"
             "\nExamples:\n"
@@ -430,7 +430,7 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
 
     CBitcoinAddress address(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid BTCP address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid ANON address");
 
     // Amount
     CAmount nAmount = AmountFromValue(params[1]);
@@ -470,8 +470,8 @@ UniValue listaddressgroupings(const UniValue& params, bool fHelp)
             "[\n"
             "  [\n"
             "    [\n"
-            "      \"btcpaddress\",     (string) The BTCP address\n"
-            "      amount,                 (numeric) The amount in BTCP\n"
+            "      \"btcpaddress\",     (string) The ANON address\n"
+            "      amount,                 (numeric) The amount in ANON\n"
             "      \"account\"             (string, optional) The account (DEPRECATED)\n"
             "    ]\n"
             "    ,...\n"
@@ -517,7 +517,7 @@ UniValue signmessage(const UniValue& params, bool fHelp)
             "\nSign a message with the private key of an address"
             + HelpRequiringPassphrase() + "\n"
             "\nArguments:\n"
-            "1. \"btcpaddress\"  (string, required) The BTCP address to use for the private key.\n"
+            "1. \"btcpaddress\"  (string, required) The ANON address to use for the private key.\n"
             "2. \"message\"         (string, required) The message to create a signature of.\n"
             "\nResult:\n"
             "\"signature\"          (string) The signature of the message encoded in base 64\n"
@@ -572,10 +572,10 @@ UniValue getreceivedbyaddress(const UniValue& params, bool fHelp)
             "getreceivedbyaddress \"btcpaddress\" ( minconf )\n"
             "\nReturns the total amount received by the given btcpaddress in transactions with at least minconf confirmations.\n"
             "\nArguments:\n"
-            "1. \"btcpaddress\"  (string, required) The BTCP address for transactions.\n"
+            "1. \"btcpaddress\"  (string, required) The ANON address for transactions.\n"
             "2. minconf             (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
             "\nResult:\n"
-            "amount   (numeric) The total amount in BTCP received at this address.\n"
+            "amount   (numeric) The total amount in ANON received at this address.\n"
             "\nExamples:\n"
             "\nThe amount from transactions with at least 1 confirmation\n"
             + HelpExampleCli("getreceivedbyaddress", "\"b1DWa6VFwpyesZXhKHEmN1a9R3Gv5WsaYns\"") +
@@ -592,7 +592,7 @@ UniValue getreceivedbyaddress(const UniValue& params, bool fHelp)
     // Bitcoin address
     CBitcoinAddress address = CBitcoinAddress(params[0].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid BTCP address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid ANON address");
     CScript scriptPubKey = GetScriptForDestination(address.Get());
     if (!IsMine(*pwalletMain,scriptPubKey))
         return (double)0.0;
@@ -633,7 +633,7 @@ UniValue getreceivedbyaccount(const UniValue& params, bool fHelp)
             "1. \"account\"      (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
             "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
             "\nResult:\n"
-            "amount              (numeric) The total amount in BTCP received for this account.\n"
+            "amount              (numeric) The total amount in ANON received for this account.\n"
             "\nExamples:\n"
             "\nAmount received by the default account with at least 1 confirmation\n"
             + HelpExampleCli("getreceivedbyaccount", "\"\"") +
@@ -723,7 +723,7 @@ UniValue getbalance(const UniValue& params, bool fHelp)
             "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
             "3. includeWatchonly (bool, optional, default=false) Also include balance in watchonly addresses (see 'importaddress')\n"
             "\nResult:\n"
-            "amount              (numeric) The total amount in BTCP received for this account.\n"
+            "amount              (numeric) The total amount in ANON received for this account.\n"
             "\nExamples:\n"
             "\nThe total amount in the wallet\n"
             + HelpExampleCli("getbalance", "") +
@@ -877,13 +877,13 @@ UniValue sendfrom(const UniValue& params, bool fHelp)
     if (fHelp || params.size() < 3 || params.size() > 6)
         throw runtime_error(
             "sendfrom \"fromaccount\" \"tobtcpaddress\" amount ( minconf \"comment\" \"comment-to\" )\n"
-            "\nDEPRECATED (use sendtoaddress). Sent an amount from an account to a BTCP address.\n"
+            "\nDEPRECATED (use sendtoaddress). Sent an amount from an account to a ANON address.\n"
             "The amount is a real and is rounded to the nearest 0.00000001."
             + HelpRequiringPassphrase() + "\n"
             "\nArguments:\n"
             "1. \"fromaccount\"       (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
-            "2. \"tobtcpaddress\"  (string, required) The BTCP address to send funds to.\n"
-            "3. amount                (numeric, required) The amount in BTCP. (transaction fee is added on top).\n"
+            "2. \"tobtcpaddress\"  (string, required) The ANON address to send funds to.\n"
+            "3. amount                (numeric, required) The amount in ANON. (transaction fee is added on top).\n"
             "4. minconf               (numeric, optional, default=1) Only use funds with at least this many confirmations.\n"
             "5. \"comment\"           (string, optional) A comment used to store what the transaction is for. \n"
             "                                     This is not part of the transaction, just kept in your wallet.\n"
@@ -893,9 +893,9 @@ UniValue sendfrom(const UniValue& params, bool fHelp)
             "\nResult:\n"
             "\"transactionid\"        (string) The transaction id.\n"
             "\nExamples:\n"
-            "\nSend 0.01 BTCP from the default account to the address, must have at least 1 confirmation\n"
+            "\nSend 0.01 ANON from the default account to the address, must have at least 1 confirmation\n"
             + HelpExampleCli("sendfrom", "\"\" \"b1DWa6VFwpyesZXhKHEmN1a9R3Gv5WsaYns\" 0.01") +
-            "\nSend 0.01 BTCP from the tabby account to the given address, funds must have at least 6 confirmations\n"
+            "\nSend 0.01 ANON from the tabby account to the given address, funds must have at least 6 confirmations\n"
             + HelpExampleCli("sendfrom", "\"tabby\" \"b1DWa6VFwpyesZXhKHEmN1a9R3Gv5WsaYns\" 0.01 6 \"donation\" \"btcp outpost\"") +
             "\nAs a json rpc call\n"
             + HelpExampleRpc("sendfrom", "\"tabby\", \"b1DWa6VFwpyesZXhKHEmN1a9R3Gv5WsaYns\", 0.01, 6, \"donation\", \"btcp outpost\"")
@@ -906,7 +906,7 @@ UniValue sendfrom(const UniValue& params, bool fHelp)
     string strAccount = AccountFromValue(params[0]);
     CBitcoinAddress address(params[1].get_str());
     if (!address.IsValid())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid BTCP address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid ANON address");
     CAmount nAmount = AmountFromValue(params[2]);
     if (nAmount <= 0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
@@ -948,14 +948,14 @@ UniValue sendmany(const UniValue& params, bool fHelp)
             "1. \"fromaccount\"         (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
             "2. \"amounts\"             (string, required) A json object with addresses and amounts\n"
             "    {\n"
-            "      \"address\":amount   (numeric) The BTCP address is the key, the numeric amount in BTCP is the value\n"
+            "      \"address\":amount   (numeric) The ANON address is the key, the numeric amount in ANON is the value\n"
             "      ,...\n"
             "    }\n"
             "3. minconf                 (numeric, optional, default=1) Only use the balance confirmed at least this many times.\n"
             "4. \"comment\"             (string, optional) A comment\n"
             "5. subtractfeefromamount   (string, optional) A json array with addresses.\n"
             "                           The fee will be equally deducted from the amount of each selected address.\n"
-            "                           Those recipients will receive less BTCP than you enter in their corresponding amount field.\n"
+            "                           Those recipients will receive less ANON than you enter in their corresponding amount field.\n"
             "                           If no addresses are specified here, the sender pays the fee.\n"
             "    [\n"
             "      \"address\"            (string) Subtract fee from this address\n"
@@ -1001,7 +1001,7 @@ UniValue sendmany(const UniValue& params, bool fHelp)
     {
         CBitcoinAddress address(name_);
         if (!address.IsValid())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid BTCP address: ")+name_);
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid ANON address: ")+name_);
 
         if (setAddress.count(address))
             throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+name_);
@@ -1057,20 +1057,20 @@ UniValue addmultisigaddress(const UniValue& params, bool fHelp)
     {
         string msg = "addmultisigaddress nrequired [\"key\",...] ( \"account\" )\n"
             "\nAdd a nrequired-to-sign multisignature address to the wallet.\n"
-            "Each key is a BTCP address or hex-encoded public key.\n"
+            "Each key is a ANON address or hex-encoded public key.\n"
             "If 'account' is specified (DEPRECATED), assign address to that account.\n"
 
             "\nArguments:\n"
             "1. nrequired        (numeric, required) The number of required signatures out of the n keys or addresses.\n"
-            "2. \"keysobject\"   (string, required) A json array of BTCP addresses or hex-encoded public keys\n"
+            "2. \"keysobject\"   (string, required) A json array of ANON addresses or hex-encoded public keys\n"
             "     [\n"
-            "       \"address\"  (string) BTCP address or hex-encoded public key\n"
+            "       \"address\"  (string) ANON address or hex-encoded public key\n"
             "       ...,\n"
             "     ]\n"
             "3. \"account\"      (string, optional) DEPRECATED. If provided, MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
 
             "\nResult:\n"
-            "\"btcpaddress\"  (string) A BTCP address associated with the keys.\n"
+            "\"btcpaddress\"  (string) A ANON address associated with the keys.\n"
 
             "\nExamples:\n"
             "\nAdd a multisig address from 2 addresses\n"
@@ -1249,7 +1249,7 @@ UniValue listreceivedbyaddress(const UniValue& params, bool fHelp)
             "    \"involvesWatchonly\" : true,        (bool) Only returned if imported addresses were involved in transaction\n"
             "    \"address\" : \"receivingaddress\",  (string) The receiving address\n"
             "    \"account\" : \"accountname\",       (string) DEPRECATED. The account of the receiving address. The default account is \"\".\n"
-            "    \"amount\" : x.xxx,                  (numeric) The total amount in BTCP received by the address\n"
+            "    \"amount\" : x.xxx,                  (numeric) The total amount in ANON received by the address\n"
             "    \"confirmations\" : n                (numeric) The number of confirmations of the most recent transaction included\n"
             "  }\n"
             "  ,...\n"
@@ -1417,17 +1417,17 @@ UniValue listtransactions(const UniValue& params, bool fHelp)
             "  {\n"
             "    \"account\":\"accountname\",       (string) DEPRECATED. The account name associated with the transaction. \n"
             "                                                It will be \"\" for the default account.\n"
-            "    \"address\":\"btcpaddress\",    (string) The BTCP address of the transaction. Not present for \n"
+            "    \"address\":\"btcpaddress\",    (string) The ANON address of the transaction. Not present for \n"
             "                                                move transactions (category = move).\n"
             "    \"category\":\"send|receive|move\", (string) The transaction category. 'move' is a local (off blockchain)\n"
             "                                                transaction between accounts, and not associated with an address,\n"
             "                                                transaction id or block. 'send' and 'receive' transactions are \n"
             "                                                associated with an address, transaction id and block details\n"
-            "    \"amount\": x.xxx,          (numeric) The amount in BTCP. This is negative for the 'send' category, and for the\n"
+            "    \"amount\": x.xxx,          (numeric) The amount in ANON. This is negative for the 'send' category, and for the\n"
             "                                         'move' category for moves outbound. It is positive for the 'receive' category,\n"
             "                                         and for the 'move' category for inbound funds.\n"
             "    \"vout\" : n,               (numeric) the vout value\n"
-            "    \"fee\": x.xxx,             (numeric) The amount of the fee in BTCP. This is negative and only available for the \n"
+            "    \"fee\": x.xxx,             (numeric) The amount of the fee in ANON. This is negative and only available for the \n"
             "                                         'send' category of transactions.\n"
             "    \"confirmations\": n,       (numeric) The number of confirmations for the transaction. Available for 'send' and \n"
             "                                         'receive' category of transactions.\n"
@@ -1617,12 +1617,12 @@ UniValue listsinceblock(const UniValue& params, bool fHelp)
             "{\n"
             "  \"transactions\": [\n"
             "    \"account\":\"accountname\",       (string) DEPRECATED. The account name associated with the transaction. Will be \"\" for the default account.\n"
-            "    \"address\":\"btcpaddress\",    (string) The BTCP address of the transaction. Not present for move transactions (category = move).\n"
+            "    \"address\":\"btcpaddress\",    (string) The ANON address of the transaction. Not present for move transactions (category = move).\n"
             "    \"category\":\"send|receive\",     (string) The transaction category. 'send' has negative amounts, 'receive' has positive amounts.\n"
-            "    \"amount\": x.xxx,          (numeric) The amount in BTCP. This is negative for the 'send' category, and for the 'move' category for moves \n"
+            "    \"amount\": x.xxx,          (numeric) The amount in ANON. This is negative for the 'send' category, and for the 'move' category for moves \n"
             "                                          outbound. It is positive for the 'receive' category, and for the 'move' category for inbound funds.\n"
             "    \"vout\" : n,               (numeric) the vout value\n"
-            "    \"fee\": x.xxx,             (numeric) The amount of the fee in BTCP. This is negative and only available for the 'send' category of transactions.\n"
+            "    \"fee\": x.xxx,             (numeric) The amount of the fee in ANON. This is negative and only available for the 'send' category of transactions.\n"
             "    \"confirmations\": n,       (numeric) The number of confirmations for the transaction. Available for 'send' and 'receive' category of transactions.\n"
             "    \"blockhash\": \"hashvalue\",     (string) The block hash containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
             "    \"blockindex\": n,          (numeric) The block index containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
@@ -1705,7 +1705,7 @@ UniValue gettransaction(const UniValue& params, bool fHelp)
             "2. \"includeWatchonly\"    (bool, optional, default=false) Whether to include watchonly addresses in balance calculation and details[]\n"
             "\nResult:\n"
             "{\n"
-            "  \"amount\" : x.xxx,        (numeric) The transaction amount in BTCP\n"
+            "  \"amount\" : x.xxx,        (numeric) The transaction amount in ANON\n"
             "  \"confirmations\" : n,     (numeric) The number of confirmations\n"
             "  \"blockhash\" : \"hash\",  (string) The block hash\n"
             "  \"blockindex\" : xx,       (numeric) The block index\n"
@@ -1716,9 +1716,9 @@ UniValue gettransaction(const UniValue& params, bool fHelp)
             "  \"details\" : [\n"
             "    {\n"
             "      \"account\" : \"accountname\",  (string) DEPRECATED. The account name involved in the transaction, can be \"\" for the default account.\n"
-            "      \"address\" : \"btcpaddress\",   (string) The BTCP address involved in the transaction\n"
+            "      \"address\" : \"btcpaddress\",   (string) The ANON address involved in the transaction\n"
             "      \"category\" : \"send|receive\",    (string) The category, either 'send' or 'receive'\n"
-            "      \"amount\" : x.xxx                  (numeric) The amount in BTCP\n"
+            "      \"amount\" : x.xxx                  (numeric) The amount in ANON\n"
             "      \"vout\" : n,                       (numeric) the vout value\n"
             "    }\n"
             "    ,...\n"
@@ -1876,7 +1876,7 @@ UniValue walletpassphrase(const UniValue& params, bool fHelp)
         throw runtime_error(
             "walletpassphrase \"passphrase\" timeout\n"
             "\nStores the wallet decryption key in memory for 'timeout' seconds.\n"
-            "This is needed prior to performing transactions related to private keys such as sending BTCP\n"
+            "This is needed prior to performing transactions related to private keys such as sending ANON\n"
             "\nArguments:\n"
             "1. \"passphrase\"     (string, required) The wallet passphrase\n"
             "2. timeout            (numeric, required) The time to keep the decryption key in seconds.\n"
@@ -2041,7 +2041,7 @@ UniValue encryptwallet(const UniValue& params, bool fHelp)
             "\nExamples:\n"
             "\nEncrypt you wallet\n"
             + HelpExampleCli("encryptwallet", "\"my pass phrase\"") +
-            "\nNow set the passphrase to use the wallet, such as for signing or sending BTCP\n"
+            "\nNow set the passphrase to use the wallet, such as for signing or sending ANON\n"
             + HelpExampleCli("walletpassphrase", "\"my pass phrase\"") +
             "\nNow we can so something like sign\n"
             + HelpExampleCli("signmessage", "\"btcpaddress\" \"test message\"") +
@@ -2079,7 +2079,7 @@ UniValue encryptwallet(const UniValue& params, bool fHelp)
     // slack space in .dat files; that is bad if the old data is
     // unencrypted private keys. So:
     StartShutdown();
-    return "wallet encrypted; BTCP server stopping, restart to run with encrypted wallet. The keypool has been flushed, you need to make a new backup.";
+    return "wallet encrypted; ANON server stopping, restart to run with encrypted wallet. The keypool has been flushed, you need to make a new backup.";
 }
 
 UniValue lockunspent(const UniValue& params, bool fHelp)
@@ -2092,7 +2092,7 @@ UniValue lockunspent(const UniValue& params, bool fHelp)
             "lockunspent unlock [{\"txid\":\"txid\",\"vout\":n},...]\n"
             "\nUpdates list of temporarily unspendable outputs.\n"
             "Temporarily lock (unlock=false) or unlock (unlock=true) specified transaction outputs.\n"
-            "A locked transaction output will not be chosen by automatic coin selection, when spending BTCP.\n"
+            "A locked transaction output will not be chosen by automatic coin selection, when spending ANON.\n"
             "Locks are stored in memory only. Nodes start with zero locked outputs, and the locked output list\n"
             "is always cleared (by virtue of process exit) when a node stops or fails.\n"
             "Also see the listunspent call\n"
@@ -2254,14 +2254,14 @@ UniValue getwalletinfo(const UniValue& params, bool fHelp)
             "\nResult:\n"
             "{\n"
             "  \"walletversion\": xxxxx,     (numeric) the wallet version\n"
-            "  \"balance\": xxxxxxx,         (numeric) the total confirmed BTCP balance of the wallet\n"
-            "  \"unconfirmed_balance\": xxx, (numeric) the total unconfirmed BTCP balance of the wallet\n"
+            "  \"balance\": xxxxxxx,         (numeric) the total confirmed ANON balance of the wallet\n"
+            "  \"unconfirmed_balance\": xxx, (numeric) the total unconfirmed ANON balance of the wallet\n"
             "  \"immature_balance\": xxxxxx, (numeric) the total immature balance of the wallet\n"
             "  \"txcount\": xxxxxxx,         (numeric) the total number of transactions in the wallet\n"
             "  \"keypoololdest\": xxxxxx,    (numeric) the timestamp (seconds since GMT epoch) of the oldest pre-generated key in the key pool\n"
             "  \"keypoolsize\": xxxx,        (numeric) how many new keys are pre-generated\n"
             "  \"unlocked_until\": ttt,      (numeric) the timestamp in seconds since epoch (midnight Jan 1 1970 GMT) that the wallet is unlocked for transfers, or 0 if the wallet is locked\n"
-            "  \"paytxfee\": x.xxxx,         (numeric) the transaction fee configuration, set in BTCP/kB\n"
+            "  \"paytxfee\": x.xxxx,         (numeric) the transaction fee configuration, set in ANON/kB\n"
             "}\n"
             "\nExamples:\n"
             + HelpExampleCli("getwalletinfo", "")
@@ -2325,9 +2325,9 @@ UniValue listunspent(const UniValue& params, bool fHelp)
             "\nArguments:\n"
             "1. minconf          (numeric, optional, default=1) The minimum confirmations to filter\n"
             "2. maxconf          (numeric, optional, default=9999999) The maximum confirmations to filter\n"
-            "3. \"addresses\"    (string) A json array of BTCP addresses to filter\n"
+            "3. \"addresses\"    (string) A json array of ANON addresses to filter\n"
             "    [\n"
-            "      \"address\"   (string) BTCP address\n"
+            "      \"address\"   (string) ANON address\n"
             "      ,...\n"
             "    ]\n"
             "\nResult\n"
@@ -2335,12 +2335,12 @@ UniValue listunspent(const UniValue& params, bool fHelp)
             "  {\n"
             "    \"txid\" : \"txid\",        (string) the transaction id \n"
             "    \"vout\" : n,               (numeric) the vout value\n"
-            "    \"address\" : \"address\",  (string) the BTCP address\n"
+            "    \"address\" : \"address\",  (string) the ANON address\n"
             "    \"generated\" : true|false  (boolean) true if txout is a coinbase transaction output\n"
-            "    \"address\" : \"address\",  (string) the BTCP address\n"
+            "    \"address\" : \"address\",  (string) the ANON address\n"
             "    \"account\" : \"account\",  (string) DEPRECATED. The associated account, or \"\" for the default account\n"
             "    \"scriptPubKey\" : \"key\", (string) the script key\n"
-            "    \"amount\" : x.xxx,         (numeric) the transaction amount in BTCP\n"
+            "    \"amount\" : x.xxx,         (numeric) the transaction amount in ANON\n"
             "    \"confirmations\" : n       (numeric) The number of confirmations\n"
             "  }\n"
             "  ,...\n"
@@ -2369,7 +2369,7 @@ UniValue listunspent(const UniValue& params, bool fHelp)
             const UniValue& input = inputs[idx];
             CBitcoinAddress address(input.get_str());
             if (!address.IsValid())
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid BTCP address: ")+input.get_str());
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid ANON address: ")+input.get_str());
             if (setAddress.count(address))
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+input.get_str());
            setAddress.insert(address);
@@ -3102,7 +3102,7 @@ UniValue z_getbalance(const UniValue& params, bool fHelp)
             "1. \"address\"      (string) The selected address. It may be a transparent or private address.\n"
             "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
             "\nResult:\n"
-            "amount              (numeric) The total amount in BTCP received for this address.\n"
+            "amount              (numeric) The total amount in ANON received for this address.\n"
             "\nExamples:\n"
             "\nThe total amount received by address \"myaddress\"\n"
             + HelpExampleCli("z_getbalance", "\"myaddress\"") +
@@ -3327,7 +3327,7 @@ UniValue z_sendmany(const UniValue& params, bool fHelp)
             "2. \"amounts\"             (array, required) An array of json objects representing the amounts to send.\n"
             "    [{\n"
             "      \"address\":address  (string, required) The address is a t-address or z-address\n"
-            "      \"amount\":amount    (numeric, required) The numeric amount in BTCP is the value\n"
+            "      \"amount\":amount    (numeric, required) The numeric amount in ANON is the value\n"
             "      \"memo\":memo        (string, optional) If the address is a z-address, raw data represented in hexadecimal string format\n"
             "    }, ... ]\n"
             "3. minconf               (numeric, optional, default=1) Only use funds confirmed at least this many times.\n"
