@@ -174,7 +174,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
             pblock->nVersion = ComputeBlockVersion(pindexPrev, Params().GetConsensus());
 
             CValidationState state;
-            if (!TestBlockValidity(state, *pblock, pindexPrev, false, false))
+            if (!TestBlockValidity(state, *pblock, pindexPrev, false, false, true))
                 throw std::runtime_error("CreateNewForkBlock(): TestBlockValidity failed\n");
         }
     } while (snappedHeight != tipHeight);
@@ -206,6 +206,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     if (!pblocktemplate.get())
         return NULL;
     CBlock* pblock = &pblocktemplate->block; // pointer for convenience
+  
 
     // Largest block you're willing to create:
     unsigned int nBlockMaxSize = (unsigned int)(MAX_BLOCK_SIZE - 1000);
@@ -216,6 +217,23 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     uint64_t nBlockSigOps = 100;
     //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
 
+  // Add dummy coinbase tx as first transaction
+    CMutableTransaction txCoinbase;
+    txCoinbase.vin.resize(1);
+    txCoinbase.vin[0].prevout.SetNull();
+    txCoinbase.vout.resize(1);
+    txCoinbase.vout[0].nValue = 0;
+
+    std::unique_ptr<char[]> pubKeyScript(new char[64]);
+    unsigned char* pks = (unsigned char*)pubKeyScript.get();
+    txCoinbase.vout[0].scriptPubKey = CScript(pks, pks+64);
+    txCoinbase.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
+
+    pblock->vtx.push_back(txCoinbase);
+    pblocktemplate->vTxFees.push_back(-1);   // updated at end
+    pblocktemplate->vTxSigOps.push_back(-1); 
+
+    
     //START MINING Z-ADDRESSES
     // if (nHeight >= Z_UTXO_MINING_START_BlOCK) {
         if(true){
@@ -241,6 +259,12 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             char* endptr;
             int size = strtol(transSize, &endptr, 2);
             
+            if (size == 0) {
+                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: End of UTXO file ? - Transaction size is zero\n",
+                          nHeight, nForkHeight, forkHeightRange);
+                break;
+            }
+
             //load transaction (binary)
             LogPrintf("Size is: %d\n", size);
             char *rawTransaction = new char[size];
