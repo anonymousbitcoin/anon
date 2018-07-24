@@ -2,7 +2,7 @@
 
 This issue tracker is only for technical issues related to btcpd.
 
-General Bitcoin Private questions and/or support requests and are best directed to the [BTCP Support Website](https://support.btcprivate.org/).
+General Anonymous Bitcoin questions and/or support requests and are best directed to the [BTCP Support Website](https://support.btcprivate.org/).
 
 For reporting Zcash-specific security vulnerabilities or for sensitive discussions with their security team, please contact [security@z.cash](mailto:security@z.cash). You can use the [GPG key](https://z.cash/gpg-pubkeys/security.asc) (fingerprint: `AF85 0445 546C 18B7 86F9  2C62 88FB 8B86 D8B5 A68C`) to send an encrypted message. The key and fingerprint are duplicated on our [Public Keys page](https://z.cash/support/pubkeys.html).
 
@@ -21,7 +21,7 @@ Tell us what should happen
 ### Actual behaviour + errors
 Tell us what happens instead including any noticable error output (any messages displayed on-screen when e.g. a crash occurred)
 
-### The version of Bitcoin Private you were using:
+### The version of Anonymous Bitcoin you were using:
 Run `btpcd --version` to find out
 
 ### Machine specs:

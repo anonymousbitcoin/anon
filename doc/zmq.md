@@ -33,7 +33,7 @@ buffering or reassembly.
 
 ## Prerequisites
 
-The ZeroMQ feature in Bitcoin Private requires ZeroMQ API version 4.x or
+The ZeroMQ feature in Anonymous Bitcoin requires ZeroMQ API version 4.x or
 newer, which you will need to install if you are not using the depends
 system. Typically, it is packaged by distributions as something like
 *libzmq5-dev*. The C++ wrapper for ZeroMQ is *not* needed.

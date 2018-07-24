@@ -1,13 +1,13 @@
-Bitcoin Private
+Anonymous Bitcoin
 ----------------
 
-**Bitcoin Private v1.0.12-1**
+**Anonymous Bitcoin v1.0.12-1**
 
 P2P Port: 7933
 
 RPC Port: 7932
 
-Bitcoin Private is a fork of Zclassic, merging in a snapshotted UTXO set of Bitcoin. BTCP is financial freedom.
+Anonymous Bitcoin is a fork of Zclassic, merging in a snapshotted UTXO set of Bitcoin. BTCP is financial freedom.
 
 Build
 -----------------
@@ -24,7 +24,7 @@ sudo apt-get install \
 Build:
 ```{r, engine='bash'}
 # Checkout
-git clone https://github.com/BTCPrivate/BitcoinPrivate.git
+git clone [INSERT_GITHUB_REPO_URL]
 cd BitcoinPrivate
 # Build
 ./btcputil/build.sh -j$(nproc)
@@ -153,14 +153,14 @@ Build the latest version of BTCP using the instructions below, then follow the [
 About
 --------------
 
-[Bitcoin Private](http://zclassic.org/), like [Zclassic](https://zclassic.org/) and [Zcash](https://z.cash/), is an implementation of the "Zerocash" protocol.
+[Anonymous Bitcoin](http://zclassic.org/), like [Zclassic](https://zclassic.org/) and [Zcash](https://z.cash/), is an implementation of the "Zerocash" protocol.
 Based on Zclassic's code, it intends to offer a far higher standard of privacy
 through a sophisticated zero-knowledge proving scheme that preserves
 confidentiality of transaction metadata. Technical details are available
 in the Zcash [Protocol Specification](https://github.com/zcash/zips/raw/master/protocol/protocol.pdf).
 
-This software is the Bitcoin Private client. It downloads and stores the entire history
-of Bitcoin Private transactions. Depending on the speed of your computer and network
+This software is the Anonymous Bitcoin client. It downloads and stores the entire history
+of Anonymous Bitcoin transactions. Depending on the speed of your computer and network
 connection, the synchronization process could take a day or more once the
 blockchain has reached a significant size.
 
@@ -172,7 +172,7 @@ Security Warnings
 See important security warnings in
 [doc/security-warnings.md](doc/security-warnings.md).
 
-**Bitcoin Private is unfinished and highly experimental.** Use at your own risk.
+**Anonymous Bitcoin is unfinished and highly experimental.** Use at your own risk.
 
 Deprecation Policy
 ------------------
@@ -184,7 +184,7 @@ height and can be explicitly disabled.
 
 Where do I begin?
 -----------------
-We have a guide for joining the main Bitcoin Private network:
+We have a guide for joining the main Anonymous Bitcoin network:
 https://github.com/zcash/zcash/wiki/1.0-User-Guide
 
 ### Need Help?
@@ -199,7 +199,7 @@ https://github.com/zcash/zcash/wiki/1.0-User-Guide
 * We have a brief guide for joining the Bitcoin private testnet [here](doc/testnet.md)
 
 
-Participation in the Bitcoin Private project is subject to a
+Participation in the Anonymous Bitcoin project is subject to a
 [Code of Conduct](code_of_conduct.md).
 
 Building
