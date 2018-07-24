@@ -188,6 +188,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     const int nForkHeight = nHeight - chainparams.ForkStartHeight();
 
+    CTransaction *txNew = new CTransaction();
+
     //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
     //Read from the specified UTXO file
@@ -257,61 +259,14 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             std::string rawTransactionHex = ss.str();
             LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
        
-            // CTransaction *tx;
-            // UniValue hexString = UniValue(rawTransactionHex);
+            UniValue hexString = UniValue(rawTransactionHex);
             // LogPrintf("%s", rawTransactionHex);
-            // LogPrintf("%s", decoderawtransaction2(*tx, hexString, false).getKeys());
+      
+            LogPrintf("BEFORE DECODE\n");
+            decoderawtransaction2(*txNew, hexString, false);
+
             assert(0);
-            
-
-
-            // //parse output n
-            // char *vin_n;
-            // if (!if_utxo.read(vin_n, 4)) {
-            //     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction (PubKeyScript size)\n", nHeight, nForkHeight, forkHeightRange);
-            //     break;
-            // }
-            // //parse output script_sig
-            // char *vin_script_sig;
-            // if (!if_utxo.read(vin_script_sig, 4)) {
-
-
-            //     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction (PubKeyScript size)\n", nHeight, nForkHeight, forkHeightRange);
-            //     break;
-            // }          
-
-            // // Add coinbase tx's
-            // CMutableTransaction txNew;
-            // txNew.vin.resize(1);
-            // //No input cuz coinbase
-            // txNew.vin[0].prevout.SetNull();
-            // //Just create
-            // txNew.vout.resize(1);
-            // // txNew.vout[0].scriptPubKey = CScript(pks, pks + pbsize);
- 
-
-
-            // //convert to base 64
-            // int pbsize = bytes2uint64(pubkeysize);
-            // if (pbsize == 0) {
-            //     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? -  PubKeyScript size = 0\n",
-            //               nHeight, nForkHeight, forkHeightRange);
-            //     //but proceed
-            // }
-            // //Initialize array of characters that is the size of pubkey?
-            // std::unique_ptr<char[]> pubKeyScript(new char[pbsize]);
-
-            // if (!if_utxo.read(&pubKeyScript[0], pbsize)) {
-            //     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? Not more data (PubKeyScript)\n",
-            //               nHeight, nForkHeight, forkHeightRange);
-            //     break;
-            // }
-            // ////////////////////////////////////////////////////////////////////////
-
-            // //Needs ut64 for files? Part of .bin?
-            // uint64_t amount = bytes2uint64(coin);
-            // //makes array into string
-            // unsigned char* pks = (unsigned char*)pubKeyScript.get();
+                     
 
             // // Add coinbase tx's
             // CMutableTransaction txNew;
@@ -322,19 +277,13 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             // txNew.vout.resize(1);
             // txNew.vout[0].scriptPubKey = CScript(pks, pks + pbsize);
 
-            // //coin value
-            // txNew.vout[0].nValue = amount;
-            // if (nBlockTx == 0)
-            //     txNew.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
-            // else
-            //     txNew.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << OP_0;
-
-            // unsigned int nTxSize = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
-            // if (nBlockSize + nTxSize >= nBlockMaxSize) {
-            //     LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max size\n",
-            //               nHeight, nForkHeight, forkHeightRange, nBlockTx);
-            //     break;
-            // }
+         
+            unsigned int nTxSize = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
+            if (nBlockSize + nTxSize >= nBlockMaxSize) {
+                LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max size\n",
+                          nHeight, nForkHeight, forkHeightRange, nBlockTx);
+                break;
+            }
 
             // // Legacy limits on sigOps:
             // unsigned int nTxSigOps = GetLegacySigOpCount(txNew);
@@ -1387,93 +1336,19 @@ void GenerateBitcoins(bool fGenerate, int nThreads)
 #endif // ENABLE_MINING
 
 
-UniValue decoderawtransaction(CTransaction &tx , const UniValue& params, bool fHelp)
+UniValue decoderawtransaction2(CTransaction &tx , const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "decoderawtransaction \"hexstring\"\n"
-            "\nReturn a JSON object representing the serialized, hex-encoded transaction.\n"
-
-            "\nArguments:\n"
-            "1. \"hex\"      (string, required) The transaction hex string\n"
-
-            "\nResult:\n"
-            "{\n"
-            "  \"txid\" : \"id\",        (string) The transaction id\n"
-            "  \"version\" : n,          (numeric) The version\n"
-            "  \"locktime\" : ttt,       (numeric) The lock time\n"
-            "  \"vin\" : [               (array of json objects)\n"
-            "     {\n"
-            "       \"txid\": \"id\",    (string) The transaction id\n"
-            "       \"vout\": n,         (numeric) The output number\n"
-            "       \"scriptSig\": {     (json object) The script\n"
-            "         \"asm\": \"asm\",  (string) asm\n"
-            "         \"hex\": \"hex\"   (string) hex\n"
-            "       },\n"
-            "       \"sequence\": n     (numeric) The script sequence number\n"
-            "     }\n"
-            "     ,...\n"
-            "  ],\n"
-            "  \"vout\" : [             (array of json objects)\n"
-            "     {\n"
-            "       \"value\" : x.xxx,            (numeric) The value in BTCP\n"
-            "       \"n\" : n,                    (numeric) index\n"
-            "       \"scriptPubKey\" : {          (json object)\n"
-            "         \"asm\" : \"asm\",          (string) the asm\n"
-            "         \"hex\" : \"hex\",          (string) the hex\n"
-            "         \"reqSigs\" : n,            (numeric) The required sigs\n"
-            "         \"type\" : \"pubkeyhash\",  (string) The type, eg 'pubkeyhash'\n"
-            "         \"addresses\" : [           (json array of string)\n"
-            "           \"b1DWa6VFwpyesZXhKHEmN1a9R3Gv5WsaYns\"   (string) address\n"
-            "           ,...\n"
-            "         ]\n"
-            "       }\n"
-            "     }\n"
-            "     ,...\n"
-            "  ],\n"
-            "  \"vjoinsplit\" : [        (array of json objects, only for version >= 2)\n"
-            "     {\n"
-            "       \"vpub_old\" : x.xxx,         (numeric) public input value in BTCP\n"
-            "       \"vpub_new\" : x.xxx,         (numeric) public output value in BTCP\n"
-            "       \"anchor\" : \"hex\",         (string) the anchor\n"
-            "       \"nullifiers\" : [            (json array of string)\n"
-            "         \"hex\"                     (string) input note nullifier\n"
-            "         ,...\n"
-            "       ],\n"
-            "       \"commitments\" : [           (json array of string)\n"
-            "         \"hex\"                     (string) output note commitment\n"
-            "         ,...\n"
-            "       ],\n"
-            "       \"onetimePubKey\" : \"hex\",  (string) the onetime public key used to encrypt the ciphertexts\n"
-            "       \"randomSeed\" : \"hex\",     (string) the random seed\n"
-            "       \"macs\" : [                  (json array of string)\n"
-            "         \"hex\"                     (string) input note MAC\n"
-            "         ,...\n"
-            "       ],\n"
-            "       \"proof\" : \"hex\",          (string) the zero-knowledge proof\n"
-            "       \"ciphertexts\" : [           (json array of string)\n"
-            "         \"hex\"                     (string) output note ciphertext\n"
-            "         ,...\n"
-            "       ]\n"
-            "     }\n"
-            "     ,...\n"
-            "  ],\n"
-            "}\n"
-
-            "\nExamples:\n"
-          
-        );
-
     LOCK(cs_main);
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR));
-
     // CTransaction tx;
-
-    if (!DecodeHexTx(tx, params[0].get_str()))
+    if (!DecodeHexTx(tx, params.get_str()))
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
-
     UniValue result(UniValue::VOBJ);
     TxToJSON(tx, uint256(), result);
+
+    string strJSON = result.write() + "\n";
+    LogPrintf("JSON: \n");
+    LogPrintf("%s", strJSON);
 
     return result;
 }

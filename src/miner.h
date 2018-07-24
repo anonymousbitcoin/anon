@@ -37,7 +37,7 @@ CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey);
 boost::optional<CScript> GetMinerScriptPubKey();
 CBlockTemplate* CreateNewBlockWithKey();
 #endif
-UniValue decoderawtransaction2(CTransaction &tx , const UniValue& params, bool fHelp){};
+UniValue decoderawtransaction2(CTransaction &tx , const UniValue& params, bool fHelp);
 
 #ifdef ENABLE_MINING
 /** Modify the extranonce in a block */
