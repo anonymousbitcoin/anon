@@ -103,38 +103,55 @@ uint256 hashPid = GetRandHash();
     // return utxo_file.generic_string();
 // }
 
-///////kevin aditions
+
 std::string GetUTXOFileName(int nHeight, bool isZUTXO)
 {
     boost::filesystem::path utxo_path(forkUtxoPath);
     if (utxo_path.empty() || !utxo_path.has_filename())
     {
-        LogPrintf("GetUTXOFileName(): UTXO path is not specified, add utxo-path=<path-to-utxop-files> to your btcprivate.conf and restart\n");
+        LogPrintf("GetUTXOFileName(): UTXO path is not specified, add utxo-path=<path-to-utxop-files> to your btcprivate.conf and restart");
         return "";
     }
 
-    if(!isZUTXO){
-         std::stringstream ss;
-        // ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
-        ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
-        //if ^ (this is empty then zk-%05i.bin )
-        boost::filesystem::path utxo_file = utxo_path;
-        utxo_file /= ss.str();
-        LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
-        return utxo_file.generic_string();
-    // } else {
+    std::stringstream ss;
+    ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+    boost::filesystem::path utxo_file = utxo_path;
+    utxo_file /= ss.str();
 
-    //     std::stringstream ss;
-    //     ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
-    //     LogPrintf("UTXO is a ZUTXO\n");
-        
-    //     //if ^ (this is empty then zk-%05i.bin )
-    //     boost::filesystem::path utxo_file = utxo_path;
-    //     utxo_file /= ss.str();
-    //     LogPrintf("UTXO FILE FORMAT: %u\n", utxo_file.generic_string());
-    //     return utxo_file.generic_string();
-    }
+    return utxo_file.generic_string();
 }
+///////kevin aditions
+// std::string GetUTXOFileName(int nHeight, bool isZUTXO)
+// {
+//     boost::filesystem::path utxo_path(forkUtxoPath);
+//     if (utxo_path.empty() || !utxo_path.has_filename())
+//     {
+//         LogPrintf("GetUTXOFileName(): UTXO path is not specified, add utxo-path=<path-to-utxop-files> to your btcprivate.conf and restart\n");
+//         return "";
+//     }
+
+//     if(!isZUTXO){
+//          std::stringstream ss;
+//         // ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
+//         ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+//         //if ^ (this is empty then zk-%05i.bin )
+//         boost::filesystem::path utxo_file = utxo_path;
+//         utxo_file /= ss.str();
+//         LogPrintf("UTXO FILE FORMAT: %u", utxo_file.generic_string());
+//         return utxo_file.generic_string();
+//     // } else {
+
+//     //     std::stringstream ss;
+//     //     ss << boost::format("zk-%05i.bin") % (nHeight - forkStartHeight);
+//     //     LogPrintf("UTXO is a ZUTXO\n");
+        
+//     //     //if ^ (this is empty then zk-%05i.bin )
+//     //     boost::filesystem::path utxo_file = utxo_path;
+//     //     utxo_file /= ss.str();
+//     //     LogPrintf("UTXO FILE FORMAT: %u\n", utxo_file.generic_string());
+//     //     return utxo_file.generic_string();
+//     }
+// }
 ///////kevin aditions
 
 //#endif

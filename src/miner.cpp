@@ -49,6 +49,7 @@
 #include "core_io.h"
 #include "init.h"
 #include "keystore.h"
+#include "rpcrawtransaction.cpp"
 #include "merkleblock.h"
 #include "rpcserver.h"
 #include "script/script.h"
@@ -185,20 +186,19 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 {
     const CChainParams& chainparams = Params();
 
-    const int nForkHeight = nHeight - forkStartHeight;
+    const int nForkHeight = nHeight - chainparams.ForkStartHeight();
 
     //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
-    LogPrintf("utxo_file_path: ", utxo_file_path);
     //Read from the specified UTXO file
     std::ifstream if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
-
     if (!if_utxo.is_open()) {
         bFileNotFound = true;
         LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
                   nHeight, nForkHeight, forkHeightRange, utxo_file_path);
         return NULL;
     }
+
 
     // Create new block
     std::unique_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
@@ -225,10 +225,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 break;
             }
             
-            //public key
-            // char pubkeysize[8] = {};
-
-            char* transSize;
+            char* transSize = new char[32];
             
             //retrieve transaction size
             if (!if_utxo.read(transSize, 32)) {
@@ -237,36 +234,35 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 break;
             }
 
-            long int size  = atol(transSize);
-
-            //parse output hash
-            char *rawTransaction;
+            //convert binary size to int size
+            char* endptr;
+            int size = strtol(transSize, &endptr, 2);
+            
+            //load transaction (binary)
+            LogPrintf("Size is: %d\n", size);
+            char *rawTransaction = new char[size];
             if (!if_utxo.read(rawTransaction, size)) {
                 LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction (PubKeyScript size)\n", nHeight, nForkHeight, forkHeightRange);
                 break;
             } 
             
+            //converting binary raw transaction to hex-string raw transaction  10111011111010 => 2EFA
             std::stringstream ss;
             ss << std::hex << std::setfill('0');
             for (int i = 0; i < size; ++i)
             {
                 ss << std::setw(2) << (unsigned int)(unsigned char)(rawTransaction[i]);
             }
-            LogPrintf("Size of the 1st transaction: %d", size);
-            std::string mystr = ss.str();
-            LogPrintf("Transaction in hex: %s", mystr);
-            assert(0);
-
-            // char buffer [transactionSize];
-            // buffer[16] = 0;
-            // for(int j = 0; j < 8; j++)
-            // sprintf(&buffer[2*j], "%02X", data[j]);
-            
-            
-
+            LogPrintf("Size of the 1st transaction: %d\n", size);
+            std::string rawTransactionHex = ss.str();
+            LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
+       
             // CTransaction *tx;
-            // UniValue hexString = UniValue("raw transaction string");
-            // decoderawtransaction();
+            // UniValue hexString = UniValue(rawTransactionHex);
+            // LogPrintf("%s", rawTransactionHex);
+            // LogPrintf("%s", decoderawtransaction2(*tx, hexString, false).getKeys());
+            assert(0);
+            
 
 
             // //parse output n
@@ -1142,7 +1138,9 @@ void static BitcoinMiner()
                 }
 
                 bool bFileNotFound = false;
+                LogPrintf("BEFORE\n");
                 pblocktemplate.reset(CreateNewForkBlock(bFileNotFound));
+                LogPrintf("AFTER\n");
                 if (!pblocktemplate.get()) {
                     if (bFileNotFound) {
                         MilliSleep(1000);
@@ -1475,7 +1473,7 @@ UniValue decoderawtransaction(CTransaction &tx , const UniValue& params, bool fH
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
 
     UniValue result(UniValue::VOBJ);
-    // TxToJSON(tx, uint256(), result);
+    TxToJSON(tx, uint256(), result);
 
-    return true;
+    return result;
 }
