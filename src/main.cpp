@@ -1052,7 +1052,7 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
     else
     {
         BOOST_FOREACH(const CTxIn& txin, tx.vin)
-            if (txin.prevout.IsNull())
+            if (!isZUTXO && txin.prevout.IsNull())
                 return state.DoS(10, error("CheckTransaction(): prevout is null"),
                                  REJECT_INVALID, "bad-txns-prevout-null");
     }
