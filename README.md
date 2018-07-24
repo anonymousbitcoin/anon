@@ -7,7 +7,7 @@ P2P Port: 7933
 
 RPC Port: 7932
 
-Anonymous Bitcoin is a fork of Zclassic, merging in a snapshotted UTXO set of Bitcoin. BTCP is financial freedom.
+Anonymous Bitcoin is a fork of Zclassic, merging in a snapshotted UTXO set of Bitcoin. ANON is financial freedom.
 
 Build
 -----------------
@@ -55,7 +55,7 @@ Run:
 ```
 
 ### Windows
-Windows is not a fully supported build - however there are two ways to build BTCP for Windows:
+Windows is not a fully supported build - however there are two ways to build ANON for Windows:
 
 * On Linux using [Mingw-w64](https://mingw-w64.org/doku.php) cross compiler tool chain. Ubuntu 16.04 Xenial is proven to work and the instructions is for such release.
 * On Windows 10 (64-bit version) using [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/commandline/wsl/about) and Mingw-w64 cross compiler tool chain.
@@ -196,7 +196,7 @@ https://github.com/zcash/zcash/wiki/1.0-User-Guide
 
 * Code review is welcome!
 * If you want to get to know us join our Discord: https://discord.gg/9xezcaK
-* We have a brief guide for joining the Bitcoin private testnet [here](doc/testnet.md)
+* We have a brief guide for joining the Anonymous Bitcoin testnet [here](doc/testnet.md)
 
 
 Participation in the Anonymous Bitcoin project is subject to a
@@ -205,7 +205,7 @@ Participation in the Anonymous Bitcoin project is subject to a
 Building
 --------
 
-Build BTCP along with most dependencies from source by running
+Build ANON along with most dependencies from source by running
 `./btcputil/build.sh`. Currently only Linux is officially supported.
 
 License
