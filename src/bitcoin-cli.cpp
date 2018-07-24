@@ -72,7 +72,7 @@ static bool AppInitRPC(int argc, char* argv[])
         std::string strUsage = _("ANON RPC client version") + " " + FormatFullVersion() + "\n" + PrivacyInfo();
         if (!mapArgs.count("-version")) {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  btcp-cli [options] <command> [params]  " + _("Send command to BTCP") + "\n" +
+                  "  btcp-cli [options] <command> [params]  " + _("Send command to ANON") + "\n" +
                   "  btcp-cli [options] help                " + _("List commands") + "\n" +
                   "  btcp-cli [options] help <command>      " + _("Get help for a command") + "\n";
 

@@ -148,7 +148,7 @@ If you plan to build for windows and linux at the same time, be sure to delete a
 
 ### Testnet
 
-Build the latest version of BTCP using the instructions below, then follow the [testnet guide](doc/testnet.md)
+Build the latest version of ANON using the instructions below, then follow the [testnet guide](doc/testnet.md)
 
 About
 --------------
