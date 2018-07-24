@@ -125,6 +125,7 @@ EOF
 main
 rm -f /tmp/fetch_params.lock
 
+# anonchange
 if [ ! -f "$HOME/Library/Application Support/BTCPrivate/btcprivate.conf" ]; then
     echo "Creating btcprivate.conf"
     mkdir -p "$HOME/Library/Application Support/BTCPrivate/"
