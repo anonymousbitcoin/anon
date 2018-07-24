@@ -15,7 +15,7 @@ from functools import wraps
 
 def main(args=sys.argv[1:]):
     """
-    Perform the final Bitcoin Private release process up to the git tag.
+    Perform the final Anonymous Bitcoin release process up to the git tag.
     """
     opts = parse_args(args)
     chdir_to_repo(opts.REPO)
@@ -200,7 +200,7 @@ def gen_release_notes(release):
 @phase('Updating debian changelog.')
 def update_debian_changelog(release):
     os.environ['DEBEMAIL'] = 'team@'
-    os.environ['DEBFULLNAME'] = 'Bitcoin Private'
+    os.environ['DEBFULLNAME'] = 'Anonymous Bitcoin'
     sh_log(
         'debchange',
         '--newversion', release.debversion,
@@ -227,10 +227,10 @@ def chdir_to_repo(repo):
 def patch_README(release, releaseprev):
     with PathPatcher('README.md') as (inf, outf):
         firstline = inf.readline()
-        assert firstline == 'Bitcoin Private {}\n'.format(releaseprev.novtext), \
+        assert firstline == 'Anonymous Bitcoin {}\n'.format(releaseprev.novtext), \
             repr(firstline)
 
-        outf.write('Bitcoin Private {}\n'.format(release.novtext))
+        outf.write('Anonymous Bitcoin {}\n'.format(release.novtext))
         outf.write(inf.read())
 
 

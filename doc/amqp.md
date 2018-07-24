@@ -6,8 +6,8 @@ transactions between applications.  AMQP supports both broker and
 brokerless messaging.  AMQP 1.0 is an open standard and has been
 ratified as ISO/IEC 19464.
 
-The Bitcoin Private daemon can be configured to act as a trusted "border
-router", implementing the Bitcoin Private P2P protocol and relay, making
+The Anonymous Bitcoin daemon can be configured to act as a trusted "border
+router", implementing the Anonymous Bitcoin P2P protocol and relay, making
 consensus decisions, maintaining the local blockchain database,
 broadcasting locally generated transactions into the network, and
 providing a queryable RPC interface to interact on a polled basis for
@@ -31,7 +31,7 @@ buffering or reassembly.
 
 ## Prerequisites
 
-The AMQP feature in Bitcoin Private requires [Qpid Proton](https://qpid.apache.org/proton/)
+The AMQP feature in Anonymous Bitcoin requires [Qpid Proton](https://qpid.apache.org/proton/)
 version 0.17 or newer, which you will need to install if you are not
 using the depends system. Typically, it is packaged by distributions as
 something like *libqpid-proton*. The C++ wrapper for AMQP *is* required.
@@ -105,7 +105,7 @@ No authentication or authorization is done on peers that btcpd connects
 to; it is assumed that the AMQP link is exposed only to trusted entities,
 using other means such as firewalling.
 
-TLS support may be added once OpenSSL has been removed from the Bitcoin Private
+TLS support may be added once OpenSSL has been removed from the Anonymous Bitcoin
 project and alternative TLS implementations have been evaluated.
 
 SASL support may be added in a future update for secure communication.
