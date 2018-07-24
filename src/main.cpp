@@ -1036,14 +1036,14 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
         }
     }
 
-    if (tx.IsCoinBase())
+    if (!isZUTXO && tx.IsCoinBase())
     {
         // There should be no joinsplits in a coinbase transaction
         if (tx.vjoinsplit.size() > 0)
             return state.DoS(100, error("CheckTransaction(): coinbase has joinsplits"),
                              REJECT_INVALID, "bad-cb-has-joinsplits");
 
-        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100){
+        if ((tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)){
             LogPrintf("Script size: %s\n", tx.vin[0].scriptSig.size());
             return state.DoS(100, error("CheckTransaction(): coinbase script size"),
                              REJECT_INVALID, "bad-cb-length");
