@@ -3,8 +3,8 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: BTCPrivate consensus library
-Description: Library for the BTCPrivate consensus protocol.
+Name: Anonymous Bitcoin consensus library
+Description: Library for the Anon consensus protocol.
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lzcashconsensus
 Cflags: -I${includedir}
