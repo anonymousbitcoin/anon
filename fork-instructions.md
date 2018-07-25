@@ -16,20 +16,20 @@ Follow the instructions [here]([INSERT_GITHUB_REPO_URL]).
 
 **Download + Decompress Snapshot Data (BTC UTXOs)**
 ```
-cd ~/.btcprivate/
-curl https://s3.amazonaws.com/btcp.snapshot/utxo_snapshot.tar.gz | tar xvz
+cd ~/.anon/
+curl https://s3.amazonaws.com/anon.snapshot/utxo_snapshot.tar.gz | tar xvz
 ```
 
 You can also generate the utxo_snapshot yourself [here]([INSERT_GITHUB_REPO_URL]).
 
 **Make the config file**
 ```
-mkdir ~/.btcprivate
-touch ~/.btcprivate/btcprivate.conf
+mkdir ~/.anon
+touch ~/.anon/anon.conf
 ```
 
 **Run the daemon**
 ```
 cd ~/BitcoinPrivate
-./src/btcpd
+./src/anond
 ```
