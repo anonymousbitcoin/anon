@@ -5,7 +5,7 @@ connections, inter-process communication, and shared-memory,
 providing various message-oriented semantics such as publish/subcribe,
 request/reply, and push/pull.
 
-The BTCP daemon can be configured to act as a trusted "border
+The ANON daemon can be configured to act as a trusted "border
 router", implementing the anon/zcash wire protocol and relay, making
 consensus decisions, maintaining the local blockchain database,
 broadcasting locally generated transactions into the network, and

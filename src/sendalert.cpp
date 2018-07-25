@@ -93,8 +93,8 @@ void ThreadSendAlert()
     alert.strRPCError   = alert.strStatusBar;
 
     // Set specific client version/versions here. If setSubVer is empty, no filtering on subver is done:
-    // alert.setSubVer.insert(std::string("/BTCP:1.0.12/"));
-    const std::vector<std::string> useragents = {"BTCP"};
+    // alert.setSubVer.insert(std::string("/ANON:1.0.12/"));
+    const std::vector<std::string> useragents = {"ANON"};
 
     BOOST_FOREACH(const std::string& useragent, useragents) {
         alert.setSubVer.insert(std::string("/"+useragent+":1.0.10-1/"));

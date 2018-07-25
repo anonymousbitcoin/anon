@@ -14,7 +14,7 @@ March 2, 2018
 
 Follow the instructions [here]([INSERT_GITHUB_REPO_URL]).
 
-**Download + Decompress Snapshot Data (BTC UTXOs)**
+**Download + Decompress Snapshot Data (ANON UTXOs)**
 ```
 cd ~/.anon/
 curl https://s3.amazonaws.com/anon.snapshot/utxo_snapshot.tar.gz | tar xvz

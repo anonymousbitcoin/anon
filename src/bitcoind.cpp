@@ -83,7 +83,7 @@ bool AppInit(int argc, char* argv[])
         else
         {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  anond [options]                     " + _("Start BTCP Daemon") + "\n";
+                  "  anond [options]                     " + _("Start ANON Daemon") + "\n";
 
             strUsage += "\n" + HelpMessage(HMM_BITCOIND);
         }
@@ -152,7 +152,7 @@ bool AppInit(int argc, char* argv[])
         fDaemon = GetBoolArg("-daemon", false);
         if (fDaemon)
         {
-            fprintf(stdout, "BTCP server starting\n");
+            fprintf(stdout, "ANON server starting\n");
 
             // Daemonize
             pid_t pid = fork();
