@@ -38,11 +38,11 @@ static const int SIGHASH_BASE_MASK = ~SIGHASH_FLAGS_MASK;
 enum
 {
     FORKID_NONE = 0,
-    FORKID_BTCP = 42,
-    FORKID_BTCGPU = 79
+    FORKID_ANONP = 42,
+    FORKID_ANONGPU = 79
 };
 
-static const int FORKID_IN_USE = FORKID_BTCP;
+static const int FORKID_IN_USE = FORKID_ANONP;
 
 /** Script verification flags */
 enum

@@ -33,13 +33,13 @@ function anond_start {
     mkdir -p "$DATADIR/regtest"
     touch "$DATADIR/anon.conf"
     ./src/anond -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
-    BTCPD_PID=$!
+    ANOND_PID=$!
     zcash_rpc_wait_for_start
 }
 
 function anond_stop {
     zcash_rpc stop > /dev/null
-    wait $BTCPD_PID
+    wait $ANOND_PID
 }
 
 function anond_massif_start {
@@ -48,13 +48,13 @@ function anond_massif_start {
     touch "$DATADIR/anon.conf"
     rm -f massif.out
     valgrind --tool=massif --time-unit=ms --massif-out-file=massif.out ./src/anond -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
-    BTCPD_PID=$!
+    ANOND_PID=$!
     zcash_rpc_wait_for_start
 }
 
 function anond_massif_stop {
     zcash_rpc stop > /dev/null
-    wait $BTCPD_PID
+    wait $ANOND_PID
     ms_print massif.out
 }
 
@@ -64,13 +64,13 @@ function anond_valgrind_start {
     touch "$DATADIR/anon.conf"
     rm -f valgrind.out
     valgrind --leak-check=yes -v --error-limit=no --log-file="valgrind.out" ./src/anond -regtest -datadir="$DATADIR" -rpcuser=user -rpcpassword=password -rpcport=5983 -showmetrics=0 &
-    BTCPD_PID=$!
+    ANOND_PID=$!
     zcash_rpc_wait_for_start
 }
 
 function anond_valgrind_stop {
     zcash_rpc stop > /dev/null
-    wait $BTCPD_PID
+    wait $ANOND_PID
     cat valgrind.out
 }
 

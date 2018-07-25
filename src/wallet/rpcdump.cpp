@@ -184,7 +184,7 @@ UniValue importaddress(const UniValue& params, bool fHelp)
         std::vector<unsigned char> data(ParseHex(params[0].get_str()));
         script = CScript(data.begin(), data.end());
     } else {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid BTCP address or script");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid ANON address or script");
     }
 
     string strLabel = "";
@@ -300,7 +300,7 @@ UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys
         if (vstr.size() < 2)
             continue;
 
-        // Let's see if the address is a valid BTCP spending key
+        // Let's see if the address is a valid ANON spending key
         if (fImportZKeys) {
             try {
                 CZCSpendingKey spendingkey(vstr[0]);
@@ -323,7 +323,7 @@ UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys
             }
             catch (const std::runtime_error &e) {
                 LogPrint("zrpc","Importing detected an error: %s\n", e.what());
-                // Not a valid spending key, so carry on and see if it's a BTCP style address.
+                // Not a valid spending key, so carry on and see if it's a ANON style address.
             }
         }
 
@@ -410,7 +410,7 @@ UniValue dumpprivkey(const UniValue& params, bool fHelp)
     string strAddress = params[0].get_str();
     CBitcoinAddress address;
     if (!address.SetString(strAddress))
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid BTCP address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid ANON address");
     CKeyID keyID;
     if (!address.GetKeyID(keyID))
         throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to a key");

@@ -15,10 +15,10 @@ touch ~/.anon/anon.conf
 #### Windows
 Click on Start/Windows Logo and type `cmd` once there type `start %AppData%\`. It will open the explorer in that directory. Create a new folder called "Anon" and a text file. Open the text file and save as as `anon.conf` (be sure you remove the txt extension) in the directory. An empty file is sufficient
 
-Create a Batch file in the BTCP directory called "start-wallet.bat" with the following:
+Create a Batch file in the ANON directory called "start-wallet.bat" with the following:
 
 ```
-echo "Starting the BTCP Wallet"
+echo "Starting the ANON Wallet"
 powershell -Command ".anond.exe" -testnet -gen
 @pause
 ```
