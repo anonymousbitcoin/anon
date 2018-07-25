@@ -137,3 +137,4 @@ zcash-tx.dSYM/*
 **/zcash/GenerateParams.dSYM
 **/zcash-tx.dSYM
 **/zcash-gtest.dSYM
+**/anon-cli.dSYM
