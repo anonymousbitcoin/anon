@@ -108,7 +108,6 @@ bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& param
     unsigned int n = params.EquihashN();
     unsigned int k = params.EquihashK();
 
-    // Added from btcz
     size_t nSolSize = pblock->nSolution.size();
     switch (nSolSize){
         case 1344: n=200; k=9; break;
