@@ -44,11 +44,11 @@ Run the release script, which will verify you are on the latest clean
 checkout of master, create a branch, then commit standard automated
 changes to that branch locally:
 
-    $ ./btcputil/make-release.py <RELEASE> <RELEASE_PREV> <APPROX_RELEASE_HEIGHT>
+    $ ./anonutil/make-release.py <RELEASE> <RELEASE_PREV> <APPROX_RELEASE_HEIGHT>
 
 Example:
 
-    $ ./btcputil/make-release.py v1.0.9 v1.0.8-1 120000
+    $ ./anonutil/make-release.py v1.0.9 v1.0.8-1 120000
 
 ### Create, Review, and Merge the release branch pull request
 
@@ -102,10 +102,10 @@ Notify the Anonymous Bitcoin DevOps engineer/sysadmin that the release has been 
 * often the same server can be re-used, and the role idempotently handles upgrades, but if not then they also need to update DNS records
 * possible manual steps: blowing away the `testnet3` dir, deleting old parameters, restarting DNS seeder
 
-Then, verify that nodes can connect to the testnet server, and update the guide on the wiki to ensure the correct hostname is listed in the recommended btcprivate.conf.
+Then, verify that nodes can connect to the testnet server, and update the guide on the wiki to ensure the correct hostname is listed in the recommended anon.conf.
 
 ### Update the 1.0 User Guide
 
-### Publish the release announcement (blog, btcp-dev, slack)
+### Publish the release announcement (blog, anon-dev, slack)
 
 ## Celebrate

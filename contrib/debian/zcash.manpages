@@ -1,2 +1,2 @@
-DEBIAN/manpages/btcp-cli.1
-DEBIAN/manpages/btcpd.1
+DEBIAN/manpages/anon-cli.1
+DEBIAN/manpages/anond.1

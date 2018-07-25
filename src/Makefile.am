@@ -71,11 +71,11 @@ noinst_PROGRAMS =
 TESTS =
 
 if BUILD_BITCOIND
-  bin_PROGRAMS += btcpd
+  bin_PROGRAMS += anond
 endif
 
 if BUILD_BITCOIN_UTILS
-  bin_PROGRAMS += btcp-cli zcash-tx
+  bin_PROGRAMS += anon-cli zcash-tx
 endif
 
 LIBZCASH_H = \
@@ -223,7 +223,7 @@ obj/build.h: FORCE
 	  $(abs_top_srcdir)
 libbitcoin_util_a-clientversion.$(OBJEXT): obj/build.h
 
-# server: btcpd
+# server: anond
 libbitcoin_server_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
 libbitcoin_server_a_SOURCES = \
   sendalert.cpp \
@@ -302,7 +302,7 @@ libbitcoin_proton_a_SOURCES = \
   amqp/amqppublishnotifier.cpp
 endif
 
-# wallet: btcpd, but only linked when wallet enabled
+# wallet: anond, but only linked when wallet enabled
 libbitcoin_wallet_a_CPPFLAGS = $(BITCOIN_INCLUDES)
 libbitcoin_wallet_a_SOURCES = \
   utiltest.cpp \
@@ -353,7 +353,7 @@ crypto_libbitcoin_crypto_a_SOURCES += \
   ${EQUIHASH_TROMP_SOURCES}
 endif
 
-# common: shared between btcpd and non-server tools
+# common: shared between anond and non-server tools
 libbitcoin_common_a_CPPFLAGS = $(BITCOIN_INCLUDES)
 libbitcoin_common_a_SOURCES = \
   amount.cpp \
@@ -408,7 +408,7 @@ if GLIBC_BACK_COMPAT
 libbitcoin_util_a_SOURCES += compat/glibc_compat.cpp
 endif
 
-# cli: btcp-cli
+# cli: anon-cli
 libbitcoin_cli_a_CPPFLAGS = $(BITCOIN_INCLUDES)
 libbitcoin_cli_a_SOURCES = \
   rpcclient.cpp \
@@ -419,15 +419,15 @@ nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
 # bitcoind binary #
-btcpd_SOURCES = bitcoind.cpp
-btcpd_CPPFLAGS = $(BITCOIN_INCLUDES)
-btcpd_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+anond_SOURCES = bitcoind.cpp
+anond_CPPFLAGS = $(BITCOIN_INCLUDES)
+anond_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-btcpd_SOURCES += bitcoind-res.rc
+anond_SOURCES += bitcoind-res.rc
 endif
 
-btcpd_LDADD = \
+anond_LDADD = \
   $(LIBBITCOIN_SERVER) \
   $(LIBBITCOIN_COMMON) \
   $(LIBUNIVALUE) \
@@ -439,14 +439,14 @@ btcpd_LDADD = \
   $(LIBSECP256K1)
 
 if ENABLE_ZMQ
-btcpd_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
+anond_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
 endif
 
 if ENABLE_WALLET
-btcpd_LDADD += libbitcoin_wallet.a
+anond_LDADD += libbitcoin_wallet.a
 endif
 
-btcpd_LDADD += \
+anond_LDADD += \
   $(BOOST_LIBS) \
   $(BDB_LIBS) \
   $(SSL_LIBS) \
@@ -459,19 +459,19 @@ btcpd_LDADD += \
   $(LIBZCASH_LIBS)
 
 if ENABLE_PROTON
-btcpd_LDADD += $(LIBBITCOIN_PROTON) $(PROTON_LIBS)
+anond_LDADD += $(LIBBITCOIN_PROTON) $(PROTON_LIBS)
 endif
 
 # bitcoin-cli binary #
-btcp_cli_SOURCES = bitcoin-cli.cpp
-btcp_cli_CPPFLAGS = $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
-btcp_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+anon_cli_SOURCES = bitcoin-cli.cpp
+anon_cli_CPPFLAGS = $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
+anon_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-btcp_cli_SOURCES += bitcoin-cli-res.rc
+anon_cli_SOURCES += bitcoin-cli-res.rc
 endif
 
-btcp_cli_LDADD = \
+anon_cli_LDADD = \
   $(LIBBITCOIN_CLI) \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_UTIL) \

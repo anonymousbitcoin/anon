@@ -685,7 +685,7 @@ static bool ProcessBlockFound(CBlock* pblock)
     {
         LOCK(cs_main);
         if (pblock->hashPrevBlock != chainActive.Tip()->GetBlockHash())
-            return error("BTCPrivate Miner: generated block is stale");
+            return error("ANON Miner: generated block is stale");
     }
 
 #ifdef ENABLE_WALLET
@@ -704,7 +704,7 @@ static bool ProcessBlockFound(CBlock* pblock)
     // Process this block the same as if we had received it from another node
     CValidationState state;
     if (!ProcessNewBlock(state, NULL, pblock, true, NULL))
-        return error("BTCPrivate Miner: ProcessNewBlock, block not accepted");
+        return error("ANON Miner: ProcessNewBlock, block not accepted");
 
     TrackMinedBlock(pblock->GetHash());
 
@@ -717,9 +717,9 @@ void static BitcoinMiner(CWallet *pwallet)
 void static BitcoinMiner()
 #endif
 {
-    LogPrintf("BTCPrivate Miner started %s\n");
+    LogPrintf("ANON Miner started %s\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
-    RenameThread("btcp-miner");
+    RenameThread("anon-miner");
     const CChainParams& chainparams = Params();
 
 #ifdef ENABLE_WALLET
@@ -782,7 +782,7 @@ void static BitcoinMiner()
 
             if (isNextBlockFork) {
                 if (!bForkModeStarted) {
-                    LogPrintf("BTCPrivate Miner: switching into fork mode\n");
+                    LogPrintf("ANON Miner: switching into fork mode\n");
                     bForkModeStarted = true;
                 }
 
@@ -793,21 +793,21 @@ void static BitcoinMiner()
                         MilliSleep(1000);
                         continue;
                     } else {
-                        LogPrintf("Error in BTCPrivate Miner: Cannot create Fork Block\n");
+                        LogPrintf("Error in ANON Miner: Cannot create Fork Block\n");
                         return;
                     }
                 }
                 pblock = &pblocktemplate->block;
                 pblock->hashMerkleRoot = pblock->BuildMerkleTree();
 
-                LogPrintf("Running BTCPrivate Miner with %u forking transactions in block (%u bytes) and N = %d, K = %d\n",
+                LogPrintf("Running ANON Miner with %u forking transactions in block (%u bytes) and N = %d, K = %d\n",
                           pblock->vtx.size(),
                           ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION),
                           n, k);
             } else {
                 //if not in forking mode and/or provided file is read to the end - exit
                 if (bForkModeStarted) {
-                    LogPrintf("BTCPrivate Miner: Fork is done - switching back to regular miner\n");
+                    LogPrintf("ANON Miner: Fork is done - switching back to regular miner\n");
                     bForkModeStarted = false;
                 }
 
@@ -821,16 +821,16 @@ void static BitcoinMiner()
                 if (!pblocktemplate.get())
                 {
                     if (GetArg("-mineraddress", "").empty()) {
-                        LogPrintf("Error in BTCPrivate Miner: Keypool ran out, please call keypoolrefill before restarting the mining thread\n");
+                        LogPrintf("Error in ANON Miner: Keypool ran out, please call keypoolrefill before restarting the mining thread\n");
                     } else {
                         // Should never reach here, because -mineraddress validity is checked in init.cpp
-                        LogPrintf("Error in BTCPrivate Miner: Invalid -mineraddress\n");
+                        LogPrintf("Error in ANON Miner: Invalid -mineraddress\n");
                     }
                     return;
                 }
                 pblock = &pblocktemplate->block;
 
-                LogPrintf("Running BTCPrivate Miner with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
+                LogPrintf("Running ANON Miner with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
                           ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
 
                 IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
@@ -885,7 +885,7 @@ void static BitcoinMiner()
 
                     // Found a solution
                     SetThreadPriority(THREAD_PRIORITY_NORMAL);
-                    LogPrintf("BTCPrivate Miner:\n");
+                    LogPrintf("ANON Miner:\n");
                     LogPrintf("proof-of-work found  \n  hash: %s  \ntarget: %s\n", pblock->GetHash().GetHex(), hashTarget.GetHex());
 
                     if (ProcessBlockFound(pblock
@@ -992,14 +992,14 @@ void static BitcoinMiner()
     {
         miningTimer.stop();
         c.disconnect();
-        LogPrintf("BTCPrivate Miner terminated\n");
+        LogPrintf("ANON Miner terminated\n");
         throw;
     }
     catch (const std::runtime_error &e)
     {
         miningTimer.stop();
         c.disconnect();
-        LogPrintf("BTCPrivate Miner runtime error: %s\n", e.what());
+        LogPrintf("ANON Miner runtime error: %s\n", e.what());
         return;
     }
     miningTimer.stop();

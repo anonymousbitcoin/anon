@@ -2,8 +2,8 @@
 *.deb
 *.exe
 src/bitcoin
-src/btcpd
-src/btcp-cli
+src/anond
+src/anon-cli
 src/zcash-gtest
 src/zcash-tx
 src/test/test_bitcoin
@@ -61,7 +61,7 @@ src/univalue/gen
 *.o-*
 .zcash
 .zclassic
-.btcprivate
+.anon
 *.a
 *.pb.cc
 *.pb.h
