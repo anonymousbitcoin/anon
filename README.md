@@ -25,33 +25,33 @@ Build:
 ```{r, engine='bash'}
 # Checkout
 git clone [INSERT_GITHUB_REPO_URL]
-cd BitcoinPrivate
+cd anon
 # Build
-./btcputil/build.sh -j$(nproc)
+./anonutil/build.sh -j$(nproc)
 # Fetch Zcash ceremony keys
-./btcputil/fetch-params.sh
+./anonutil/fetch-params.sh
 ```
 
 Create Config File:
 ```
-mkdir ~/.btcprivate
-touch ~/.btcprivate/btcprivate.conf
-vi ~/.btcprivate/btcprivate.conf
+mkdir ~/.anon
+touch ~/.anon/anon.conf
+vi ~/.anon/anon.conf
 ```
 
-Add following lines to `btcprivate.conf` and be sure to change the rpcpassword:
+Add following lines to `anon.conf` and be sure to change the rpcpassword:
 ```
-rpcuser=btcprivaterpc
+rpcuser=anonrpc
 rpcpassword=set-a-password
 rpcallowip=127.0.0.1
-#addnode=dnsseed.btcprivate.org
-#addnode=dnsseed.btcprivate.co
+#addnode=dnsseed.anon.org
+#addnode=dnsseed.anon.co
 ```
 
 
 Run:
 ```
-./src/btcpd
+./src/anond
 ```
 
 ### Windows
@@ -97,13 +97,13 @@ and add:
 linker = "/usr/bin/x86_64-w64-mingw32-gcc"
 ```
 
-Note that in WSL, the BTCPrivate source code must be somewhere in the default mount file system. i.e /usr/src/BTCPrivate, and not on /mnt/d/. What this means is that you cannot build directly on the windows system
+Note that in WSL, the Anon source code must be somewhere in the default mount file system. i.e /usr/src/anon, and not on /mnt/d/. What this means is that you cannot build directly on the windows system
 
 4. Build for Windows
 
 ```{r, engine='bash'}
 PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
-./btcputil/build-win.sh -j$(nproc)
+./anonutil/build-win.sh -j$(nproc)
 ```
 
 5. Installation
@@ -114,10 +114,10 @@ If compiling on linux, use the following command to build the executables in `./
 sudo make install DESTDIR=
 ```
 
-If compiling using WSL, use the following command to build the executables in `c:\btcp\BTCPrivate
+If compiling using WSL, use the following command to build the executables in `c:\anon\anon
 
 ```{r, engine='bash'}
-sudo make install DESTDIR=/mnt/c/btcp/BTCPrivate
+sudo make install DESTDIR=/mnt/c/anon/anon
 ```
 
 ### Mac
@@ -135,11 +135,11 @@ brew install gcc5 --without-multilib
 Install:
 ```{r, engine='bash'}
 # Build
-./btcputil/build-mac.sh -j$(sysctl -n hw.physicalcpu)
+./anonutil/build-mac.sh -j$(sysctl -n hw.physicalcpu)
 # fetch key
-./btcputil/fetch-params.sh
+./anonutil/fetch-params.sh
 # Run
-./src/btcpd
+./src/anond
 ```
 
 ### Additional notes
@@ -164,7 +164,7 @@ of Anonymous Bitcoin transactions. Depending on the speed of your computer and n
 connection, the synchronization process could take a day or more once the
 blockchain has reached a significant size.
 
-It includes both `btcpd` (the daemon) and `btcp-cli` (the command line tools).
+It includes both `anond` (the daemon) and `anon-cli` (the command line tools).
 
 Security Warnings
 -----------------
@@ -206,7 +206,7 @@ Building
 --------
 
 Build BTCP along with most dependencies from source by running
-`./btcputil/build.sh`. Currently only Linux is officially supported.
+`./anonutil/build.sh`. Currently only Linux is officially supported.
 
 License
 -------

@@ -4,8 +4,8 @@ TOPDIR=${TOPDIR:-$(git rev-parse --show-toplevel)}
 SRCDIR=${SRCDIR:-$TOPDIR/src}
 MANDIR=${MANDIR:-$TOPDIR/doc/man}
 
-BTCPD=${BTCPD:-$SRCDIR/btcpd}
-ZCASHCLI=${ZCASHCLI:-$SRCDIR/btcp-cli}
+BTCPD=${BTCPD:-$SRCDIR/anond}
+ZCASHCLI=${ZCASHCLI:-$SRCDIR/anon-cli}
 ZCASHTX=${ZCASHTX:-$SRCDIR/zcash-tx}
 
 [ ! -x $BTCPD ] && echo "$BTCPD not found or not executable." && exit 1
@@ -16,8 +16,8 @@ ZECVER=$(echo $ZECVERSTR | awk -F- '{ OFS="-"; NF--; print $0; }')
 ZECCOMMIT=$(echo $ZECVERSTR | awk -F- '{ print $NF }')
 
 # Create a footer file with copyright content.
-# This gets autodetected fine for btcpd if --version-string is not set,
-# but has different outcomes for btcp-cli.
+# This gets autodetected fine for anond if --version-string is not set,
+# but has different outcomes for anon-cli.
 echo "[COPYRIGHT]" > footer.h2m
 $BTCPD --version | sed -n '1!p' >> footer.h2m
 

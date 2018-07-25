@@ -178,7 +178,7 @@ def patch_release_height(releaseheight):
 @phase('Building...')
 def build():
     nproc = sh_out('nproc').strip()
-    sh_log('./btcp/build.sh', '-j', nproc)
+    sh_log('./anon/build.sh', '-j', nproc)
 
 
 @phase('Generating manpages.')
@@ -188,7 +188,7 @@ def gen_manpages():
 
 @phase('Generating release notes.')
 def gen_release_notes(release):
-    sh_log('python', './btcp/release-notes.py', '--version', release.novtext)
+    sh_log('python', './anon/release-notes.py', '--version', release.novtext)
     sh_log(
         'git',
         'add',
@@ -258,11 +258,11 @@ def patch_gitian_linux_yml(release, releaseprev):
         outf.write(inf.readline())
 
         secondline = inf.readline()
-        assert secondline == 'name: "btcp-{}"\n'.format(
+        assert secondline == 'name: "anon-{}"\n'.format(
             releaseprev.novtext
         ), repr(secondline)
 
-        outf.write('name: "btcp-{}"\n'.format(release.novtext))
+        outf.write('name: "anon-{}"\n'.format(release.novtext))
         outf.write(inf.read())
 
 
@@ -288,7 +288,7 @@ def _patch_build_defs(release, path, pattern):
 
 
 def initialize_logging():
-    logname = './btcp-make-release.log'
+    logname = './anon-make-release.log'
     fmtr = logging.Formatter(
         '%(asctime)s L%(lineno)-4d %(levelname)-5s | %(message)s',
         '%Y-%m-%d %H:%M:%S'
@@ -306,7 +306,7 @@ def initialize_logging():
     root.setLevel(logging.DEBUG)
     root.addHandler(hout)
     root.addHandler(hpath)
-    logging.info('btcp make-release.py debug log: %r', logname)
+    logging.info('anon make-release.py debug log: %r', logname)
 
 
 def sh_out(*args):
