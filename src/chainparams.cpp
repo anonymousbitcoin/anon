@@ -35,15 +35,15 @@ public:
 
         //TODO To be decided
         // consensus.nSubsidySlowStartInterval = 2;
-        consensus.nSubsidyHalvingInterval = 840000;
+        consensus.nSubsidyHalvingInterval = 105000;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
         consensus.prePowLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        // consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        // consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowAveragingWindow = 2016; //diffuculty adjusts every 2 weeks
-        assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
+        // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 10 * 60; // time between blocks (sec)
@@ -64,11 +64,7 @@ public:
         pchMessageStart[2] = 0x47;
         pchMessageStart[3] = 0xa7;
         vAlertPubKey = ParseHex("04f2cd746e629ffd320a81287474c98c2ad15d15b0a210b0144edcd8f3e1301c6311fd751fa34ba17d88090374cfec7cd9aaca55a5a0c4456511acc01b922005de");
-<<<<<<< HEAD
         nDefaultPort = 9695;
-=======
-        nDefaultPort = 33130;
->>>>>>> 343b685f9... Merge conflicts
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
         const size_t N = 144, K = 5;
@@ -137,7 +133,6 @@ public:
         nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
         checkpointData = {
             {
-<<<<<<< HEAD
                 {      0, consensus.hashGenesisBlock }
                 // {  30000, uint256S("0x000000005c2ad200c3c7c8e627f67b306659efca1268c9bb014335fdadc0c392") },
                 // { 160000, uint256S("0x000000065093005a1a46ee95d6d66c2b07008220ca64dd3b3a93bbd1945480c0") },
@@ -151,24 +146,15 @@ public:
                 // { 279500, uint256S("0x0000000082ece76130c82337903b14a2109fab2dcd2d153fcdbf48a0054a694b") },
             },
             0,     // * UNIX timestamp of last checkpoint block
-=======
-                {      0, consensus.hashGenesisBlock },
-            },
-            1520105951,     // * UNIX timestamp of last checkpoint block
->>>>>>> 343b685f9... Merge conflicts
             0,       // * total number of transactions between genesis and last checkpoint
                             //   (the tx=... number in the SetBestChain debug.log lines)
             50            // * estimated number of transactions per day after checkpoint
                             //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
-<<<<<<< HEAD
         nForkStartHeight = 0;
         nForkHeightRange = 0;
-=======
-        nForkStartHeight = 5;
-        nForkHeightRange = 1000;
->>>>>>> 343b685f9... Merge conflicts
+
     }
 };
 static CMainParams mainParams;
@@ -185,11 +171,11 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
-        // consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        // consensus.powLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 
         consensus.prePowLimit = consensus.powLimit;
-        assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
+        // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.fPowAllowMinDifficultyBlocks = true;
 
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
@@ -276,8 +262,8 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
-        // consensus.powLimit = uint256S("0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f");
-        consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit = uint256S("0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f");
+        // consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.prePowLimit = consensus.powLimit;
         //   std::cout << "maxUint-UintToArith256(consensus.powLimit): " << (maxUint/UintToArith256(consensus.powLimit)).ToString() <<std::endl;
         // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
