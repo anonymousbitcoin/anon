@@ -191,10 +191,10 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     CBlock *pblock = &pblocktemplate->block; // pointer for convenience
 
     // Largest block you're willing to create:
-    unsigned int nBlockMaxSize = (unsigned int)(MAX_BLOCK_SIZE-1000);
+    unsigned int nBlockMaxSize = (unsigned int)(MAX_BLOCK_SIZE);
 
     uint64_t nBlockTotalAmount = 0;
-    uint64_t nBlockSize = 1000;
+    uint64_t nBlockSize = 0;
     uint64_t nBlockTx = 0;
     uint64_t nBlockSigOps = 100;
     //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
@@ -321,7 +321,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
     // Largest block you're willing to create:
     unsigned int nBlockMaxSize = GetArg("-blockmaxsize", DEFAULT_BLOCK_MAX_SIZE);
     // Limit to betweeen 1K and MAX_BLOCK_SIZE-1K for sanity:
-    nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(MAX_BLOCK_SIZE-1000), nBlockMaxSize));
+    nBlockMaxSize = std::max((unsigned int)0, std::min((unsigned int)(MAX_BLOCK_SIZE), nBlockMaxSize));
 
     // How much of the block should be dedicated to high-priority transactions,
     // included regardless of the fees they pay
