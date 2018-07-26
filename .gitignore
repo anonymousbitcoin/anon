@@ -138,3 +138,5 @@ zcash-tx.dSYM/*
 **/zcash-tx.dSYM
 **/zcash-gtest.dSYM
 **/anon-cli.dSYM
+**/anond.dSYM
+**/src/test/test_bitcoin.dSYM
