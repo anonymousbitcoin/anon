@@ -5,14 +5,10 @@
 
 #include "main.h"
 #include "crypto/equihash.h"
-
 #include "util.h"
 #include "utilstrencodings.h"
-
 #include <assert.h>
-
 #include <boost/assign/list_of.hpp>
-
 #include "base58.h"
 
 using namespace std;
@@ -240,7 +236,7 @@ public:
         };
 
         nForkStartHeight = 5;
-        nForkHeightRange = 5;
+        nForkHeightRange = 1;
     }
 };
 static CTestNetParams testNetParams;

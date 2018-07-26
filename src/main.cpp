@@ -2208,10 +2208,10 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex) {
 };
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck, bool isZUTXO)
-{
+{    LogPrintf("1:");
     const CChainParams& chainparams = Params();
     AssertLockHeld(cs_main);
-
+    LogPrintf("2:");
     bool fExpensiveChecks = true;
     if (fCheckpointsEnabled) {
         CBlockIndex *pindexLastCheckpoint = Checkpoints::GetLastCheckpoint(chainparams.Checkpoints());
@@ -2220,14 +2220,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             fExpensiveChecks = false;
         }
     }
-
+    LogPrintf("3:");
     auto verifier = libzcash::ProofVerifier::Strict();
     auto disabledVerifier = libzcash::ProofVerifier::Disabled();
-
+    LogPrintf("4:");
     // Check it again to verify JoinSplit proofs, and in case a previous version let a bad block in
     if (!CheckBlock(block, state, fExpensiveChecks ? verifier : disabledVerifier, !fJustCheck, !fJustCheck, isZUTXO))
         return false;
-
+    LogPrintf("5:");
     // verify that the view's current state corresponds to the previous block
     uint256 hashPrevBlock = pindex->pprev == NULL ? uint256() : pindex->pprev->GetBlockHash();
     assert(hashPrevBlock == view.GetBestBlock());
@@ -2677,7 +2677,8 @@ bool static ConnectTip(CValidationState &state, CBlockIndex *pindexNew, CBlock *
     LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
     {
         CCoinsViewCache view(pcoinsTip);
-        bool rv = ConnectBlock(*pblock, state, pindexNew, view);
+        bool rv = ConnectBlock(*pblock, state, pindexNew, view, false, isForkBlock(pindexNew->nHeight));
+        LogPrintf("Beofer bool:");
         GetMainSignals().BlockChecked(*pblock, state);
         if (!rv) {
             if (state.IsInvalid())
@@ -3380,7 +3381,7 @@ bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBloc
     return true;
 }
 
-bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, bool fRequested, CDiskBlockPos* dbp)
+bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, bool fRequested, CDiskBlockPos* dbp, bool isZUTXO)
 {
     const CChainParams& chainparams = Params();
     AssertLockHeld(cs_main);
@@ -3413,7 +3414,7 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
 
     // See method docstring for why this is always disabled
     auto verifier = libzcash::ProofVerifier::Disabled();
-    if ((!CheckBlock(block, state, verifier)) || !ContextualCheckBlock(block, state, pindex->pprev)) {
+    if ((!CheckBlock(block, state, verifier, true, true, isZUTXO)) || !ContextualCheckBlock(block, state, pindex->pprev)) {
         if (state.IsInvalid() && !state.CorruptionPossible()) {
             pindex->nStatus |= BLOCK_FAILED_VALID;
             setDirtyBlockIndex.insert(pindex);
@@ -3433,8 +3434,7 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
     int nHeight = pindex->nHeight;
     if (fExpensiveChecks && isForkBlock(nHeight)) {
         //if block is in forking region validate it agains file records
-        if (!forkUtxoPath.empty()) {
-
+        if (!isZUTXO && !forkUtxoPath.empty()) {
             std::string utxo_file_path = GetUTXOFileName(nHeight);
             std::ifstream if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
             if (!if_utxo.is_open()) {
@@ -3545,133 +3545,6 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
     return true;
 }
 
-bool AcceptZForkedBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, bool fRequested, CDiskBlockPos* dbp)
-{
-    const CChainParams& chainparams = Params();
-    AssertLockHeld(cs_main);
-
-    CBlockIndex *&pindex = *ppindex;
-
-    if (!AcceptBlockHeader(block, state, &pindex))
-        return false;
-
-    // Try to process all requested blocks that we don't have, but only
-    // process an unrequested block if it's new and has enough work to
-    // advance our tip, and isn't too many blocks ahead.
-    bool fAlreadyHave = pindex->nStatus & BLOCK_HAVE_DATA;
-    bool fHasMoreWork = (chainActive.Tip() ? pindex->nChainWork > chainActive.Tip()->nChainWork : true);
-    // Blocks that are too out-of-order needlessly limit the effectiveness of
-    // pruning, because pruning will not delete block files that contain any
-    // blocks which are too close in height to the tip.  Apply this test
-    // regardless of whether pruning is enabled; it should generally be safe to
-    // not process unrequested blocks.
-    bool fTooFarAhead = (pindex->nHeight > int(chainActive.Height() + MIN_BLOCKS_TO_KEEP));
-
-    // TODO: deal better with return value and error conditions for duplicate
-    // and unrequested blocks.
-    if (fAlreadyHave) return true;
-    if (!fRequested) {  // If we didn't ask for it:
-        if (pindex->nTx != 0) return true;  // This is a previously-processed block that was pruned
-        if (!fHasMoreWork) return true;     // Don't process less-work chains
-        if (fTooFarAhead) return true;      // Block height is too high
-    }
-
-    // See method docstring for why this is always disabled
-    auto verifier = libzcash::ProofVerifier::Disabled();
-    if ((!CheckBlock(block, state, verifier, true, true, isForkBlock(chainActive.Tip()->nHeight + 1))) || !ContextualCheckBlock(block, state, pindex->pprev)) {
-        if (state.IsInvalid() && !state.CorruptionPossible()) {
-            pindex->nStatus |= BLOCK_FAILED_VALID;
-            setDirtyBlockIndex.insert(pindex);
-        }
-        return false;
-    }
-
-    bool fExpensiveChecks = true;
-    if (fCheckpointsEnabled) {
-        CBlockIndex *pindexLastCheckpoint = Checkpoints::GetLastCheckpoint(chainparams.Checkpoints());
-        if (pindexLastCheckpoint && pindexLastCheckpoint->GetAncestor(pindex->nHeight) == pindex) {
-            // This block is an ancestor of a checkpoint: disable script checks
-            fExpensiveChecks = false;
-        }
-    }
-
-    int nHeight = pindex->nHeight;
-    if (fExpensiveChecks && isForkBlock(nHeight)) {
-        //if block is in forking region validate it agains file records
-        if (!forkUtxoPath.empty()) {
-
-            std::string utxo_file_path = GetUTXOFileName(nHeight);
-            std::ifstream if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
-            if (!if_utxo.is_open()) {
-                LogPrintf("AcceptBlock(): FORK Block - Cannot open UTXO file - %s\n", utxo_file_path);
-            } else {
-                LogPrintf("AcceptBlock(): FORK Block - Validating block - %u / %s  with UTXO file - %s\n",
-                          nHeight, block.GetHash().ToString(), utxo_file_path);
-
-                LogPrintf("AcceptBlock(): FORK Block - No more data in the file \n");
-                LogPrintf("AcceptBlock(): FORK Block - UTXO file corrupted? - Not more data (PubKeyScript size)\n");
-                LogPrintf("AcceptBlock(): FORK Block - UTXO file corrupted? - Warning! PubKeyScript size = 0\n");
-                LogPrintf("AcceptBlock(): FORK Block - UTXO file corrupted? - Not more data (PubKeyScript)\n");
-                LogPrintf("AcceptBlock(): FORK Block - UTXO file corrupted? - No more data (record separator)\n");
-                LogPrintf("AcceptBlock(): FORK Block - UTXO file corrupted? - Warning! No record separator ('0xA') was found\n");
-            }
-                LogPrintf("AcceptBlock(): FORK Block - %d records read from UTXO file\n", recs);
-
-                if (txFromFile.size() != block.vtx.size() ||
-                    recs != block.vtx.size()){
-                    state.DoS(100, error("AcceptBlock(): Number of file records - %d doesn't match number of transcations in block - %d\n", recs, block.vtx.size()),
-                                    REJECT_INVALID, "bad-fork-block");
-                    pindex->nStatus |= BLOCK_FAILED_VALID;
-                    setDirtyBlockIndex.insert(pindex);
-                    return false;
-                }
-
-                int txid = 0;
-                typedef boost::tuple<pair<uint64_t, CScript>&, const CTransaction&> fork_cmp_tuple;
-                BOOST_FOREACH(fork_cmp_tuple cmp, boost::combine(txFromFile, block.vtx)) {
-                    pair<uint64_t, CScript>& rec = cmp.get<0>();
-                    const CTransaction& tx = cmp.get<1>();
-
-                    if (rec.first != tx.vout[0].nValue ||
-                        rec.second != tx.vout[0].scriptPubKey)
-                    {
-                        LogPrintf("AcceptBlock(): FORK Block - Error: Transaction (%d) mismatch\n", txid);
-                        LogPrintf("AcceptBlock(): Transaction: Amount: %d; scriptPubKey: %s\n", tx.vout[0].nValue, tx.vout[0].scriptPubKey.ToString());
-                        LogPrintf("AcceptBlock(): File Record: Amount: %d; scriptPubKey: %s\n", rec.first, rec.second.ToString());
-                        state.DoS(100, error("AcceptBlock(): FORK Block - Transaction (%d) doesn't match record in the UTXO file", txid),
-                                        REJECT_INVALID, "bad-fork-block");
-                        pindex->nStatus |= BLOCK_FAILED_VALID;
-                        setDirtyBlockIndex.insert(pindex);
-                        return false;
-                    }
-                }
-                txid++;
-            }
-        }
-    }
-
-    // Write block to history file
-    try {
-        unsigned int nBlockSize = ::GetSerializeSize(block, SER_DISK, CLIENT_VERSION);
-        CDiskBlockPos blockPos;
-        if (dbp != NULL)
-            blockPos = *dbp;
-        if (!FindBlockPos(state, blockPos, nBlockSize+8, nHeight, block.GetBlockTime(), dbp != NULL))
-            return error("AcceptBlock(): FindBlockPos failed");
-        if (dbp == NULL)
-            if (!WriteBlockToDisk(block, blockPos, chainparams.MessageStart()))
-                AbortNode(state, "Failed to write block");
-        if (!ReceivedBlockTransactions(block, state, pindex, blockPos))
-            return error("AcceptBlock(): ReceivedBlockTransactions failed");
-    } catch (const std::runtime_error& e) {
-        return AbortNode(state, std::string("System error: ") + e.what());
-    }
-
-    if (fCheckForPruning)
-        FlushStateToDisk(state, FLUSH_STATE_NONE); // we just allocated more disk space for block files
-
-    return true;
-}
 
 static bool IsSuperMajority(int minVersion, const CBlockIndex* pstart, unsigned nRequired, const Consensus::Params& consensusParams)
 {
@@ -3705,7 +3578,7 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
 
         // Store to disk
         CBlockIndex *pindex = NULL;
-        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp);
+        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp, isForkBlock(chainActive.Tip()->nHeight + 1));
         if (pindex && pfrom) {
             mapBlockSource[pindex->GetBlockHash()] = pfrom->GetId();
         }

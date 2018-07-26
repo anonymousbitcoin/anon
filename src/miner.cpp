@@ -289,7 +289,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
       
             LogPrintf("BEFORE DECODE\n");
             decoderawtransaction2(*txNew, hexString, false);
-
+            LogPrintf("1\n");
             // assert(0);
                      
             CMutableTransaction *txM = new CMutableTransaction(*txNew);
@@ -303,7 +303,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             txM->vout.resize(1);
             txM->vout[0].nValue = 0;
             // *txNew->vout[0].scriptPubKey = CScript(pks, pks + pbsize);
-
+            LogPrintf("2\n");
          
             unsigned int nTxSize = ::GetSerializeSize(*txM, SER_NETWORK, PROTOCOL_VERSION);
             if (nBlockSize + nTxSize >= nBlockMaxSize) {

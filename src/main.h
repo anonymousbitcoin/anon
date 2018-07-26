@@ -26,6 +26,7 @@
 #include "txmempool.h"
 #include "uint256.h"
 #include "versionbits.h"
+#include "util.h"
 
 #include <algorithm>
 #include <exception>
@@ -442,7 +443,7 @@ bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex
  * - The only caller of AcceptBlock verifies JoinSplit proofs elsewhere.
  * If dbp is non-NULL, the file is known to already reside on disk
  */
-bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex **pindex, bool fRequested, CDiskBlockPos* dbp);
+bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex **pindex, bool fRequested, CDiskBlockPos* dbp, bool isZUTXO = false);
 bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex **ppindex= NULL);
 
 
@@ -587,7 +588,10 @@ std::string GetUTXOFileName(int nHeight, bool isZUTXO = false);
 //                  nHeight is 365 001 - return false - no verification
 //
 inline bool isForkBlock(int nHeight)
-{
+{   
+    LogPrintf("nHeight: %d \n", nHeight);
+    LogPrintf("forkStartHeight: %d \n", forkStartHeight);
+    LogPrintf("forkHeightRange: %d \n", forkHeightRange);
     return (nHeight > forkStartHeight && nHeight <= forkStartHeight + forkHeightRange);
 }
 
