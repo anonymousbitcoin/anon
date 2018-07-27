@@ -34,12 +34,13 @@ public:
         consensus.fCoinbaseMustBeProtected = true;
 
         //TODO To be decided
-        // consensus.nSubsidySlowStartInterval = 2;
+        consensus.nSubsidySlowStartInterval = 2;
         consensus.nSubsidyHalvingInterval = 105000;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
         consensus.prePowLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        // consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowAveragingWindow = 2016; //diffuculty adjusts every 2 weeks
         // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
@@ -126,7 +127,7 @@ public:
         //0x53,0x70 -> "3Z"
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
-        fMiningRequiresPeers = true;
+        fMiningRequiresPeers = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
         fMineBlocksOnDemand = false;

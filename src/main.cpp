@@ -1423,13 +1423,19 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
     // MAX_SUBSIDY/2 to keep the monetary curve consistent with no slow start.
+    LogPrintf("Inside getblocksubsity:\n");
+    LogPrintf("nHeight: %d\n", nHeight);
+    LogPrintf("consensus:%d\n", consensusParams.nSubsidySlowStartInterval);
+
     if (nHeight < consensusParams.nSubsidySlowStartInterval / 2) {
         nSubsidy /= consensusParams.nSubsidySlowStartInterval;
         nSubsidy *= nHeight;
+        LogPrintf("1 Subsidy: %d\n", nSubsidy);
         return nSubsidy;
     } else if (nHeight < consensusParams.nSubsidySlowStartInterval) {
         nSubsidy /= consensusParams.nSubsidySlowStartInterval;
         nSubsidy *= (nHeight+1);
+        LogPrintf("2 Subsidy: %d\n", nSubsidy);
         return nSubsidy;
     }
 
@@ -1441,6 +1447,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     }
 
     int halvings = (nHeight - consensusParams.SubsidySlowStartShift()) / halvingInterval;
+    LogPrintf("halvings: %d\n", halvings);
     if(isForkEnabled(nHeight))
         halvings += 2;
 
@@ -1448,8 +1455,9 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     if (halvings >= 64)
         return 0;
 
-    // Subsidy is cut in half every 840,000 blocks which will occur approximately every 4 years.
+    // Subsidy is cut in half every 105,000 blocks which will occur approximately every 2 years.
     nSubsidy >>= halvings;
+    LogPrintf("3 Subsidy: %d\n", nSubsidy);
     return nSubsidy;
 }
 
