@@ -110,10 +110,10 @@ void UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, 
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams);
 }
 //block specific
-CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
+CBlockTemplate* CreateNewAirdropBlock(bool& bFileNotFound)
 {
     /*
-      Because CreateNewForkBlock does file io when
+      Because CreateNewAirdropBlock does file io when
       reading utxos, we grab the main lock to peek
       at the tip, release it to read the file and
       fill in the template and then reacquire it
@@ -134,7 +134,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
     do
     {
         snappedHeight = tipHeight;
-        ret = CreateNewForkBlock(bFileNotFound, snappedHeight + 1);
+        ret = CreateNewAirdropBlock(bFileNotFound, snappedHeight + 1);
 
         {
             LOCK(cs_main);
@@ -157,19 +157,19 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound)
 
             CValidationState state;
             if (!TestBlockValidity(state, *pblock, pindexPrev, false, false))
-                throw std::runtime_error("CreateNewForkBlock(): TestBlockValidity failed");
+                throw std::runtime_error("CreateNewAirdropBlock(): TestBlockValidity failed");
         }
     } while(snappedHeight != tipHeight);
 
     return ret;
 }
-//////////Creates all the coinbases inside of fork block
+//////////Creates all the coinbases inside of fork block for Airdrop
 
-CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
+CBlockTemplate* CreateNewAirdropBlock(bool& bFileNotFound, const int nHeight)
 {
     const CChainParams& chainparams = Params();
 
-    const int nForkHeight = nHeight - forkStartHeight;
+    const int nAirdropHeight = nHeight - forkStartHeight;
 
     //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
@@ -179,8 +179,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     if (!if_utxo.is_open()) {
         bFileNotFound = true;
-        LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
-                  nHeight, nForkHeight, forkHeightRange, utxo_file_path);
+        LogPrintf("ERROR: CreateNewAirdropBlock(): [%u, %u of %u]: Cannot open UTXO file - %s\n",
+                  nHeight, nAirdropHeight, AirdropHeightRange, utxo_file_path);
         return NULL;
     }
 
@@ -197,40 +197,41 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     uint64_t nBlockSize = 0;
     uint64_t nBlockTx = 0;
     uint64_t nBlockSigOps = 100;
-    //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
-    while (if_utxo && nBlockTx < forkCBPerBlock) {
+    //TODO Merge ZK Logic
+    //while utxo files exists, and the number of tx in the block is less than set man (where is airdropCBPerBlock)
+    while (if_utxo && nBlockTx < airdropCBPerBlock) {
         char term = 0;
 ////////////////////////Format checks, explore more when looking at UTXO raw
         //Value
         char coin[8] = {};
         if (!if_utxo.read(coin, 8)) {
-            // the last file may be shorter than forkCBPerBlock
-            if(!if_utxo.eof() || nForkHeight != forkHeightRange)
-                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - No more data (Amount)\n",
-                          nHeight, nForkHeight, forkHeightRange);
+            // the last file may be shorter than airdropCBPerBlock
+            if(!if_utxo.eof() || nAirdropHeight != AirdropHeightRange)
+                LogPrintf("ERROR: CreateNewAirdropBlock(): [%u, %u of %u]: UTXO file corrupted? - No more data (Amount)\n",
+                          nHeight, nAirdropHeight, AirdropHeightRange);
             break;
         }
         //public key
         char pubkeysize[8] = {};
         //cout this guy
         if (!if_utxo.read(pubkeysize, 8)) {
-            LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Not more data (PubKeyScript size)\n",
-                      nHeight, nForkHeight, forkHeightRange);
+            LogPrintf("ERROR: CreateNewAirdropBlock(): [%u, %u of %u]: UTXO file corrupted? - Not more data (PubKeyScript size)\n",
+                      nHeight, nAirdropHeight, AirdropHeightRange);
             break;
         }
         //convert to base 64
         int pbsize = bytes2uint64(pubkeysize);
         if (pbsize == 0) {
-            LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? -  PubKeyScript size = 0\n",
-                      nHeight, nForkHeight, forkHeightRange);
+            LogPrintf("ERROR: CreateNewAirdropBlock(): [%u, %u of %u]: UTXO file corrupted? -  PubKeyScript size = 0\n",
+                      nHeight, nAirdropHeight, AirdropHeightRange);
             //but proceed
         }
         //Initialize array of characters that is the size of pubkey?
         std::unique_ptr<char[]> pubKeyScript(new char[pbsize]);
 
         if (!if_utxo.read(&pubKeyScript[0], pbsize)) {
-            LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? Not more data (PubKeyScript)\n",
-                      nHeight, nForkHeight, forkHeightRange);
+            LogPrintf("ERROR: CreateNewAirdropBlock(): [%u, %u of %u]: UTXO file corrupted? Not more data (PubKeyScript)\n",
+                      nHeight, nAirdropHeight, AirdropHeightRange);
             break;
         }
 ////////////////////////////////////////////////////////////////////////
@@ -259,8 +260,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         unsigned int nTxSize = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
         if (nBlockSize + nTxSize >= nBlockMaxSize)
         {
-            LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max size\n",
-                      nHeight, nForkHeight, forkHeightRange, nBlockTx);
+            LogPrintf("ERROR:  CreateNewAirdropBlock(): [%u, %u of %u]: %u: block would exceed max size\n",
+                      nHeight, nAirdropHeight, AirdropHeightRange, nBlockTx);
             break;
         }
 
@@ -268,8 +269,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         unsigned int nTxSigOps = GetLegacySigOpCount(txNew);
         if (nBlockSigOps + nTxSigOps >= MAX_BLOCK_SIGOPS)
         {
-            LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max sigops\n",
-                      nHeight, nForkHeight, forkHeightRange, nBlockTx);
+            LogPrintf("ERROR:  CreateNewAirdropBlock(): [%u, %u of %u]: %u: block would exceed max sigops\n",
+                      nHeight, nAirdropHeight, AirdropHeightRange, nBlockTx);
             break;
         }
 
@@ -282,13 +283,13 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         ++nBlockTx;
 
         if (!if_utxo.read(&term, 1) || term != '\n') {
-            LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: invalid record separator\n",
-                      nHeight, nForkHeight, forkHeightRange);
+            LogPrintf("ERROR:  CreateNewAirdropBlock(): [%u, %u of %u]: invalid record separator\n",
+                      nHeight, nAirdropHeight, AirdropHeightRange);
             break;
         }
     }
-    LogPrintf("CreateNewForkBlock(): [%u, %u of %u]: txns=%u size=%u amount=%u sigops=%u\n",
-              nHeight, nForkHeight, forkHeightRange, nBlockTx, nBlockSize, nBlockTotalAmount, nBlockSigOps);
+    LogPrintf("CreateNewAirdropBlock(): [%u, %u of %u]: txns=%u size=%u amount=%u sigops=%u\n",
+              nHeight, nAirdropHeight, AirdropHeightRange, nBlockTx, nBlockSize, nBlockTotalAmount, nBlockSigOps);
 
     // Randomise nonce
     arith_uint256 nonce = UintToArith256(GetRandHash());
@@ -762,7 +763,7 @@ void static BitcoinMiner()
                 }
 
                 bool bFileNotFound = false;
-                pblocktemplate.reset(CreateNewForkBlock(bFileNotFound));
+                pblocktemplate.reset(CreateNewAirdropBlock(bFileNotFound));
                 if (!pblocktemplate.get()) {
                     if (bFileNotFound) {
                         MilliSleep(1000);

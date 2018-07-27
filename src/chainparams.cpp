@@ -48,9 +48,7 @@ public:
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 10 * 60; // time between blocks (sec)
         consensus.fPowAllowMinDifficultyBlocks = false;
-        
-        //TODO To be decided 
-        // consensus.nPowDifficultyBombHeight = 600000;
+
 
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
@@ -106,7 +104,7 @@ public:
 
         //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.[INSERT].org"));
         //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.[INSERT].co"));
-        
+
         // guarantees the first 2 characters, when base58 encoded, are "3Y"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x53,0x1A};
 
@@ -145,8 +143,8 @@ public:
                             //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
-        nForkStartHeight = 0;
-        nForkHeightRange = 0;
+        nAirdropStartHeight = 0;
+        nAirdropHeightRange = 0;
     }
 };
 static CMainParams mainParams;
@@ -176,8 +174,6 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
-        consensus.nPowDifficultyBombHeight = 600000;
-
         pchMessageStart[0] = 0x7a;
         pchMessageStart[1] = 0x74;
         pchMessageStart[2] = 0x8d;
@@ -198,7 +194,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-
+        //Final seed locations to be decided
         //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.testnet.[INSERT].org"));
         //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.testnet1.[INSERT].co"));
 
@@ -236,8 +232,8 @@ public:
             0
         };
 
-        nForkStartHeight = 0;
-        nForkHeightRange = 0;
+        nAirdropStartHeight = 0;
+        nAirdropHeightRange = 0;
     }
 };
 static CTestNetParams testNetParams;
@@ -268,15 +264,13 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 999999999999ULL;
 
-        consensus.nPowDifficultyBombHeight = 600000;
-
         pchMessageStart[0] = 0xaa;
         pchMessageStart[1] = 0xe8;
         pchMessageStart[2] = 0x3f;
         pchMessageStart[3] = 0x5f;
         nMaxTipAge = 24 * 60 * 60;
 
-        
+
         const size_t N = 48, K = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         nEquihashN = N;
@@ -307,8 +301,8 @@ public:
             0
         };
 
-        nForkStartHeight = 0;
-        nForkHeightRange = 0;
+        nAirdropStartHeight = 0;
+        nAirdropHeightRange = 0;
     }
 };
 static CRegTestParams regTestParams;

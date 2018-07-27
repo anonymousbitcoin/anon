@@ -550,13 +550,13 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 
 extern std::string forkUtxoPath;
 extern int64_t forkStartHeight;
-extern int64_t forkHeightRange;
-extern int64_t forkCBPerBlock;
+extern int64_t AirdropHeightRange;
+extern int64_t airdropCBPerBlock;
 extern uint256 forkExtraHashSentinel;
 
 std::string GetUTXOFileName(int nHeight);
 
-//ex: forkStartHeight = 300 000; forkHeightRange = 65K
+//ex: forkStartHeight = 300 000; AirdropHeightRange = 65K
 //A. for miner:
 //   1.   Current height = 299 999; the next block to create 300 000
 //                  nHeight is 300 000 - return false
@@ -587,7 +587,7 @@ std::string GetUTXOFileName(int nHeight);
 //
 inline bool isForkBlock(int nHeight)
 {
-    return (nHeight > forkStartHeight && nHeight <= forkStartHeight + forkHeightRange);
+    return (nHeight > forkStartHeight && nHeight <= forkStartHeight + AirdropHeightRange);
 }
 
 inline bool looksLikeForkBlockHeader(const CBlockHeader& header)

@@ -79,8 +79,8 @@ bool fAlerts = DEFAULT_ALERTS;
 
 std::string forkUtxoPath;
 int64_t forkStartHeight;
-int64_t forkHeightRange;
-int64_t forkCBPerBlock;
+int64_t AirdropHeightRange;
+int64_t airdropCBPerBlock;
 uint256 forkExtraHashSentinel = uint256S("f0f0f0f0fafafafaffffffffffffffffffffffffffffffffafafafaf0f0f0f0f");
 uint256 hashPid = GetRandHash();
 
@@ -1461,7 +1461,7 @@ bool IsInitialBlockDownload(bool includeFork)
         return true;
     if (fCheckpointsEnabled && chainActive.Height() < Checkpoints::GetTotalBlocksEstimate(chainParams.Checkpoints()))
         return true;
-    if (includeFork && chainActive.Height() < forkStartHeight + forkHeightRange)
+    if (includeFork && chainActive.Height() < forkStartHeight + AirdropHeightRange)
         return true;
 
     static bool lockIBDState = false;
@@ -1963,7 +1963,7 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
 
 #ifdef FORK_CB_INPUT
         if (isForkBlock(pindex->nHeight)){  //when block in forking region - all transcations are coinbase
-            nNonCBIdx = forkCBPerBlock;
+            nNonCBIdx = airdropCBPerBlock;
         }
 #endif
         if (i > nNonCBIdx) { // not coinbases
@@ -3167,8 +3167,8 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
 
     //fork blocks might have up to fork pre-defined value coinbases and nothing else
     if (looksLikeForkBlockHeader(block)) {
-        if (block.vtx.size() > forkCBPerBlock)
-            return state.DoS(100, error("CheckBlock(): fork block: too many txns %d > %d coinbase txns", block.vtx.size(), forkCBPerBlock),
+        if (block.vtx.size() > airdropCBPerBlock)
+            return state.DoS(100, error("CheckBlock(): fork block: too many txns %d > %d coinbase txns", block.vtx.size(), airdropCBPerBlock),
                              REJECT_INVALID, "bad-fork-too-many-tx");
 
         for (unsigned int i = 1; i < block.vtx.size(); i++)
@@ -3388,10 +3388,10 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
                           nHeight, block.GetHash().ToString(), utxo_file_path);
 
                 vector<pair<uint64_t, CScript> > txFromFile;
-                txFromFile.reserve(forkCBPerBlock);
+                txFromFile.reserve(airdropCBPerBlock);
                 int recs = 0;
 
-                while (if_utxo && recs < forkCBPerBlock) {
+                while (if_utxo && recs < airdropCBPerBlock) {
                     char term = 0;
                     char coin[8] = {};
                     if (!if_utxo.read(coin, 8)) {
