@@ -1418,7 +1418,7 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex)
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
-    CAmount nSubsidy = 50 * COIN;
+    CAmount nSubsidy = 200 * COIN;
 
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of

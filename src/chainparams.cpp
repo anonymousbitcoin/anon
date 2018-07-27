@@ -124,7 +124,6 @@ public:
         // guarantees the first 2 characters, when base58 encoded, are "LY"
         base58Prefixes[ZCSPENDING_KEY]     = {0x0B, 0x01};
 
-        //0x53,0x70 -> "3Z"
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
         fMiningRequiresPeers = false;
