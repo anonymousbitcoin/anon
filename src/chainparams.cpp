@@ -87,25 +87,27 @@ public:
         genesis.hashPrevBlock.SetNull();
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 4;
-        genesis.nTime    = 1528828158;
+        genesis.nTime    = 1532704413;
         genesis.nBits    = 0x1f07ffff;
-        genesis.nNonce   = uint256S("0x0000000000000000000000000000000000000000000000000000000000000404");
-        genesis.nSolution = ParseHex("001ad300894fa0c7f210c2ad79ccac3d5d4f58a36708ae5b158bec462b851c3282209edd2db556ddbf750bab1c6dfa8512075aac10bbd77dc2e8fe7b2d637b16029c92d1c5d2ef27d6a45e05d061b94f88eee4bf00caf182264f9bbf7b3502725752bef218e7f28497094e9f8e79e29713151527e177ec3486f8721e458618e6592d45933ed6e7f4b82100ca94e2d77956d9e92d6b6b71e51d5ffda3f13625afe0244a334afe0566099c1d4a6e120a85fa6fe7827fff09af6627fb86df21e574cebe183e55e471b5265cee9a3ad18ddabee914db6e65c4af87eb973fe7253aced3fbdeee9f79d928e03f18da6ae441582c0a07dbd559e682217f92f411f0a3b5754e05d12c1343facc52c019bbc93c30bd31690aedbd2026cdfc6cd74eb3e70e13520afea1321676cb6441560c72bf5d32d6a13fc330b76a98449623d39f36b1936bef51d0e288aaf59ada70fd197df4011a9d11509e7cdd27d9c3de006a591627f4d7ec0b0f73d1a2d6cb32b78bcdd3479adae5da049c1ffcd501f9ef92ea863d96a7129166c9646392d4e4df07e528525b4842e91eebfd7f15fd7773f166d56c3856b706a5a478af4308d8552f81264074fa613e52561b1449512e55891c7cdda037552d64f91d6a15b517ebf125b083aad5a4a967605c22b7fc2e606713d4bca11c460c12383752d1e12375f5654c51fb667e763f8f2d07ea0252a030f8e78caa7084c5bc996170e35d93a6155c3c1b33c89fa9616d11e924361e65d7975a09520ad5832e85af473d92bae0b00520ce36f91efe8f6a151d86a66894bce0fcb6538309d71a42405dbcddaf0a7ce8f869e34ed39370a114c9d761144730b38a1838210d3fd2e13c23beac7442feb0e6d61f8172baf11b966fb8f88ecc64829d6271f37eb538aa280e1ff326c72f5a90ccb25b8d4fa28d33634df6c1a71a5590009295632b6b95d56ade05facc59b005d391f25d5e0d7d7f23bf9ad7d7f7b1993ccbfcaac6a1289a68b5028d7390b9696fb778f3415de2445acab1555b80d60977d1159bc872cd5d051100b0380aeca5600bcd8901ac4d488c00caf5e46ac2124b62aefe930d157a570fa58c98b04c088befbc71dd3051d41acf463f0a05026b3e0e7dc44eef83920451002b69a28eec7cb25710bdfd89e72ad4af9718320156ce1845831274c4830a1491aea485a4fc8f8d129006b6e24ecc8c9ce2c31896922ba5cd05cd482f71a2be95cf7cf05479a3fc116a8c03ae09b200bd86833c77c04e652c457a13c62ccd6aa29c5c5ac3dd2223a86832027cfc9f3644950fe00c942539c455e343d84ae371c36e2d6af7c2e053b31ba4aa2bcf4ff32957e49ff5b2924692daeb8614cae2584e49a9e330bca859927d239f45af7ea43b2d2eda4e08d2f0c4d42d39c3424f0f5290aa3daead0105b83c124114d5c013f43474c26fed9a355f40b515fcf2a0cfcb2207f38de1e44025da829e02faed2108ef2ce7258a03ee769be95f98e6f2876f85dc682e2bfda3711be0d783478a5404f72c1b9299f9551faf0713c45f98955521c22ef399746ca80243c5b8c82d190af20218c93ba3b3862279fb9bd3fbf880fffa9b36af26c97d991320d5b1576460f6ca36c9685ff4623cdf3c784a35250dc25cb4ef4379911dcacdb40a610ca2670a7acd65352a6fe17bf05b4075e753588e560e12c6a1acd277774c4b64eafdfed697aa7cde517e1b6c554d80df30cbe18c11f33ded7d42f14dddefa02c149e516624c601509c66fb58c7c88ac6165d85d11defd13ef7159e8cdfb413031a402f591e69fd5665367133f120133db16158072ecfbd91f9cc65923a754bc3dafbd8704c51a5e0d5826c5dc12a2943def03b7eab5744b7ad3eb573f828dce2707d0a764c784ec0");
+        genesis.nNonce   = uint256S("00000000000000000000000000000000000000000000000000000000000011cc");
+        genesis.nSolution = ParseHex("003db0e442d767a8d220107853e9eb2ba9aafe7c3d04924a798214caf5f3fee0ebc6f8e5726b0038b6bb1519fd91e35fd2c5af0794fc48f5c535a0bcddecbc1f55269c0acca57d35d8e449913b399e5c393cb2e800a3957f580ec82be61b208d104e2080896057f1532bc84caa9369cbf7decb7424bb4fd8fd8eae30414c01dd58de7bc863c2f3146165d99c04cca734b0549f679a8f1b8cda3e76d41137331e51624a0798bfdfb505a8c53b3f4f3868ffb5284d5a73f2574d4a1c7c421c1db23fa751ef5cc810c7bc24eb520e13e13c4b3711f7379ca96b28ffc091d8d05d5670daab87d7e8ed1feb4a4ed8ce40579c2b63935af87c837452dcaa290b4c76fdd004be50cba502ab4246226985377426ef24ffc666455307f99f5d13307bf02fa758ecdfdbb915b015de749c2e43541eb1f8c765b92db9543029822cb8130b430bbb1aa7dcf4d427d7a51240a77788780115feefd408668beed1a86c78deff12a9099b372c3e5a3fc0f4a5c9339d5765e5cb52906a9c2775c53b07827b31cf0a16bb6e14b0cdbdaa211b40a39e7b7529a84347ad4b688896d0844c4e688d3528f6d4964b11a814ab5fd957b1ea4bf4c7772a0cd63660d1c5ee124c80b949a833277628a1848761c2986f46742de413892edb96b5e3cff5fc56c249ea67071d8d5b5e471f2989841223ed3bf1124251d6e1f356300cda5be302d4483ec49cc6bf4646e33682460d40f63f7cd58507757d9e431b8cfd4ec1733edc61fa1d8cdd3f6dd70d5704ee51c9328738ee515cc8fdb6c2db4119e8a929c0bbbdbae30f53c47f74b1e6fd24ea3ad932b06a04a792694416630f281891b9709b91cadb03fa7ba74106a66c8652a12af463c496e2372152247a73d8301f45a3beb7258791940ec44da4264d8dec0bba91113990feb38a375b0df68ab5a87454dcddf717b22847004ca264ab28c2bf583e425f53a22e5969062f9cb71fc3fe553f481067f2c29253af76e56dc1e570c9312b41b27cd4ea86abe388749c24b68399409b96c8173a70c5f3bb2c1d6f96a5c8433c74bcb2c5709ed4d401d27995270780eaf8eb51b240e63e5ae679d9edb002dc8d358459b3fb09f0f19b81ea20faac9a3a0b110cdb9a06eed62e6cf692377711423f2e45f272a1820eb998ed136a16c79d747121e7ee876d53ff9468d80c54a336fde0e51f59c3c3dbb62408120eaafa18ef3c00b53ce710c993fedb04901667e0fa9d2e59713d12cadb9d968b80d3b62c84114ca52e453b1bbd612014b071f6eea8e191711a54bd377793b543c53b197c0cd3237ae14b1e2b56fd4115dc7723421bd394d787267ad189cb2b5d79c517a27121ea4ee0aa26c6c780199e6ecbaa8fd64d5cb9c5dd58eeb7059c4d6d2b982082b7764d9c14eba566d26eefd82be537de2b5afa00783614bed55f9db5e3a4d74f56595707765a5f3a059ccf2c1796777567e473c3dfe18fd2d0bdd7839d023eb20f3bc4660ecf0f154acc78feb1bf1c1cb0f70fcbcb7d6f17d57b5dd3d58a4ad573e2465b1c0f360113904daa9759e7ccdb70b981e5ae0599b5d18ceb178f3ea1e14e846fad2d3213eb61991538c4d7bd6a03fa86e387e079cdae66026ba92989bd5b63f991f31ee7c5bc8b572b175cbb576e17d951ab5a8ddbaeb501ca3a527014b42bc3c0e81575797cb3d07e9f90312dce9d2ffdeb9fc7b45ed62612d4845e0111955d771b613fe7501b5ff722087602c6724da2666096b97c6a0cd3cd28b15fb5f9f357e66ad621a60680940223082e1b73038c8a456f6964f327cb3c1a6131babb4e0e6a53bf284b4a0facd6d5a535dc1202a547b5a98420932dbff7694c2d7080e6386d6f77e2a7b495951927782962539a8dc135cbe538cb4ab08da59c3cfa9a");
 
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x0002aee7e57553028a6156fe28f6a74bfacc0a8c0cd45f19027b6adc0a628044"));
+        // assert(consensus.hashGenesisBlock == uint256S("0x0002aee7e57553028a6156fe28f6a74bfacc0a8c0cd45f19027b6adc0a628044"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0004284da5ba543dd9cc5c3589304a8fc74e8eb59160581c10fc612636cc15f2"));
         assert(genesis.hashMerkleRoot == uint256S("0x19612bcf00ea7611d315d7f43554fa983c6e8c30cba17e52c679e0e80abf7d42"));
+        // assert(genesis.hashMerkleRoot == uint256S("19612bcf00ea7611d315d7f43554fa983c6e8c30cba17e52c679e0e80abf7d42"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
         // TODO: setup a DNSSeed
         //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.[INSERT].org"));
         //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.[INSERT].co"));
+        
+        // guarantees the first 2 characters, when base58 encoded, are "bK"
+        base58Prefixes[PUBKEY_ADDRESS]     = {0x13,0x53};
 
-        // guarantees the first 2 characters, when base58 encoded, are "3Y"
-        base58Prefixes[PUBKEY_ADDRESS]     = {0x53,0x1A};
-
-        // guarantees the first 2 characters, when base58 encoded, are "ax"
+        // guarantees the first 2 characters, when base58 encoded, are "3Z"
         base58Prefixes[SCRIPT_ADDRESS]     = {0x53,0x89};
 
         // the first character, when base58 encoded, is "5" or "K" or "L" (as in Bitcoin)
@@ -115,12 +117,13 @@ public:
         base58Prefixes[EXT_PUBLIC_KEY]     = {0x04,0x88,0xB2,0x1E};
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x88,0xAD,0xE4};
 ;
-        // guarantees the first 2 characters, when base58 encoded, are "4g"
-        base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x53,0xA8};
+        // guarantees the first 2 characters, when base58 encoded, are "B3"
+        base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x05,0xA8};
 
-        // guarantees the first 2 characters, when base58 encoded, are "SK"
-        base58Prefixes[ZCSPENDING_KEY]     = {0xAB,0x36};
+        // guarantees the first 2 characters, when base58 encoded, are "LY"
+        base58Prefixes[ZCSPENDING_KEY]     = {0x0B, 0x01};
 
+        //0x53,0x70 -> "3Z"
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
         fMiningRequiresPeers = true;
@@ -198,7 +201,7 @@ public:
         // guarantees the first 2 characters, when base58 encoded, are "6W"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x03,0x1A};
 
-        // guarantees the first 2 characters, when base58 encoded, are ""
+        // guarantees the first 2 characters, when base58 encoded, are "jQ"
         base58Prefixes[SCRIPT_ADDRESS]     = {0x17,0xE0};
 
         // the first character, when base58 encoded, is "9" or "c" (as in Bitcoin)
@@ -210,8 +213,8 @@ public:
          // guarantees the first 2 characters, when base58 encoded, are "vX" or "vW"
         base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x14,0xff};
 
-        // guarantees the first 2 characters, when base58 encoded, are ""
-        base58Prefixes[ZCSPENDING_KEY]     = {0xfa,0x07};
+        // guarantees the first 2 characters, when base58 encoded, are "2B"
+        base58Prefixes[ZCSPENDING_KEY]     = {0xAA};
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
 
