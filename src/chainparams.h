@@ -80,7 +80,7 @@ public:
     /** Enforce coinbase consensus rule in regtest mode */
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
 
-    uint64_t ForkStartHeight() const { return nAirdropStartHeight; };
+    uint64_t airdropStartHeight() const { return nAirdropStartHeight; };
     uint64_t AirdropHeightRange() const { return nAirdropHeightRange; };
 protected:
     CChainParams() {}

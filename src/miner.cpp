@@ -169,7 +169,7 @@ CBlockTemplate* CreateNewAirdropBlock(bool& bFileNotFound, const int nHeight)
 {
     const CChainParams& chainparams = Params();
 
-    const int nAirdropHeight = nHeight - forkStartHeight;
+    const int nAirdropHeight = nHeight - airdropStartHeight;
 
     //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
@@ -723,7 +723,7 @@ void static BitcoinMiner()
     );
     miningTimer.start();
 
-    bool bForkModeStarted = false;
+    bool bAirdropModeStarted = false;
     try {
         while (true) {
             if (chainparams.MiningRequiresPeers()) {
@@ -754,12 +754,12 @@ void static BitcoinMiner()
             //
             unique_ptr<CBlockTemplate> pblocktemplate;
 
-            bool isNextBlockFork = isForkBlock(pindexPrev->nHeight+1);
+            bool isNextAirdropBlock = isAirdropBlock(pindexPrev->nHeight+1);
 
-            if (isNextBlockFork) {
-                if (!bForkModeStarted) {
-                    LogPrintf("ANON Miner: switching into fork mode\n");
-                    bForkModeStarted = true;
+            if (isNextAirdropBlock) {
+                if (!bAirdropModeStarted) {
+                    LogPrintf("ANON Miner: switching into airdrop mode\n");
+                    bAirdropModeStarted = true;
                 }
 
                 bool bFileNotFound = false;
@@ -769,22 +769,22 @@ void static BitcoinMiner()
                         MilliSleep(1000);
                         continue;
                     } else {
-                        LogPrintf("Error in ANON Miner: Cannot create Fork Block\n");
+                        LogPrintf("Error in ANON Miner: Cannot create Airdrop Block\n");
                         return;
                     }
                 }
                 pblock = &pblocktemplate->block;
                 pblock->hashMerkleRoot = pblock->BuildMerkleTree();
 
-                LogPrintf("Running ANON Miner with %u forking transactions in block (%u bytes) and N = %d, K = %d\n",
+                LogPrintf("Running ANON Miner with %u airdrop transactions in block (%u bytes) and N = %d, K = %d\n",
                           pblock->vtx.size(),
                           ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION),
                           n, k);
             } else {
                 //if not in forking mode and/or provided file is read to the end - exit
-                if (bForkModeStarted) {
-                    LogPrintf("ANON Miner: Fork is done - switching back to regular miner\n");
-                    bForkModeStarted = false;
+                if (bAirdropModeStarted) {
+                    LogPrintf("ANON Miner: Airdrop is done - switching back to regular consensus rules\n");
+                    bAirdropModeStarted = false;
                 }
 
                 nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
@@ -849,7 +849,7 @@ void static BitcoinMiner()
 #ifdef ENABLE_WALLET
                      , &pwallet, &reservekey
 #endif
-                     , &isNextBlockFork] (std::vector<unsigned char> soln) {
+                     , &isNextAirdropBlock] (std::vector<unsigned char> soln) {
                     // Write the solution to the hash and compute the result.
                     LogPrint("pow", "- Checking solution against target\n");
                     pblock->nSolution = soln;
@@ -877,7 +877,7 @@ void static BitcoinMiner()
                     SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
                     // In regression test mode, stop mining after a block is found.
-                    if (chainparams.MineBlocksOnDemand() && !isNextBlockFork) {
+                    if (chainparams.MineBlocksOnDemand() && !isNextAirdropBlock) {
                         // Increment here because throwing skips the call below
                         ehSolverRuns.increment();
                         throw boost::thread_interrupted();

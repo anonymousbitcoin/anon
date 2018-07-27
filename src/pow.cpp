@@ -32,18 +32,17 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         proofOfWorkLimit = UintToArith256(params.powLimit);
 
     unsigned int nProofOfWorkLimit = proofOfWorkLimit.GetCompact();
-    unsigned int nProofOfWorkBomb  = UintToArith256(uint256S("000000000000000000000000000000000000000000000000000000000000ffff")).GetCompact();
 
     // Genesis block
     if (pindexLast == NULL)
         return nProofOfWorkLimit;
 
     // right at fork
-    else if(isForkBlock(nHeight) && !isForkBlock(nHeight - params.nPowAveragingWindow))
+    else if(isAirdropBlock(nHeight) && !isAirdropBlock(nHeight - params.nPowAveragingWindow))
         return nProofOfWorkLimit;
 
     // right post fork
-    else if(!isForkBlock(nHeight) && isForkBlock(nHeight - params.nPowAveragingWindow))
+    else if(!isAirdropBlock(nHeight) && isAirdropBlock(nHeight - params.nPowAveragingWindow))
         return nProofOfWorkLimit;
 
 
@@ -63,7 +62,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 
     arith_uint256 bnAvg {bnTot / params.nPowAveragingWindow};
 
-    bool isFork = isForkBlock(pindexLast->nHeight + 1);
+    bool isFork = isAirdropBlock(pindexLast->nHeight + 1);
     return CalculateNextWorkRequired(bnAvg, pindexLast->GetMedianTimePast(), pindexFirst->GetMedianTimePast(), params, proofOfWorkLimit, isFork);
 }
 
