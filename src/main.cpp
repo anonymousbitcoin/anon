@@ -86,7 +86,7 @@ bool fAlerts = DEFAULT_ALERTS;
 #include <boost/range/combine.hpp>
 
 std::string forkUtxoPath;
-int64_t forkStartHeight;
+int64_t airdropStartHeight;
 int64_t AirdropHeightRange;
 int64_t airdropCBPerBlock;
 uint256 forkExtraHashSentinel = uint256S("f0f0f0f0fafafafaffffffffffffffffffffffffffffffffafafafaf0f0f0f0f");
@@ -102,7 +102,7 @@ std::string GetUTXOFileName(int nHeight)
     }
 
     std::stringstream ss;
-    ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
+    ss << boost::format("utxo-%05i.bin") % (nHeight - airdropStartHeight);
     boost::filesystem::path utxo_file = utxo_path;
     utxo_file /= ss.str();
 
@@ -1550,7 +1550,7 @@ bool IsInitialBlockDownload(bool includeFork)
     LOCK(cs_main);
     if (fCheckpointsEnabled && chainActive.Height() < Checkpoints::GetTotalBlocksEstimate(chainParams.Checkpoints()))
         return true;
-    if (includeFork && chainActive.Height() < forkStartHeight + AirdropHeightRange)
+    if (includeFork && chainActive.Height() < airdropStartHeight + AirdropHeightRange)
         return true;
 
     static bool lockIBDState = false;
@@ -1785,7 +1785,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
                 // Ensure that coinbases cannot be spent to transparent outputs
                 // Disabled on regtest
                 if (fCoinbaseEnforcedProtectionEnabled &&
-                    !isForkBlock(coins->nHeight) &&
+                    !isAirdropBlock(coins->nHeight) &&
                     consensusParams.fCoinbaseMustBeProtected &&
                     !tx.vout.empty()) {
                     return state.Invalid(
@@ -2051,7 +2051,7 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
         }
 
 #ifdef FORK_CB_INPUT
-        if (isForkBlock(pindex->nHeight)){  //when block in forking region - all transcations are coinbase
+        if (isAirdropBlock(pindex->nHeight)){  //when block in forking region - all transcations are coinbase
             nNonCBIdx = airdropCBPerBlock;
         }
 #endif
@@ -2401,7 +2401,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime1 - nTimeStart), 0.001 * (nTime1 - nTimeStart) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime1 - nTimeStart) / (nInputs-1), nTimeConnect * 0.000001);
 
 #ifdef FORK_CB_INPUT
-    if (!isForkBlock(pindex->nHeight)){  //when block is in forking region - don't check coinbase amount
+    if (!isAirdropBlock(pindex->nHeight)){  //when block is in forking region - don't check coinbase amount
 #endif
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
     std::string strError = "";
@@ -3328,11 +3328,11 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     // because we bypass checks using the indicia in the header
     // we reject any blocks that look like fork blocks but really
     // are non-fork blocks
-    if(looksLikeForkBlockHeader(block) && !isForkBlock(nHeight))
+    if(looksLikeForkBlockHeader(block) && !isAirdropBlock(nHeight))
         return state.DoS(100, error("%s: non-fork block looks like fork block", __func__),
                          REJECT_INVALID, "bad-fork-hashreserved");
 
-    if(!looksLikeForkBlockHeader(block) && isForkBlock(nHeight))
+    if(!looksLikeForkBlockHeader(block) && isAirdropBlock(nHeight))
         return state.DoS(100, error("%s: fork block does not look like fork block", __func__),
                          REJECT_INVALID, "bad-fork-hashreserved");
 
@@ -3489,7 +3489,7 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
     }
 
     int nHeight = pindex->nHeight;
-    if (fExpensiveChecks && isForkBlock(nHeight)) {
+    if (fExpensiveChecks && isAirdropBlock(nHeight)) {
         //if block is in forking region validate it agains file records
         if (!forkUtxoPath.empty()) {
 

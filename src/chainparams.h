@@ -81,7 +81,7 @@ public:
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
     int FulfilledRequestExpireTime() const { return nFulfilledRequestExpireTime; }
 
-    uint64_t ForkStartHeight() const { return nAirdropStartHeight; };
+    uint64_t airdropStartHeight() const { return nAirdropStartHeight; };
     uint64_t AirdropHeightRange() const { return nAirdropHeightRange; };
 protected:
     CChainParams() {}

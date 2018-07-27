@@ -2227,7 +2227,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
             if (fOnlyConfirmed && !pcoin->IsTrusted())
                 continue;
 
-            if (pcoin->IsCoinBase() && !isForkBlock(pcoin->GetHeightInMainChain()) && !fIncludeCoinBase)
+            if (pcoin->IsCoinBase() && !isAirdropBlock(pcoin->GetHeightInMainChain()) && !fIncludeCoinBase)
                 continue;
 
             if (pcoin->IsCoinBase() && pcoin->GetBlocksToMaturity() > 0)
