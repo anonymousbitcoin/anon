@@ -236,7 +236,8 @@ public:
         };
 
         nForkStartHeight = 5;
-        nForkHeightRange = 1;
+        nForkHeightRange = 2;
+        Z_UTXO_MINING_START_BlOCK = 6;
     }
 };
 static CTestNetParams testNetParams;

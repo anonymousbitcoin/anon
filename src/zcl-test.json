@@ -1,0 +1,91 @@
+[
+  [
+    [
+      "tmAtookCJmr5QGSBfCKZoK6yrMMXVh6ysuG",
+      12.50000000
+    ]
+  ],
+  [
+    [
+      "tmNr4Rkj4srfxdiuMvQ1vBosAMZKgAH4bw6",
+      12.50000000
+    ]
+  ],
+  [
+    [
+      "tmYx63MUft8JB3r56s8tNks6f9czFWCHHg7",
+      12.50000000
+    ]
+  ]
+]
+
+1. ztPbNrPrX6MLTHJi6QDGeNBmYBuRXYiyuWP3m7g4UrQXYMerBav6HCLQcrXRkrzYZuKExTSchdGqZjxjaASDRhDZa8UEVDE
+2. ztLr6Af5T7pHHRHdQnZqjB8xGSyo3yLWBvAZfantGp9tVmurFrgZWecheYU3t83Y5NBQNSDWKNuUcERg6w5FXqqTQwX9P62
+
+z_shieldcoinbase "tmAtookCJmr5QGSBfCKZoK6yrMMXVh6ysuG" "ztPbNrPrX6MLTHJi6QDGeNBmYBuRXYiyuWP3m7g4UrQXYMerBav6HCLQcrXRkrzYZuKExTSchdGqZjxjaASDRhDZa8UEVDE" 0.001
+
+rt z_sendmany "ztPbNrPrX6MLTHJi6QDGeNBmYBuRXYiyuWP3m7g4UrQXYMerBav6HCLQcrXRkrzYZuKExTSchdGqZjxjaASDRhDZa8UEVDE" '[{"address": "ztLr6Af5T7pHHRHdQnZqjB8xGSyo3yLWBvAZfantGp9tVmurFrgZWecheYU3t83Y5NBQNSDWKNuUcERg6w5FXqqTQwX9P62" ,"amount": 12.498}]' 1 0.001
+
+
+[
+  [
+    [
+      "tmA3UdPkG9c5JqEaigA1Jf6Ts55Rhb9JGJy",
+      0.00000000
+    ]
+  ],
+  [
+    [
+      "tmAtookCJmr5QGSBfCKZoK6yrMMXVh6ysuG",
+      0.00000000
+    ]
+  ],
+  [
+    [
+      "tmNr4Rkj4srfxdiuMvQ1vBosAMZKgAH4bw6",
+      12.50000000
+    ]
+  ],
+  [
+    [
+      "tmRz7tRPMfqrMBxUwBPuei4MFj7vqGL5vTB",
+      0.00000000
+    ]
+  ],
+  [
+    [
+      "tmYx63MUft8JB3r56s8tNks6f9czFWCHHg7",
+      12.50000000
+    ]
+  ]
+]
+
+nlevo@nl-dashtest:~/zcl$ rt z_listaddresses
+[
+  "ztLr6Af5T7pHHRHdQnZqjB8xGSyo3yLWBvAZfantGp9tVmurFrgZWecheYU3t83Y5NBQNSDWKNuUcERg6w5FXqqTQwX9P62",
+  "ztPbNrPrX6MLTHJi6QDGeNBmYBuRXYiyuWP3m7g4UrQXYMerBav6HCLQcrXRkrzYZuKExTSchdGqZjxjaASDRhDZa8UEVDE"
+]
+
+nlevo@nl-dashtest:~/zcl$ rt z_getbalance ztLr6Af5T7pHHRHdQnZqjB8xGSyo3yLWBvAZfantGp9tVmurFrgZWecheYU3t83Y5NBQNSDWKNuUcERg6w5FXqqTQwX9P62
+12.49800000
+
+ rt z_getbalance ztPbNrPrX6MLTHJi6QDGeNBmYBuRXYiyuWP3m7g4UrQXYMerBav6HCLQcrXRkrzYZuKExTSchdGqZjxjaASDRhDZa8UEVDE
+0.00000000
+
+nlevo@nl-dashtest:~/zcl$ rt z_listoperationids
+[
+  "opid-a2b51daa-b611-4ec6-8e59-1a7380efdd9c",
+  "opid-80eb663d-bb2a-4cce-87c3-317081317146",
+  "opid-24f281d1-d367-4b29-aa55-8107b2ae98b8",
+  "opid-6c0f4a91-7f05-48f4-af63-b8b125d6958e"
+]
+
+nlevo@nl-dashtest:~/zcl$ rt z_gettotalbalance
+{
+  "transparent": "25.00",
+  "private": "12.498",
+  "total": "37.498"
+}
+
+
+scp -r nlevo@149.28.106.170:/home/nlevo/.zclassic/testnet3 /Users/nlevo/Desktop/Crypto/zcl-test-blocks

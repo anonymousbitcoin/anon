@@ -187,10 +187,12 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     const CChainParams& chainparams = Params();
 
     const int nForkHeight = nHeight - chainparams.ForkStartHeight();
+    const int Z_UTXO_MINING_START_BlOCK = chainparams.ZUtxoMiningStartBlock();
 
 
     //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
+    LogPrintf("utxo_file_path: %s \n", utxo_file_path);
     //Read from the specified UTXO file
     std::ifstream if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
     if (!if_utxo.is_open()) {
@@ -236,102 +238,198 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     LogPrintf("Size of the block: %d \n", pblock->vtx.size());
     //START MINING Z-ADDRESSES
     // if (nHeight >= Z_UTXO_MINING_START_BlOCK) {
-        if(true){
+    LogPrintf("Z_UTXO_MINING_START_BlOCK: %d \n", Z_UTXO_MINING_START_BlOCK);
+        if(nHeight == Z_UTXO_MINING_START_BlOCK){
+            LogPrintf("INSIDE Z_UTXO_MINING_START_BlOCK: \n");
+            while (true) {  
+                LogPrintf("1@: \n");
+                //break if there are no more transactions in the file
+                if(if_utxo.eof()){
+                    break;
+                }
+
+                CTransaction *txNew = new CTransaction();
+                
+                char* transSize = new char[32];
+                
+                //retrieve transaction size
+                if (!if_utxo.read(transSize, 32)) {
+                    LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction size\n",
+                            nHeight, nForkHeight, forkHeightRange);
+                    break;
+                }
+
+                //convert binary size to int size
+                char* endptr;
+                int size = strtol(transSize, &endptr, 2);
+                
+                LogPrintf("UTXO-SIZE: %d\n", size);
+                if (size == 0) {
+                    LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: End of UTXO file ? - Transaction size is zero\n",
+                            nHeight, nForkHeight, forkHeightRange);
+                    break;
+                }
+
+                //load transaction (binary)
+                LogPrintf("Size is: %d\n", size);
+                char *rawTransaction = new char[size];
+                if (!if_utxo.read(rawTransaction, size)) {
+                    LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction\n", nHeight, nForkHeight, forkHeightRange);
+                    break;
+                } 
+                
+                //converting binary raw transaction to hex-string raw transaction  10111011111010 => 2EFA
+                std::stringstream ss;
+                ss << std::hex << std::setfill('0');
+                for (int i = 0; i < size; ++i)
+                {
+                    ss << std::setw(2) << (unsigned int)(unsigned char)(rawTransaction[i]);
+                }
+                LogPrintf("Size of the 1st transaction: %d\n", size);
+                std::string rawTransactionHex = ss.str();
+                LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
+        
+                UniValue hexString = UniValue(rawTransactionHex);
+                // LogPrintf("%s", rawTransactionHex);
+        
+                LogPrintf("BEFORE DECODE\n");
+                decoderawtransaction2(*txNew, hexString, false);
+                LogPrintf("1\n");
+                // assert(0);
+                        
+                CMutableTransaction *txM = new CMutableTransaction(*txNew);
+
+                // Add coinbase tx's
+                // CMutableTransaction txNew;
+                txM->vin.resize(1);
+                //No input cuz coinbase
+                txM->vin[0].prevout.SetNull();
+                //Just create
+                txM->vout.resize(1);
+                txM->vout[0].nValue = 0;
+                // *txNew->vout[0].scriptPubKey = CScript(pks, pks + pbsize);
+                LogPrintf("2\n");
+            
+                unsigned int nTxSize = ::GetSerializeSize(*txM, SER_NETWORK, PROTOCOL_VERSION);
+                if (nBlockSize + nTxSize >= nBlockMaxSize) {
+                    LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max size\n",
+                            nHeight, nForkHeight, forkHeightRange, nBlockTx);
+                    break;
+                }
+
+                // Legacy limits on sigOps:
+                unsigned int nTxSigOps = GetLegacySigOpCount(*txM);
+                if (nBlockSigOps + nTxSigOps >= MAX_BLOCK_SIGOPS) {
+                    LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max sigops\n",
+                            nHeight, nForkHeight, forkHeightRange, nBlockTx);
+                    break;
+                }
+
+                pblock->vtx.push_back(*txM);
+                pblocktemplate->vTxFees.push_back(0);
+                pblocktemplate->vTxSigOps.push_back(nTxSigOps);
+                nBlockSize += nTxSize;
+                nBlockSigOps += nTxSigOps;
+                ++nBlockTx;
+
+                delete txNew;
+                delete txM;
+                delete transSize;
+                delete rawTransaction;
+            }
+    } else {
+
         while (if_utxo && nBlockTx < forkCBPerBlock) {
-            
-            //break if there are no more transactions in the file
-            if(if_utxo.eof()){
-                break;
-            }
-
-            CTransaction *txNew = new CTransaction();
-            
-            char* transSize = new char[32];
-            
-            //retrieve transaction size
-            if (!if_utxo.read(transSize, 32)) {
-                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction size\n",
+        char term = 0;
+////////////////////////Format checks, explore more when looking at UTXO raw
+        //Value
+        char coin[8] = {};
+        if (!if_utxo.read(coin, 8)) {
+            // the last file may be shorter than forkCBPerBlock
+            if(!if_utxo.eof() || nForkHeight != forkHeightRange)
+                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - No more data (Amount)\n",
                           nHeight, nForkHeight, forkHeightRange);
-                break;
-            }
-
-            //convert binary size to int size
-            char* endptr;
-            int size = strtol(transSize, &endptr, 2);
-            
-            if (size == 0) {
-                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: End of UTXO file ? - Transaction size is zero\n",
-                          nHeight, nForkHeight, forkHeightRange);
-                break;
-            }
-
-            //load transaction (binary)
-            LogPrintf("Size is: %d\n", size);
-            char *rawTransaction = new char[size];
-            if (!if_utxo.read(rawTransaction, size)) {
-                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction\n", nHeight, nForkHeight, forkHeightRange);
-                break;
-            } 
-            
-            //converting binary raw transaction to hex-string raw transaction  10111011111010 => 2EFA
-            std::stringstream ss;
-            ss << std::hex << std::setfill('0');
-            for (int i = 0; i < size; ++i)
-            {
-                ss << std::setw(2) << (unsigned int)(unsigned char)(rawTransaction[i]);
-            }
-            LogPrintf("Size of the 1st transaction: %d\n", size);
-            std::string rawTransactionHex = ss.str();
-            LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
-       
-            UniValue hexString = UniValue(rawTransactionHex);
-            // LogPrintf("%s", rawTransactionHex);
-      
-            LogPrintf("BEFORE DECODE\n");
-            decoderawtransaction2(*txNew, hexString, false);
-            LogPrintf("1\n");
-            // assert(0);
-                     
-            CMutableTransaction *txM = new CMutableTransaction(*txNew);
-
-            // Add coinbase tx's
-            // CMutableTransaction txNew;
-            txM->vin.resize(1);
-            //No input cuz coinbase
-            txM->vin[0].prevout.SetNull();
-            //Just create
-            txM->vout.resize(1);
-            txM->vout[0].nValue = 0;
-            // *txNew->vout[0].scriptPubKey = CScript(pks, pks + pbsize);
-            LogPrintf("2\n");
-         
-            unsigned int nTxSize = ::GetSerializeSize(*txM, SER_NETWORK, PROTOCOL_VERSION);
-            if (nBlockSize + nTxSize >= nBlockMaxSize) {
-                LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max size\n",
-                          nHeight, nForkHeight, forkHeightRange, nBlockTx);
-                break;
-            }
-
-            // Legacy limits on sigOps:
-            unsigned int nTxSigOps = GetLegacySigOpCount(*txM);
-            if (nBlockSigOps + nTxSigOps >= MAX_BLOCK_SIGOPS) {
-                LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max sigops\n",
-                          nHeight, nForkHeight, forkHeightRange, nBlockTx);
-                break;
-            }
-
-            pblock->vtx.push_back(*txM);
-            pblocktemplate->vTxFees.push_back(0);
-            pblocktemplate->vTxSigOps.push_back(nTxSigOps);
-            nBlockSize += nTxSize;
-            nBlockSigOps += nTxSigOps;
-            ++nBlockTx;
-
-            delete txNew;
-            delete txM;
-            delete transSize;
-            delete rawTransaction;
+            break;
         }
+        //public key
+        char pubkeysize[8] = {};
+        //cout this guy
+        if (!if_utxo.read(pubkeysize, 8)) {
+            LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Not more data (PubKeyScript size)\n",
+                      nHeight, nForkHeight, forkHeightRange);
+            break;
+        }
+        //convert to base 64
+        int pbsize = bytes2uint64(pubkeysize);
+        if (pbsize == 0) {
+            LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? -  PubKeyScript size = 0\n",
+                      nHeight, nForkHeight, forkHeightRange);
+            //but proceed
+        }
+        //Initialize array of characters that is the size of pubkey?
+        std::unique_ptr<char[]> pubKeyScript(new char[pbsize]);
+
+        if (!if_utxo.read(&pubKeyScript[0], pbsize)) {
+            LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? Not more data (PubKeyScript)\n",
+                      nHeight, nForkHeight, forkHeightRange);
+            break;
+        }
+////////////////////////////////////////////////////////////////////////
+
+        //Needs ut64 for files? Part of .bin?
+        uint64_t amount = bytes2uint64(coin);
+        //makes array into string
+        unsigned char* pks = (unsigned char*)pubKeyScript.get();
+
+        // Add coinbase tx's
+        CMutableTransaction txNew;
+        txNew.vin.resize(1);
+        //No input cuz coinbase
+        txNew.vin[0].prevout.SetNull();
+        //Just create
+        txNew.vout.resize(1);
+        txNew.vout[0].scriptPubKey = CScript(pks, pks+pbsize);
+
+        //coin value
+        txNew.vout[0].nValue = amount;
+        if(nBlockTx == 0)
+            txNew.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
+        else
+            txNew.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << OP_0;
+
+        unsigned int nTxSize = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
+        if (nBlockSize + nTxSize >= nBlockMaxSize)
+        {
+            LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max size\n",
+                      nHeight, nForkHeight, forkHeightRange, nBlockTx);
+            break;
+        }
+
+        // Legacy limits on sigOps:
+        unsigned int nTxSigOps = GetLegacySigOpCount(txNew);
+        if (nBlockSigOps + nTxSigOps >= MAX_BLOCK_SIGOPS)
+        {
+            LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max sigops\n",
+                      nHeight, nForkHeight, forkHeightRange, nBlockTx);
+            break;
+        }
+
+        pblock->vtx.push_back(txNew);
+        pblocktemplate->vTxFees.push_back(0);
+        pblocktemplate->vTxSigOps.push_back(nTxSigOps);
+        nBlockSize += nTxSize;
+        nBlockSigOps += nTxSigOps;
+        nBlockTotalAmount += amount;
+        ++nBlockTx;
+
+        if (!if_utxo.read(&term, 1) || term != '\n') {
+            LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: invalid record separator\n",
+                      nHeight, nForkHeight, forkHeightRange);
+            break;
+        }
+    }
+
+
     }
     LogPrintf("CreateNewForkBlock(): [%u, %u of %u]: txns=%u size=%u amount=%u sigops=%u\n",
               nHeight, nForkHeight, forkHeightRange, nBlockTx, nBlockSize, nBlockTotalAmount, nBlockSigOps);
