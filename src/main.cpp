@@ -1039,10 +1039,11 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
     if (!isZUTXO && tx.IsCoinBase())
     {
         // There should be no joinsplits in a coinbase transaction
-        if (tx.vjoinsplit.size() > 0)
+        if (tx.vjoinsplit.size() > 0) {
+            LogPrintf("tx.vjoinsplit.size: %d\n", tx.vjoinsplit.size());
             return state.DoS(100, error("CheckTransaction(): coinbase has joinsplits"),
                              REJECT_INVALID, "bad-cb-has-joinsplits");
-
+        }
         if ((tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)){
             LogPrintf("Script size: %s\n", tx.vin[0].scriptSig.size());
             return state.DoS(100, error("CheckTransaction(): coinbase script size"),
@@ -3570,10 +3571,11 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
 {
     // Preliminary checks
     auto verifier = libzcash::ProofVerifier::Disabled();
-
-    LogPrintf("Is blocked forked?: %d\n" ,isForkBlock(chainActive.Tip()->nHeight + 1));
-    LogPrintf("nHeight: %d\n" ,chainActive.Tip()->nHeight);
-    bool checked = CheckBlock(*pblock, state, verifier, true, true, isForkBlock(chainActive.Tip()->nHeight + 1));
+    LogPrintf("Right before chainActiveL: \n");
+    LogPrintf("adbashbdisbdiasd: %d\n", chainActive.Height());   
+    // LogPrintf("Is blocked forked?: %d\n" ,isForkBlock(chainActive.Tip()->nHeight + 1));
+    // LogPrintf("nHeight: %d\n" ,chainActive.Tip()->nHeight);
+    bool checked = CheckBlock(*pblock, state, verifier, true, true, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
 
     {
         LOCK(cs_main);
@@ -3585,7 +3587,7 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
 
         // Store to disk
         CBlockIndex *pindex = NULL;
-        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp, isForkBlock(chainActive.Tip()->nHeight + 1));
+        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
         if (pindex && pfrom) {
             mapBlockSource[pindex->GetBlockHash()] = pfrom->GetId();
         }
@@ -3969,10 +3971,9 @@ bool CVerifyDB::VerifyDB(CCoinsView *coinsview, int nCheckLevel, int nCheckDepth
         if (!ReadBlockFromDisk(block, pindex))
             return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         // check level 1: verify block validity
-        LogPrintf("VerifyDB->nHeight: %d\n", chainActive.Tip()->nHeight);
-        LogPrintf("VerifyDB->isForkBlock: %d\n", isForkBlock(chainActive.Tip()->nHeight + 1));
-        if (nCheckLevel >= 1 && !CheckBlock(block, state, verifier, true, true, isForkBlock(chainActive.Tip()->nHeight + 1)))
+        if (nCheckLevel >= 1 && !CheckBlock(block, state, verifier, true, true, isForkBlock(pindex->nHeight))){
             return error("VerifyDB(): *** found bad block at %d, hash=%s\n", pindex->nHeight, pindex->GetBlockHash().ToString());
+        }
         // check level 2: verify undo validity
         if (nCheckLevel >= 2 && pindex) {
             CBlockUndo undo;
