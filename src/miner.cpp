@@ -186,10 +186,12 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 {
     const CChainParams& chainparams = Params();
 
-    const int nForkHeight = nHeight - chainparams.ForkStartHeight();
-    const int Z_UTXO_MINING_START_BlOCK = chainparams.ZUtxoMiningStartBlock();
+    const int nForkHeight = chainparams.ForkStartHeight();
+    const int zUtxoMiningStartBlock = chainparams.ZUtxoMiningStartBlock();
+    const int nForkHeightRange = chainparams.ForkHeightRange();
 
 
+    assert(nForkHeight >= 0);
     //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
     LogPrintf("utxo_file_path: %s \n", utxo_file_path);
@@ -237,12 +239,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     LogPrintf("Size of the block: %d \n", pblock->vtx.size());
     //START MINING Z-ADDRESSES
-    // if (nHeight >= Z_UTXO_MINING_START_BlOCK) {
-    LogPrintf("Z_UTXO_MINING_START_BlOCK: %d \n", Z_UTXO_MINING_START_BlOCK);
-        if(nHeight == Z_UTXO_MINING_START_BlOCK){
-            LogPrintf("INSIDE Z_UTXO_MINING_START_BlOCK: \n");
+        if(nHeight >= zUtxoMiningStartBlock && nHeight <= nForkHeight + nForkHeightRange){
             while (true) {  
-                LogPrintf("1@: \n");
                 //break if there are no more transactions in the file
                 if(if_utxo.eof()){
                     break;
@@ -378,6 +376,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
         //Needs ut64 for files? Part of .bin?
         uint64_t amount = bytes2uint64(coin);
+        LogPrintf("AMOUNT: %ull\n", amount);
         //makes array into string
         unsigned char* pks = (unsigned char*)pubKeyScript.get();
 
