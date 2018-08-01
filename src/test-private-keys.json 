@@ -1,0 +1,36 @@
+My z-address:
+    ztM8xnuvxAv5QBzsGPN5fVkQMWmQvs3MLEW4KJ9BKGMcDz7wYsknfuCP4bsepcTxAbPVA7JMW3G91qTFj1DYxQeHQf5xcLn
+    (12.4999)
+    Ariel sent from coinbase
+
+t-address:
+    tmCYXmrsncThXvvn3Ss9iBMBUJ95Xnf48yu (mined) (12.5)
+    tm9vtgSVWH5n9ytZfY5nfvtDTxLKX2zZJWp (mined) (12.5)
+
+Created a z-address
+    ztpx21JRxQmiPNpQFggbnoMLgsDDx5GUAfVdqrqtDiAopSUQiTyi6uWH5GNjCbpiho2LhU8wgs6XF4dpDdp5vHxqs9CBA3k
+    Sent to above address 12.5 from coinbase (tmCYXmrsncThXvvn3Ss9iBMBUJ95Xnf48yu)
+    rt z_shieldcoinbase tmCYXmrsncThXvvn3Ss9iBMBUJ95Xnf48yu ztpx21JRxQmiPNpQFggbnoMLgsDDx5GUAfVdqrqtDiAopSUQiTyi6uWH5GNjCbpiho2LhU8wgs6XF4dpDdp5vHxqs9CBA3k
+
+
+
+Private keys (z):
+1.  rt z_exportkey 
+    ztM8xnuvxAv5QBzsGPN5fVkQMWmQvs3MLEW4KJ9BKGMcDz7wYsknfuCP4bsepcTxAbPVA7JMW3G91qTFj1DYxQeHQf5xcLn
+    ST16X6DMPbWUSK3EXHNQeZLA5KvD3bpt72ar5Qb6VaQhXMU5Ebzv
+
+2.  rt z_exportkey ztpx21JRxQmiPNpQFggbnoMLgsDDx5GUAfVdqrqtDiAopSUQiTyi6uWH5GNjCbpiho2LhU8wgs6XF4dpDdp5vHxqs9CBA3k
+    ST11iwwtUVuVmvihhN5tKMrGLbrFmjs4g78LiqjqGrVS9YWfKCGT
+
+Private keys (t):
+1.  rt dumpprivkey tm9vtgSVWH5n9ytZfY5nfvtDTxLKX2zZJWp
+    cW5cZeb3u6DUsENh8H97fTLfdrAn4vPKc9E5TVhCpBZPE32c7f8w
+
+2.  rt dumpprivkey tmCYXmrsncThXvvn3Ss9iBMBUJ95Xnf48yu
+    cRryv7iABn9tjXj7yLqadMQTvEmLWPzn9PgTGdhDSJUmWZSkY1Mr
+
+3.  rt dumpprivkey tmDZkJArkZdX3HkJMfPa3jfFbufMDadu3jo
+    cSi7QUsQf49CajagTsg4sebzMVHF7GB5z76FmaiHYB3LQ4dFrSEF
+
+4.  rt dumpprivkey tmQ76F9ByQa8yGSq2ffAsyoa7vZHs6Eu87F
+    cQN9QyvmemXrZseJdSw4xHht2RAmvQ1K9aTVGtpaHnWSwMLrQ66K
