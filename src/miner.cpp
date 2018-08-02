@@ -239,7 +239,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     LogPrintf("Size of the block: %d \n", pblock->vtx.size());
     //START MINING Z-ADDRESSES
-        if(nHeight >= zUtxoMiningStartBlock && nHeight <= nForkHeight + nForkHeightRange){
+        if(nHeight > zUtxoMiningStartBlock && nHeight <= nForkHeight + nForkHeightRange){
             while (true) {  
                 //break if there are no more transactions in the file
                 if(if_utxo.eof()){
