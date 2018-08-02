@@ -4,11 +4,11 @@ TOPDIR=${TOPDIR:-$(git rev-parse --show-toplevel)}
 SRCDIR=${SRCDIR:-$TOPDIR/src}
 MANDIR=${MANDIR:-$TOPDIR/doc/man}
 
-BTCPD=${BTCPD:-$SRCDIR/btcpd}
-ZCASHCLI=${ZCASHCLI:-$SRCDIR/btcp-cli}
+ANOND=${ANOND:-$SRCDIR/anond}
+ZCASHCLI=${ZCASHCLI:-$SRCDIR/anon-cli}
 ZCASHTX=${ZCASHTX:-$SRCDIR/zcash-tx}
 
-[ ! -x $BTCPD ] && echo "$BTCPD not found or not executable." && exit 1
+[ ! -x $ANOND ] && echo "$ANOND not found or not executable." && exit 1
 
 # The autodetected version git tag can screw up manpage output a little bit
 ZECVERSTR=$($ZCASHCLI --version | head -n1 | awk '{ print $NF }')
@@ -16,12 +16,12 @@ ZECVER=$(echo $ZECVERSTR | awk -F- '{ OFS="-"; NF--; print $0; }')
 ZECCOMMIT=$(echo $ZECVERSTR | awk -F- '{ print $NF }')
 
 # Create a footer file with copyright content.
-# This gets autodetected fine for btcpd if --version-string is not set,
-# but has different outcomes for btcp-cli.
+# This gets autodetected fine for anond if --version-string is not set,
+# but has different outcomes for anon-cli.
 echo "[COPYRIGHT]" > footer.h2m
-$BTCPD --version | sed -n '1!p' >> footer.h2m
+$ANOND --version | sed -n '1!p' >> footer.h2m
 
-for cmd in $BTCPD $ZCASHCLI $ZCASHTX; do
+for cmd in $ANOND $ZCASHCLI $ZCASHTX; do
   cmdname="${cmd##*/}"
   help2man -N --version-string=$ZECVER --include=footer.h2m -o ${MANDIR}/${cmdname}.1 ${cmd}
   sed -i "s/\\\-$ZECCOMMIT//g" ${MANDIR}/${cmdname}.1

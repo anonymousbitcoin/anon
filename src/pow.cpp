@@ -32,23 +32,19 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         proofOfWorkLimit = UintToArith256(params.powLimit);
 
     unsigned int nProofOfWorkLimit = proofOfWorkLimit.GetCompact();
-    unsigned int nProofOfWorkBomb  = UintToArith256(uint256S("000000000000000000000000000000000000000000000000000000000000ffff")).GetCompact();
 
     // Genesis block
     if (pindexLast == NULL)
         return nProofOfWorkLimit;
 
     // right at fork
-    else if(isForkBlock(nHeight) && !isForkBlock(nHeight - params.nPowAveragingWindow))
+    else if(isAirdropBlock(nHeight) && !isAirdropBlock(nHeight - params.nPowAveragingWindow))
         return nProofOfWorkLimit;
 
     // right post fork
-    else if(!isForkBlock(nHeight) && isForkBlock(nHeight - params.nPowAveragingWindow))
+    else if(!isAirdropBlock(nHeight) && isAirdropBlock(nHeight - params.nPowAveragingWindow))
         return nProofOfWorkLimit;
 
-    // difficulty bomb
-    else if(pindexLast->nHeight > params.nPowDifficultyBombHeight)
-        return nProofOfWorkBomb;
 
     // Find the first block in the averaging interval
     const CBlockIndex* pindexFirst = pindexLast;
@@ -66,7 +62,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 
     arith_uint256 bnAvg {bnTot / params.nPowAveragingWindow};
 
-    bool isFork = isForkBlock(pindexLast->nHeight + 1);
+    bool isFork = isAirdropBlock(pindexLast->nHeight + 1);
     return CalculateNextWorkRequired(bnAvg, pindexLast->GetMedianTimePast(), pindexFirst->GetMedianTimePast(), params, proofOfWorkLimit, isFork);
 }
 
@@ -107,6 +103,15 @@ bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& param
 {
     unsigned int n = params.EquihashN();
     unsigned int k = params.EquihashK();
+
+    size_t nSolSize = pblock->nSolution.size();
+    switch (nSolSize){
+        case 1344: n=200; k=9; break;
+        case 100:  n=144; k=5; break;
+        case 68:   n=96;  k=5; break;
+        case 36:   n=48;  k=5; break;
+        default: return error("CheckEquihashSolution: Unsupported solution size of %d", nSolSize);
+    }
 
     // Hash state
     crypto_generichash_blake2b_state state;

@@ -44,11 +44,11 @@ Run the release script, which will verify you are on the latest clean
 checkout of master, create a branch, then commit standard automated
 changes to that branch locally:
 
-    $ ./btcputil/make-release.py <RELEASE> <RELEASE_PREV> <APPROX_RELEASE_HEIGHT>
+    $ ./anonutil/make-release.py <RELEASE> <RELEASE_PREV> <APPROX_RELEASE_HEIGHT>
 
 Example:
 
-    $ ./btcputil/make-release.py v1.0.9 v1.0.8-1 120000
+    $ ./anonutil/make-release.py v1.0.9 v1.0.8-1 120000
 
 ### Create, Review, and Merge the release branch pull request
 
@@ -86,8 +86,8 @@ signed. **CAUTION:** Remember the `v` at the beginning here:
 
 ## Make and deploy deterministic builds
 
-- Run the [Gitian deterministic build environment](https://github.com/BitcoinPrivate/zcash-gitian)
-- Compare the uploaded [build manifests on gitian.sigs](https://github.com/BitcoinPrivate/gitian.sigs)
+- Run the [Gitian deterministic build environment]([INSERT_GITHUB_REPO_URL])
+- Compare the uploaded [build manifests on gitian.sigs]([INSERT_GITHUB_REPO_URL])
 - If all is well, the DevOps engineer will build the Debian packages and update the
   [apt.z.cash package repository](https://apt.z.cash).
 
@@ -95,17 +95,17 @@ signed. **CAUTION:** Remember the `v` at the beginning here:
 
 ### Deploy testnet
 
-Notify the Bitcoin Private DevOps engineer/sysadmin that the release has been tagged. They update some variables in the company's automation code and then run an Ansible playbook, which:
+Notify the Anonymous Bitcoin DevOps engineer/sysadmin that the release has been tagged. They update some variables in the company's automation code and then run an Ansible playbook, which:
 
-* builds Bitcoin Private based on the specified branch
+* builds Anonymous Bitcoin based on the specified branch
 * deploys it as a public service (e.g. betatestnet.z.cash, mainnet.z.cash)
 * often the same server can be re-used, and the role idempotently handles upgrades, but if not then they also need to update DNS records
 * possible manual steps: blowing away the `testnet3` dir, deleting old parameters, restarting DNS seeder
 
-Then, verify that nodes can connect to the testnet server, and update the guide on the wiki to ensure the correct hostname is listed in the recommended btcprivate.conf.
+Then, verify that nodes can connect to the testnet server, and update the guide on the wiki to ensure the correct hostname is listed in the recommended anon.conf.
 
 ### Update the 1.0 User Guide
 
-### Publish the release announcement (blog, btcp-dev, slack)
+### Publish the release announcement (blog, anon-dev, slack)
 
 ## Celebrate

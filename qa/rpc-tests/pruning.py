@@ -191,13 +191,13 @@ class PruneTest(BitcoinTestFramework):
             self.nodes[2].getblock(self.forkhash)
             raise AssertionError("Old block wasn't pruned so can't test redownload")
         except JSONRPCException as e:
-            print "Will need to redownload block",self.forkheight
+            print "Will need to redownload block",self.AirdropHeight
 
         # Verify that we have enough history to reorg back to the fork point
         # Although this is more than 288 blocks, because this chain was written more recently
         # and only its other 299 small and 220 large block are in the block files after it,
         # its expected to still be retained
-        self.nodes[2].getblock(self.nodes[2].getblockhash(self.forkheight))
+        self.nodes[2].getblock(self.nodes[2].getblockhash(self.AirdropHeight))
 
         first_reorg_height = self.nodes[2].getblockcount()
         curchainhash = self.nodes[2].getblockhash(self.mainchainheight)
@@ -230,7 +230,7 @@ class PruneTest(BitcoinTestFramework):
                 raise AssertionError("Node 2 didn't reorg to proper height")
         assert(self.nodes[2].getbestblockhash() == goalbesthash)
         # Verify we can now have the data for a block previously pruned
-        assert(self.nodes[2].getblock(self.forkhash)["height"] == self.forkheight)
+        assert(self.nodes[2].getblock(self.forkhash)["height"] == self.AirdropHeight)
 
     def mine_full_block(self, node, address):
         # Want to create a full block
@@ -301,7 +301,7 @@ class PruneTest(BitcoinTestFramework):
         self.mainchainhash2 = self.nodes[2].getblockhash(self.mainchainheight)
 
         print "Check that we can survive a 288 block reorg still"
-        (self.forkheight,self.forkhash) = self.reorg_test() #(1033, )
+        (self.AirdropHeight,self.forkhash) = self.reorg_test() #(1033, )
         # Now create a 288 block reorg by mining a longer chain on N1
         # First disconnect N1
         # Then invalidate 1033 on main chain and 1032 on fork so height is 1032 on main chain

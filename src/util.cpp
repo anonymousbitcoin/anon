@@ -98,6 +98,17 @@ namespace boost {
 
 using namespace std;
 
+//Dash only features
+bool fMasterNode = false;
+bool fLiteMode = false;
+/**
+    nWalletBackups:
+        1..10   - number of automatic backups to keep
+        0       - disabled by command-line
+        -1      - disabled because of some error during run-time
+        -2      - disabled because wallet was locked and we were not able to replenish keypool
+*/
+
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
 bool fDebug = false;
@@ -444,13 +455,13 @@ void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\BTCPrivate
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\BTCPrivate
-    // Mac: ~/Library/Application Support/BTCPrivate
-    // Unix: ~/.btcprivate
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Anon
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Anon
+    // Mac: ~/Library/Application Support/Anon
+    // Unix: ~/.anon
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "BTCPrivate";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Anon";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -462,10 +473,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     TryCreateDirectory(pathRet);
-    return pathRet / "BTCPrivate";
+    return pathRet / "Anon";
 #else
     // Unix
-    return pathRet / ".btcprivate";
+    return pathRet / ".anon";
 #endif
 #endif
 }
@@ -582,12 +593,21 @@ void ClearDatadirCache()
 
 boost::filesystem::path GetConfigFile()
 {
-    boost::filesystem::path pathConfigFile(GetArg("-conf", "btcprivate.conf"));
+    boost::filesystem::path pathConfigFile(GetArg("-conf", "anon.conf"));
     if (!pathConfigFile.is_complete())
         pathConfigFile = GetDataDir(false) / pathConfigFile;
 
     return pathConfigFile;
 }
+
+boost::filesystem::path GetMasternodeConfigFile()
+{
+    boost::filesystem::path pathConfigFile(GetArg("-mnconf", "masternode.conf"));
+    if (!pathConfigFile.is_complete())
+        pathConfigFile = GetDataDir() / pathConfigFile;
+    return pathConfigFile;
+}
+
 
 void ReadConfigFile(map<string, string>& mapSettingsRet,
                     map<string, vector<string> >& mapMultiSettingsRet)
@@ -601,7 +621,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 
     for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it)
     {
-        // Don't overwrite existing settings so command line settings override btcprivate.conf
+        // Don't overwrite existing settings so command line settings override anon.conf
         string strKey = string("-") + it->string_key;
         if (mapSettingsRet.count(strKey) == 0)
         {
@@ -618,7 +638,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 #ifndef WIN32
 boost::filesystem::path GetPidFile()
 {
-    boost::filesystem::path pathPidFile(GetArg("-pid", "btcpd.pid"));
+    boost::filesystem::path pathPidFile(GetArg("-pid", "anond.pid"));
     if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
     return pathPidFile;
 }
@@ -891,7 +911,7 @@ void SetThreadPriority(int nPriority)
 std::string PrivacyInfo()
 {
     return "\n" +
-           FormatParagraph(strprintf(_("To ensure you are fully protecting your privacy when running BTCP, see <%s>."),
+           FormatParagraph(strprintf(_("To ensure you are fully protecting your privacy when running ANON, see <%s>."),
                                      "doc/security-warnings.md")) + "\n";
 }
 
@@ -901,7 +921,7 @@ std::string LicenseInfo()
            FormatParagraph(strprintf(_("Copyright (C) 2009-%i The Bitcoin Core Developers"), COPYRIGHT_YEAR)) + "\n" +
            FormatParagraph(strprintf(_("Copyright (C) 2015-%i The Zcash Developers"), COPYRIGHT_YEAR)) + "\n" +
            FormatParagraph(strprintf(_("Copyright (C) 2015-%i The Zclassic Developers"), COPYRIGHT_YEAR)) + "\n" +
-           FormatParagraph(strprintf(_("Copyright (C) 2017-%i The Bitcoin Private Developers"), COPYRIGHT_YEAR)) + "\n" +
+           FormatParagraph(strprintf(_("Copyright (C) 2017-%i The Anonymous Bitcoin Developers"), COPYRIGHT_YEAR)) + "\n" +
            "\n" +
            FormatParagraph(_("This is experimental software.")) + "\n" +
            "\n" +

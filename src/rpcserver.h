@@ -275,6 +275,20 @@ extern UniValue getchaintips(const UniValue& params, bool fHelp);
 extern UniValue invalidateblock(const UniValue& params, bool fHelp);
 extern UniValue reconsiderblock(const UniValue& params, bool fHelp);
 
+// MASTERNODE RPC COMMANDS
+// extern UniValue privatesend(const UniValue& params, bool fHelp);
+// extern UniValue getpoolinfo(const UniValue& params, bool fHelp);
+// extern UniValue spork(const UniValue& params, bool fHelp);
+extern UniValue masternode(const UniValue& params, bool fHelp);
+extern UniValue masternodelist(const UniValue& params, bool fHelp);
+extern UniValue masternodebroadcast(const UniValue& params, bool fHelp);
+extern UniValue gobject(const UniValue& params, bool fHelp);
+extern UniValue getgovernanceinfo(const UniValue& params, bool fHelp);
+extern UniValue getsuperblockbudget(const UniValue& params, bool fHelp);
+extern UniValue voteraw(const UniValue& params, bool fHelp);
+extern UniValue mnsync(const UniValue& params, bool fHelp);
+
+
 extern UniValue getblocksubsidy(const UniValue& params, bool fHelp);
 
 extern UniValue z_exportkey(const UniValue& params, bool fHelp); // in rpcdump.cpp

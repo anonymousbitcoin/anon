@@ -17,13 +17,13 @@ BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
             VALUE "CompanyName",        "Zcash"
-            VALUE "FileDescription",    "btcpd (Zcash node with a JSON-RPC server)"
+            VALUE "FileDescription",    "anond (Zcash node with a JSON-RPC server)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
-            VALUE "InternalName",       "btcpd"
+            VALUE "InternalName",       "anond"
             VALUE "LegalCopyright",     COPYRIGHT_STR
             VALUE "LegalTrademarks1",   "Distributed under the MIT software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php."
-            VALUE "OriginalFilename",   "btcpd.exe"
-            VALUE "ProductName",        "btcpd"
+            VALUE "OriginalFilename",   "anond.exe"
+            VALUE "ProductName",        "anond"
             VALUE "ProductVersion",     VER_PRODUCTVERSION_STR
         END
     END

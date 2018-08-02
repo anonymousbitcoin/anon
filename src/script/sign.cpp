@@ -143,12 +143,21 @@ bool ProduceSignature(const BaseSignatureCreator& creator, const CScript& fromPu
     if (solved && whichType == TX_WITNESS_V0_SCRIPTHASH) {
         CScript witnessscript = scriptSig;
         txnouttype subType;
-        solved = solved && SignStep(creator, witnessscript, scriptSig, subType) && subType != TX_SCRIPTHASH && subType != TX_WITNESS_V0_SCRIPTHASH && subType != TX_WITNESS_V0_KEYHASH;
-        scriptSig << static_cast<valtype>(witnessscript);
-    }
+        // BTCP 
+        //     solved = solved && SignStep(creator, witnessscript, scriptSig, subType) && subType != TX_SCRIPTHASH && subType != TX_WITNESS_V0_SCRIPTHASH && subType != TX_WITNESS_V0_KEYHASH;
+        //     scriptSig << static_cast<valtype>(witnessscript);
+        // }
 
-    if (P2SH) {
-        scriptSig << static_cast<valtype>(subscript);
+        // if (P2SH) {
+        //     scriptSig << static_cast<valtype>(subscript);
+        
+        // DASH
+        bool fSolved =
+            SignStep(creator, subscript, scriptSig, subType) && subType != TX_SCRIPTHASH;
+        // Append serialized subscript whether or not it is completely signed:
+        scriptSig << valtype(subscript.begin(), subscript.end());
+        if (!fSolved)
+            return false;
     }
 
     // Test solution

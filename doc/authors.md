@@ -1,4 +1,4 @@
-BTCPrivate Contributors
+ANON utilizes prior work by
 ==================
 
 Jack Grigg (428)
