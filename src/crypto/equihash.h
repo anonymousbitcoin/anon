@@ -265,6 +265,7 @@ inline bool EhOptimisedSolveUncancellable(unsigned int n, unsigned int k, const 
 #endif // ENABLE_MINING
 
 #define EhIsValidSolution(n, k, base_state, soln, ret)   \
+    LogPrintf("EhIsValidSolution it has entered N=%i K=%i", n, k);\
     if (n == 96 && k == 3) {                             \
         ret = Eh96_3.IsValidSolution(base_state, soln);  \
     } else if (n == 144 && k == 5) {                     \
