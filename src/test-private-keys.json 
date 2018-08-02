@@ -19,7 +19,8 @@ Private keys (z):
     ztM8xnuvxAv5QBzsGPN5fVkQMWmQvs3MLEW4KJ9BKGMcDz7wYsknfuCP4bsepcTxAbPVA7JMW3G91qTFj1DYxQeHQf5xcLn
     ST16X6DMPbWUSK3EXHNQeZLA5KvD3bpt72ar5Qb6VaQhXMU5Ebzv
 
-2.  rt z_exportkey          ztpx21JRxQmiPNpQFggbnoMLgsDDx5GUAfVdqrqtDiAopSUQiTyi6uWH5GNjCbpiho2LhU8wgs6XF4dpDdp5vHxqs9CBA3k
+2.  rt z_exportkey                     
+    ztpx21JRxQmiPNpQFggbnoMLgsDDx5GUAfVdqrqtDiAopSUQiTyi6uWH5GNjCbpiho2LhU8wgs6XF4dpDdp5vHxqs9CBA3k
     ST11iwwtUVuVmvihhN5tKMrGLbrFmjs4g78LiqjqGrVS9YWfKCGT
 
 Private keys (t):
@@ -116,9 +117,6 @@ FORKED STARTED
 
 DOESNT WORK (not enough money?)
 z_sendmany "zz84Nf85JanXbqx4SDcDeTLyBJNm5tJ1nVAdB1CmfbrQRwweJLwUNmGsNbtWvm2Cenisisy9wQKeiR2xzynch5yPputQBEv" '[{"address": "zzbgX8yqcYusmkuYunNoBuiMDFzwBiZxNtEV9HByRYzHLcAS5xHVBbfvQyLX3vvMzHhjT54maUXxDtozLbwoXvBJnVudQ3S" ,"amount": 15.4900}]' 1 0.0067
+ztM8xnuvxAv5QBzsGPN5fVkQMWmQvs3MLEW4KJ9BKGMcDz7wYsknfuCP4bsepcTxAbPVA7JMW3G91qTFj1DYxQeHQf5xcLn
 
-<<<<<<< HEAD
-z_sendmany "ztM8xnuvxAv5QBzsGPN5fVkQMWmQvs3MLEW4KJ9BKGMcDz7wYsknfuCP4bsepcTxAbPVA7JMW3G91qTFj1DYxQeHQf5xcLn" '[{"address": "ztpx21JRxQmiPNpQFggbnoMLgsDDx5GUAfVdqrqtDiAopSUQiTyi6uWH5GNjCbpiho2LhU8wgs6XF4dpDdp5vHxqs9CBA3k" ,"amount": 21.998}]' 1 0.001
-=======
-z_sendmany "zzbsRsWaJpeAb2mbRWvjmkwuWepa76X8cvAChZuUa3fc2QJ7TwAPomamPGPbJkNyBzMjGEok8EA2weDXVcP9eyHxHMGNn5h" '[{"address": "zzbgX8yqcYusmkuYunNoBuiMDFzwBiZxNtEV9HByRYzHLcAS5xHVBbfvQyLX3vvMzHhjT54maUXxDtozLbwoXvBJnVudQ3S" ,"amount": 21.998}]' 1 0.001
->>>>>>> 77823bcd12553da1ddc6b1e4429c35fb154ae263
+z_sendmany "ztpx21JRxQmiPNpQFggbnoMLgsDDx5GUAfVdqrqtDiAopSUQiTyi6uWH5GNjCbpiho2LhU8wgs6XF4dpDdp5vHxqs9CBA3k" '[{"address": "ztM8xnuvxAv5QBzsGPN5fVkQMWmQvs3MLEW4KJ9BKGMcDz7wYsknfuCP4bsepcTxAbPVA7JMW3G91qTFj1DYxQeHQf5xcLn" ,"amount": 21.998}]' 1 0.001
