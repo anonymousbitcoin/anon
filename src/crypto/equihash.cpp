@@ -36,7 +36,7 @@ int Equihash<N,K>::InitialiseState(eh_HashState& base_state)
     uint32_t le_K = htole32(K);
     unsigned char personalization[crypto_generichash_blake2b_PERSONALBYTES] = {};
     if(N==144 && K==5)
-        memcpy(personalization, "AnonyPoW", 8);
+        memcpy(personalization, "ZcashPoW", 8);
     else
         memcpy(personalization, "ZcashPoW", 8);
     // memcpy(personalization, "ZcashPoW", 8);
