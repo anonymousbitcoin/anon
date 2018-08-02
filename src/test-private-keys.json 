@@ -105,3 +105,10 @@ rt getwalletinfo
   "keypoolsize": 103,
   "paytxfee": 0.00000000
 }
+
+FORKED STARTED
+
+DOESNT WORK (not enough money?)
+z_sendmany "zz84Nf85JanXbqx4SDcDeTLyBJNm5tJ1nVAdB1CmfbrQRwweJLwUNmGsNbtWvm2Cenisisy9wQKeiR2xzynch5yPputQBEv" '[{"address": "zzbgX8yqcYusmkuYunNoBuiMDFzwBiZxNtEV9HByRYzHLcAS5xHVBbfvQyLX3vvMzHhjT54maUXxDtozLbwoXvBJnVudQ3S" ,"amount": 15.4900}]' 1 0.0067
+
+z_sendmany "zzbsRsWaJpeAb2mbRWvjmkwuWepa76X8cvAChZuUa3fc2QJ7TwAPomamPGPbJkNyBzMjGEok8EA2weDXVcP9eyHxHMGNn5h" '[{"address": "zzbgX8yqcYusmkuYunNoBuiMDFzwBiZxNtEV9HByRYzHLcAS5xHVBbfvQyLX3vvMzHhjT54maUXxDtozLbwoXvBJnVudQ3S" ,"amount": 21.998}]' 1 0.001
