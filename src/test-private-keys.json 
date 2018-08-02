@@ -34,6 +34,12 @@ Private keys (t):
 
 4.  rt dumpprivkey tmQ76F9ByQa8yGSq2ffAsyoa7vZHs6Eu87F
     cQN9QyvmemXrZseJdSw4xHht2RAmvQ1K9aTVGtpaHnWSwMLrQ66K
+    
+5.  zt dumpprivkey tmFJsm8r9T4GuQ87PPqLmxEC1iptfDYcmGr
+    cMhX2EBcw7ExZvGRJneEPBq2QsyfNyc2risF6z7X5yrCTi2TAXgW
+
+6.  zt dumpprivkey tmVMzhMZgLTS8Y2u4nMaU1wYNNDQAtTQqR8
+    cU1aMJsAzdPSDt47sHBwsDsDb2uR4SVfv5d7B9nHmvfKKtEYbEjy
 
 rt z_shieldcoinbase  ztpx21JRxQmiPNpQFggbnoMLgsDDx5GUAfVdqrqtDiAopSUQiTyi6uWH5GNjCbpiho2LhU8wgs6XF4dpDdp5vHxqs9CBA3k tmMdc5viQQfRPQuvXj7H8txZGM2nVGyUCr1 3
 
@@ -105,3 +111,10 @@ rt getwalletinfo
   "keypoolsize": 103,
   "paytxfee": 0.00000000
 }
+
+FORKED STARTED
+
+DOESNT WORK (not enough money?)
+z_sendmany "zz84Nf85JanXbqx4SDcDeTLyBJNm5tJ1nVAdB1CmfbrQRwweJLwUNmGsNbtWvm2Cenisisy9wQKeiR2xzynch5yPputQBEv" '[{"address": "zzbgX8yqcYusmkuYunNoBuiMDFzwBiZxNtEV9HByRYzHLcAS5xHVBbfvQyLX3vvMzHhjT54maUXxDtozLbwoXvBJnVudQ3S" ,"amount": 15.4900}]' 1 0.0067
+
+z_sendmany "ztM8xnuvxAv5QBzsGPN5fVkQMWmQvs3MLEW4KJ9BKGMcDz7wYsknfuCP4bsepcTxAbPVA7JMW3G91qTFj1DYxQeHQf5xcLn" '[{"address": "ztpx21JRxQmiPNpQFggbnoMLgsDDx5GUAfVdqrqtDiAopSUQiTyi6uWH5GNjCbpiho2LhU8wgs6XF4dpDdp5vHxqs9CBA3k" ,"amount": 21.998}]' 1 0.001

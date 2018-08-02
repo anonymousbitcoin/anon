@@ -3672,7 +3672,10 @@ void CWallet::GetFilteredNotes(std::vector<CNotePlaintextEntry> & outEntries, st
             }
 
             // skip note which has been spent
+            // LogPrintf("Nullifer: %s" ,(*)(*nd.nullifier.get().GetHex()) );
+            // std::cout << std::hex << *nd.nullifier;
             if (ignoreSpent && nd.nullifier && IsSpent(*nd.nullifier)) {
+                LogPrintf("This nullifer is spent\n\n");
                 continue;
             }
 
