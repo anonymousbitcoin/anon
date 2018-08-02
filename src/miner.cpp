@@ -305,6 +305,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 //Just create
                 txM->vout.resize(1);
                 txM->vout[0].nValue = 0;
+                txM->vin.clear();
+                txM->vout.clear();
                 // *txNew->vout[0].scriptPubKey = CScript(pks, pks + pbsize);
                 LogPrintf("2\n");
             
