@@ -33,12 +33,12 @@ testScripts=(
     'proxy_test.py' 
     'merkle_blocks.py' #FAILING
     'fundrawtransaction.py' #FAILING
-    'signrawtransactions.py' #FAILING
-    'walletbackup.py' #FAILING
+    'signrawtransactions.py'
+    'walletbackup.py' 
     'nodehandling.py' 
     'reindex.py' 
     'decodescript.py'
-    'disablewallet.py' #FAILING
+    'disablewallet.py' 
     'zcjoinsplit.py' #FAILING
     'zcjoinsplitdoublespend.py' #FAILING
     'getblocktemplate.py' #FAILING
