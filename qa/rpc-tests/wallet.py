@@ -16,6 +16,7 @@ class WalletTest (BitcoinTestFramework):
 
     def setup_network(self, split=False):
         self.nodes = start_nodes(3, self.options.tmpdir)
+        # self.nodes = start_nodes(3, self.options.tmpdir, extra_args=[["-reindex"]])
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
         connect_nodes_bi(self.nodes,0,2)
@@ -28,18 +29,18 @@ class WalletTest (BitcoinTestFramework):
         self.nodes[0].generate(4)
 
         walletinfo = self.nodes[0].getwalletinfo()
-        assert_equal(walletinfo['immature_balance'], 40)
+        assert_equal(walletinfo['immature_balance'], 50)
         assert_equal(walletinfo['balance'], 0)
 
         self.sync_all()
         self.nodes[1].generate(101)
         self.sync_all()
 
-        assert_equal(self.nodes[0].getbalance(), 40)
-        assert_equal(self.nodes[1].getbalance(), 10)
+        assert_equal(self.nodes[0].getbalance(), 50)
+        assert_equal(self.nodes[1].getbalance(), 12.50000000)
         assert_equal(self.nodes[2].getbalance(), 0)
-        assert_equal(self.nodes[0].getbalance("*"), 40)
-        assert_equal(self.nodes[1].getbalance("*"), 10)
+        assert_equal(self.nodes[0].getbalance("*"), 50)
+        assert_equal(self.nodes[1].getbalance("*"), 12.50000000)
         assert_equal(self.nodes[2].getbalance("*"), 0)
 
         # Send 21 ANON from 0 to 2 using sendtoaddress call.
