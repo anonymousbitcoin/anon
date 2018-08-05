@@ -23,19 +23,19 @@ testScripts=(
     'txn_doublespend.py' #FAILING
     'txn_doublespend.py --mineblock' #FAILING
     'getchaintips.py' #FAILING
-    'rawtransactions.py' #FAILING
-    'rest.py' #FAILING
+    'rawtransactions.py' 
+    'rest.py'
     'mempool_spendcoinbase.py' #FAILING
     'mempool_coinbase_spends.py' #FAILING
     'mempool_tx_input_limit.py' #FAILING
-    'httpbasics.py' #FAILING
+    'httpbasics.py' 
     'zapwallettxes.py' #FAILING
-    'proxy_test.py' #FAILING
+    'proxy_test.py' 
     'merkle_blocks.py' #FAILING
     'fundrawtransaction.py' #FAILING
     'signrawtransactions.py' #FAILING
     'walletbackup.py' #FAILING
-    'nodehandling.py' #FAILING
+    'nodehandling.py' 
     'reindex.py' 
     'decodescript.py'
     'disablewallet.py' #FAILING
