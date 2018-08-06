@@ -210,7 +210,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     if (!pblocktemplate.get())
         return NULL;
     CBlock* pblock = &pblocktemplate->block; // pointer for convenience
-  
+
 
     // Largest block you're willing to create:
     unsigned int nBlockMaxSize = (unsigned int)(MAX_BLOCK_SIZE - 1000);
@@ -221,35 +221,39 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     uint64_t nBlockSigOps = 100;
     //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
 
-  // Add dummy coinbase tx as first transaction
-    CMutableTransaction txCoinbase;
-    txCoinbase.vin.resize(1);
-    txCoinbase.vin[0].prevout.SetNull();
-    txCoinbase.vout.resize(1);
-    txCoinbase.vout[0].nValue = 0;
-
-    std::unique_ptr<char[]> pubKeyScript(new char[64]);
-    unsigned char* pks = (unsigned char*)pubKeyScript.get();
-    txCoinbase.vout[0].scriptPubKey = CScript(pks, pks+64);
-    txCoinbase.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
-
-    pblock->vtx.push_back(txCoinbase);
-    pblocktemplate->vTxFees.push_back(-1);   // updated at end
-    pblocktemplate->vTxSigOps.push_back(-1); 
 
     LogPrintf("Size of the block: %d \n", pblock->vtx.size());
     //START MINING Z-ADDRESSES
         if(nHeight > zUtxoMiningStartBlock && nHeight <= nForkHeight + nForkHeightRange){
-            while (true) {  
+
+          // Add dummy coinbase tx as first transaction
+          //Needed for ZK blocks, nValue of ZKtx data returns negative value
+            CMutableTransaction txCoinbase;
+            txCoinbase.vin.resize(1);
+            txCoinbase.vin[0].prevout.SetNull();
+            txCoinbase.vout.resize(1);
+            txCoinbase.vout[0].nValue = 0;
+
+            std::unique_ptr<char[]> pubKeyScript(new char[64]);
+            unsigned char* pks = (unsigned char*)pubKeyScript.get();
+            txCoinbase.vout[0].scriptPubKey = CScript(pks, pks+64);
+            txCoinbase.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
+
+            pblock->vtx.push_back(txCoinbase);
+            pblocktemplate->vTxFees.push_back(-1);   // updated at end
+            pblocktemplate->vTxSigOps.push_back(-1);
+
+            // while (if_utxo && nBlockTx < forkCBPerBlock)
+            while (true) {
                 //break if there are no more transactions in the file
                 if(if_utxo.eof()){
                     break;
                 }
 
                 CTransaction *txNew = new CTransaction();
-                
+
                 char* transSize = new char[32];
-                
+
                 //retrieve transaction size
                 if (!if_utxo.read(transSize, 32)) {
                     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction size\n",
@@ -260,7 +264,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 //convert binary size to int size
                 char* endptr;
                 int size = strtol(transSize, &endptr, 2);
-                
+
                 LogPrintf("UTXO-SIZE: %d\n", size);
                 if (size == 0) {
                     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: End of UTXO file ? - Transaction size is zero\n",
@@ -274,8 +278,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 if (!if_utxo.read(rawTransaction, size)) {
                     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction\n", nHeight, nForkHeight, forkHeightRange);
                     break;
-                } 
-                
+                }
+
                 //converting binary raw transaction to hex-string raw transaction  10111011111010 => 2EFA
                 std::stringstream ss;
                 ss << std::hex << std::setfill('0');
@@ -286,15 +290,15 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 LogPrintf("Size of the 1st transaction: %d\n", size);
                 std::string rawTransactionHex = ss.str();
                 LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
-        
+
                 UniValue hexString = UniValue(rawTransactionHex);
                 // LogPrintf("%s", rawTransactionHex);
-        
+
                 LogPrintf("BEFORE DECODE\n");
                 decoderawtransaction2(*txNew, hexString, false);
                 LogPrintf("1\n");
                 // assert(0);
-                        
+
                 CMutableTransaction *txM = new CMutableTransaction(*txNew);
 
                 // Add coinbase tx's
@@ -309,7 +313,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 txM->vout.clear();
                 // *txNew->vout[0].scriptPubKey = CScript(pks, pks + pbsize);
                 LogPrintf("2\n");
-            
+
                 unsigned int nTxSize = ::GetSerializeSize(*txM, SER_NETWORK, PROTOCOL_VERSION);
                 if (nBlockSize + nTxSize >= nBlockMaxSize) {
                     LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max size\n",
