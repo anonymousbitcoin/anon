@@ -64,7 +64,8 @@ public:
         nDefaultPort = 9695;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
-        const size_t N = 144, K = 5;
+        // const size_t N = 144, K = 5;
+        const size_t N = 200, K = 9;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         nEquihashN = N;
         nEquihashK = K;
@@ -168,7 +169,7 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         strCurrencyUnits = "ANONT";
-        consensus.fCoinbaseMustBeProtected = true;
+        consensus.fCoinbaseMustBeProtected = false;
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;

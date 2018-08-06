@@ -9,10 +9,10 @@ from test_framework.util import *
 from time import *
 
 '''
-InstantSendTest -- test InstantSend functionality (prevent doublespend for unconfirmed transactions)
+Masternodes Test -- test InstantSend functionality (prevent doublespend for unconfirmed transactions)
 '''
 
-MASTERNODE_COLLATERAL = 1000
+MASTERNODE_COLLATERAL = 100
 
 
 class MasternodeInfo:
@@ -22,7 +22,7 @@ class MasternodeInfo:
         self.collateral_out = collateral_out
 
 
-class InstantSendTest(BitcoinTestFramework):
+class MasternodesTest(BitcoinTestFramework):
     def __init__(self):
         super().__init__()
         self.mn_count = 10
