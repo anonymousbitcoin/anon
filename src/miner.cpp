@@ -396,7 +396,13 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         txNew.vout[0].scriptPubKey = CScript(pks, pks+pbsize);
 
         //coin value
-        txNew.vout[0].nValue = amount;
+        if(nHeight < zUtxoMiningStartBlock){
+            txNew.vout[0].nValue = amount * 2;
+        }
+        else {
+            txNew.vout[0].nValue = amount;
+        }
+        
         if(nBlockTx == 0)
             txNew.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
         else
