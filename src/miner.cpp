@@ -224,7 +224,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     LogPrintf("Size of the block: %d \n", pblock->vtx.size());
     //START MINING Z-ADDRESSES
-        if(nHeight > zUtxoMiningStartBlock && nHeight <= nForkHeight + nForkHeightRange){
+        if(nHeight >= zUtxoMiningStartBlock){
 
           // Add dummy coinbase tx as first transaction
           //Needed for ZK blocks, nValue of ZKtx data returns negative value

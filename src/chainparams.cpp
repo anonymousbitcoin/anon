@@ -44,7 +44,7 @@ public:
         consensus.nPowAveragingWindow = 17;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
-        consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
+        consensus.nPowMaxAdjustUp = 0; // 16% adjustment up
         consensus.nPowTargetSpacing = 2.5 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.nPowDifficultyBombHeight = 600000;
@@ -160,7 +160,7 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         strCurrencyUnits = "BTCPT";
-        consensus.fCoinbaseMustBeProtected = true;
+        consensus.fCoinbaseMustBeProtected = false;
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
@@ -252,9 +252,9 @@ public:
             0
         };
 
-        nForkStartHeight = 5;
-        nForkHeightRange = 2;
-        zUtxoMiningStartBlock = 6;
+        nForkStartHeight = 7;
+        nForkHeightRange = 8;
+        zUtxoMiningStartBlock = 12;
     }
 };
 static CTestNetParams testNetParams;
