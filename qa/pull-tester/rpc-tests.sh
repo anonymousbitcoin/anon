@@ -18,18 +18,18 @@ testScripts=(
     'wallet.py' #FAILING
     'wallet_nullifiers.py' #FAILING
     'wallet_1941.py' #FAILING
-    'listtransactions.py' #FAILING
-    'mempool_resurrect_test.py' #FAILING
-    'txn_doublespend.py' #FAILING
+    # 'listtransactions.py' #PASSING
+    # 'mempool_resurrect_test.py' #PASSES
+    # 'txn_doublespend.py' #PASSES
     'txn_doublespend.py --mineblock' #FAILING
-    'getchaintips.py' #FAILING
-    'rawtransactions.py' #PASSING
+    # 'getchaintips.py' #PASSING
+    # 'rawtransactions.py' #PASSING
     # 'rest.py'#PASSING
     'mempool_spendcoinbase.py' #FAILING
     'mempool_coinbase_spends.py' #FAILING
     'mempool_tx_input_limit.py' #FAILING
     # 'httpbasics.py' #PASSING
-    'zapwallettxes.py' #FAILING
+    # 'zapwallettxes.py' #PASSING
     # 'proxy_test.py' #PASSING
     'merkle_blocks.py' #FAILING
     'fundrawtransaction.py' #FAILING

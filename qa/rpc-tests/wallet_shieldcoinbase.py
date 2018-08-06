@@ -67,7 +67,7 @@ class WalletShieldCoinbaseTest (BitcoinTestFramework):
 
         self.nodes[0].generate(4)
         walletinfo = self.nodes[0].getwalletinfo()
-        assert_equal(walletinfo['immature_balance'], 50)
+        assert_equal(walletinfo['immature_balance'], 62.5)
         assert_equal(walletinfo['balance'], 0)
         self.sync_all()
         self.nodes[2].generate(1)
@@ -78,9 +78,9 @@ class WalletShieldCoinbaseTest (BitcoinTestFramework):
         self.sync_all()
         self.nodes[1].generate(101)
         self.sync_all()
-        assert_equal(self.nodes[0].getbalance(), 50)
-        assert_equal(self.nodes[1].getbalance(), 10)
-        assert_equal(self.nodes[2].getbalance(), 30)
+        assert_equal(self.nodes[0].getbalance(), 62.5)
+        assert_equal(self.nodes[1].getbalance(), 12.5)
+        assert_equal(self.nodes[2].getbalance(), 37.5)
 
         # Prepare to send taddr->zaddr
         mytaddr = self.nodes[0].getnewaddress()
@@ -103,7 +103,7 @@ class WalletShieldCoinbaseTest (BitcoinTestFramework):
 
         # Shielding will fail because fee is larger than MAX_MONEY
         try:
-            self.nodes[0].z_shieldcoinbase("*", myzaddr, Decimal('21000000.00000001'))
+            self.nodes[0].z_shieldcoinbase("*", myzaddr, Decimal('31500000.00000001'))
         except JSONRPCException,e:
             errorString = e.error['message']
         assert_equal("Amount out of range" in errorString, True)
