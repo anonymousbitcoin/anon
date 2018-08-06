@@ -1753,7 +1753,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
                 // Ensure that coinbases cannot be spent to transparent outputs
                 // Disabled on regtest
                 if (fCoinbaseEnforcedProtectionEnabled &&
-                    !isForkBlock(coins->nHeight) &&
+                    // !isForkBlock(coins->nHeight) &&
                     consensusParams.fCoinbaseMustBeProtected &&
                     !tx.vout.empty()) {
                     return state.Invalid(
