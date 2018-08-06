@@ -23,27 +23,27 @@ testScripts=(
     'txn_doublespend.py' #FAILING
     'txn_doublespend.py --mineblock' #FAILING
     'getchaintips.py' #FAILING
-    'rawtransactions.py' 
-    'rest.py'
+    'rawtransactions.py' #PASSING
+    # 'rest.py'#PASSING
     'mempool_spendcoinbase.py' #FAILING
     'mempool_coinbase_spends.py' #FAILING
     'mempool_tx_input_limit.py' #FAILING
-    'httpbasics.py' 
+    # 'httpbasics.py' #PASSING
     'zapwallettxes.py' #FAILING
-    'proxy_test.py' 
+    # 'proxy_test.py' #PASSING
     'merkle_blocks.py' #FAILING
     'fundrawtransaction.py' #FAILING
-    'signrawtransactions.py'
-    'walletbackup.py' 
-    'nodehandling.py' 
-    'reindex.py' 
-    'decodescript.py'
-    'disablewallet.py' 
+    # 'signrawtransactions.py'#PASSING
+    # 'walletbackup.py' #PASSING
+    # 'nodehandling.py' #PASSING
+    # 'reindex.py' #PASSING
+    # 'decodescript.py'#PASSING
+    # 'disablewallet.py' #PASSING
     'zcjoinsplit.py' #FAILING
     'zcjoinsplitdoublespend.py' #FAILING
     'getblocktemplate.py' #FAILING
-    'bip65-cltv-p2p.py'
-    'bipdersig-p2p.py'
+    # 'bip65-cltv-p2p.py'#PASSING
+    # 'bipdersig-p2p.py'#PASSING
 );
 testScriptsExt=(
     'getblocktemplate_longpoll.py'
