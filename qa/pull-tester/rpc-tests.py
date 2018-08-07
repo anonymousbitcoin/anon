@@ -121,7 +121,7 @@ testScripts=[
     'getblocktemplate.py', #PASSES
     'bip65-cltv-p2p.py',#PASSING
     'bipdersig-p2p.py',#PASSING
-    'p2p-masternodes.py',
+    # 'p2p-masternodes.py',
 ];
 if ENABLE_ZMQ:
     testScripts.append('zmq_test.py')
