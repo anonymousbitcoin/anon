@@ -253,8 +253,8 @@ public:
         };
 
         nForkStartHeight = 7;
-        nForkHeightRange = 8;
-        zUtxoMiningStartBlock = 13;
+        nForkHeightRange = 19;
+        zUtxoMiningStartBlock = 25;
     }
 };
 static CTestNetParams testNetParams;
