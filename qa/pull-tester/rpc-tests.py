@@ -62,10 +62,10 @@ for arg in sys.argv[1:]:
 
 #Set env vars
 buildDir = BUILDDIR
-if "DASHD" not in os.environ:
-    os.environ["DASHD"] = buildDir + '/src/dashd' + EXEEXT
+if "ANOND" not in os.environ:
+    os.environ["ANOND"] = buildDir + '/src/anond' + EXEEXT
 if "DASHCLI" not in os.environ:
-    os.environ["DASHCLI"] = buildDir + '/src/dash-cli' + EXEEXT
+    os.environ["ANONCLI"] = buildDir + '/src/anon-cli' + EXEEXT
 
 if EXEEXT == ".exe" and "-win" not in opts:
     # https://github.com/bitcoin/bitcoin/commit/d52802551752140cf41f0d9a225a43e84404d3e9
@@ -91,8 +91,6 @@ testScripts=[
     # 'prioritisetransaction.py'
     # 'wallet_treestate.py', #FAILING
     # 'wallet_protectcoinbase.py', #FAILING
-
-    
     'wallet_shieldcoinbase.py', #FAILING
     'wallet.py', #FAILING
     'wallet_nullifiers.py', #FAILING
