@@ -221,27 +221,27 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     uint64_t nBlockSigOps = 100;
     //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
     
-    // Add dummy coinbase tx as first transaction
-          //Needed for ZK blocks, nValue of ZKtx data returns negative value
-    CMutableTransaction txCoinbase;
-    txCoinbase.vin.resize(1);
-    txCoinbase.vin[0].prevout.SetNull();
-    txCoinbase.vout.resize(1);
-    txCoinbase.vout[0].nValue = 0;
-
-    std::unique_ptr<char[]> pubKeyScript(new char[64]);
-    unsigned char* pks = (unsigned char*)pubKeyScript.get();
-    txCoinbase.vout[0].scriptPubKey = CScript(pks, pks+64);
-    txCoinbase.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
-
-    pblock->vtx.push_back(txCoinbase);
-    pblocktemplate->vTxFees.push_back(-1);   // updated at end
-    pblocktemplate->vTxSigOps.push_back(-1);
+    
 
     LogPrintf("Size of the block: %d \n", pblock->vtx.size());
     //START MINING Z-ADDRESSES
         if(nHeight >= zUtxoMiningStartBlock){
+            // Add dummy coinbase tx as first transaction
+          //Needed for ZK blocks, nValue of ZKtx data returns negative value
+            CMutableTransaction txCoinbase;
+            txCoinbase.vin.resize(1);
+            txCoinbase.vin[0].prevout.SetNull();
+            txCoinbase.vout.resize(1);
+            txCoinbase.vout[0].nValue = 0;
 
+            std::unique_ptr<char[]> pubKeyScript(new char[64]);
+            unsigned char* pks = (unsigned char*)pubKeyScript.get();
+            txCoinbase.vout[0].scriptPubKey = CScript(pks, pks+64);
+            txCoinbase.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
+
+            pblock->vtx.push_back(txCoinbase);
+            pblocktemplate->vTxFees.push_back(-1);   // updated at end
+            pblocktemplate->vTxSigOps.push_back(-1);
           
 
             // while (if_utxo && nBlockTx < forkCBPerBlock)
