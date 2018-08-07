@@ -20,11 +20,12 @@
 import struct
 import socket
 import asyncore
-import binascii
+import binascii 
 import time
 import sys
 import random
 import cStringIO
+
 import hashlib
 from threading import RLock
 from threading import Thread
