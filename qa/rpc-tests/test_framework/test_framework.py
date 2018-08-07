@@ -13,8 +13,8 @@ import shutil
 import tempfile
 import traceback
 
-from authproxy import AuthServiceProxy, JSONRPCException
-from util import *
+from .authproxy import AuthServiceProxy, JSONRPCException
+from .util import *
 
 
 class BitcoinTestFramework(object):
@@ -169,7 +169,7 @@ class ComparisonTestFramework(BitcoinTestFramework):
                           help="anond binary to use for reference nodes (if any)")
 
     def setup_chain(self):
-        print "Initializing test directory "+self.options.tmpdir
+        print( "Initializing test directory "+self.options.tmpdir)
         initialize_chain_clean(self.options.tmpdir, self.num_nodes)
 
     def setup_network(self):

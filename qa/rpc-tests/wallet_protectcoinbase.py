@@ -113,7 +113,7 @@ class WalletProtectCoinbaseTest (BitcoinTestFramework):
 
         # This send will succeed.  We send two coinbase utxos totalling 20.0 less a fee of 0.00010000, with no change.
         recipients = []
-        recipients.append({"address":myzaddr, "amount": Decimal('20.0') - Decimal('0.0001')})
+        recipients.append({"address":myzaddr, "amount": Decimal('25') - Decimal('0.0001')})
         myopid = self.nodes[0].z_sendmany(mytaddr, recipients)
         mytxid = self.wait_and_assert_operationid_status(myopid)
         self.sync_all()

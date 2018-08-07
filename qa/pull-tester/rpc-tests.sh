@@ -38,7 +38,7 @@ testScripts=(
     # 'nodehandling.py' #PASSING
     # 'reindex.py' #PASSING
     # 'decodescript.py'#PASSING
-    # 'disablewallet.py' #PASSING
+    'disablewallet.py' #PASSING
     'zcjoinsplit.py' #FAILING
     'zcjoinsplitdoublespend.py' #FAILING
     'getblocktemplate.py' #FAILING

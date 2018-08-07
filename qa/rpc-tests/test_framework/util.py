@@ -21,8 +21,8 @@ import subprocess
 import time
 import re
 
-from authproxy import AuthServiceProxy, JSONRPCException
-from util import *
+from .authproxy import AuthServiceProxy, JSONRPCException
+from .util import *
 
 #Set Mocktime default to OFF.
 #MOCKTIME is only needed for scripts that use the
@@ -133,11 +133,11 @@ def initialize_chain(test_dir):
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
             bitcoind_processes[i] = subprocess.Popen(args)
             if os.getenv("PYTHON_DEBUG", ""):
-                print "initialize_chain: anond started, calling anon-cli -rpcwait getblockcount"
+                print( "initialize_chain: anond started, calling anon-cli -rpcwait getblockcount")
             subprocess.check_call([ os.getenv("ANONCLI", "anon-cli"), "-datadir="+datadir,
                                     "-rpcwait", "getblockcount"], stdout=devnull)
             if os.getenv("PYTHON_DEBUG", ""):
-                print "initialize_chain: anon-cli -rpcwait getblockcount completed"
+                print( "initialize_chain: anon-cli -rpcwait getblockcount completed")
         devnull.close()
         rpcs = []
         for i in range(4):
@@ -220,12 +220,12 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
     bitcoind_processes[i] = subprocess.Popen(args)
     devnull = open("/dev/null", "w+")
     if os.getenv("PYTHON_DEBUG", ""):
-        print "start_node: anond started, calling anon-cli -rpcwait getblockcount"
+        print( "start_node: anond started, calling anon-cli -rpcwait getblockcount")
     subprocess.check_call([ os.getenv("ANONCLI", "anon-cli"), "-datadir="+datadir] +
                           _rpchost_to_args(rpchost)  +
                           ["-rpcwait", "getblockcount"], stdout=devnull)
     if os.getenv("PYTHON_DEBUG", ""):
-        print "start_node: calling anon-cli -rpcwait getblockcount returned"
+        print( "start_node: calling anon-cli -rpcwait getblockcount returned")
     devnull.close()
     url = "http://rt:rt@%s:%d" % (rpchost or '127.0.0.1', rpc_port(i))
     if timewait is not None:
