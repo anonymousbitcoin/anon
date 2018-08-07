@@ -18,32 +18,32 @@ testScripts=(
     'wallet.py' #FAILING
     'wallet_nullifiers.py' #FAILING
     'wallet_1941.py' #FAILING
-    # 'listtransactions.py' #PASSING
-    # 'mempool_resurrect_test.py' #PASSES
-    # 'txn_doublespend.py' #PASSES
+    'listtransactions.py' #PASSING
+    'mempool_resurrect_test.py' #PASSES
+    'txn_doublespend.py' #PASSES
     'txn_doublespend.py --mineblock' #FAILING
-    # 'getchaintips.py' #PASSING
-    # 'rawtransactions.py' #PASSING
-    # 'rest.py'#PASSING
+    'getchaintips.py' #PASSING
+    'rawtransactions.py' #PASSING
+    'rest.py'#PASSING
     'mempool_spendcoinbase.py' #FAILING
     'mempool_coinbase_spends.py' #FAILING
     'mempool_tx_input_limit.py' #FAILING
-    # 'httpbasics.py' #PASSING
-    # 'zapwallettxes.py' #PASSING
-    # 'proxy_test.py' #PASSING
+    'httpbasics.py' #PASSING
+    'zapwallettxes.py' #PASSING
+    'proxy_test.py' #PASSING
     'merkle_blocks.py' #FAILING
     'fundrawtransaction.py' #FAILING
-    # 'signrawtransactions.py'#PASSING
-    # 'walletbackup.py' #PASSING
-    # 'nodehandling.py' #PASSING
-    # 'reindex.py' #PASSING
-    # 'decodescript.py'#PASSING
+    'signrawtransactions.py'#PASSING
+    'walletbackup.py' #PASSING
+    'nodehandling.py' #PASSING
+    'reindex.py' #PASSING
+    'decodescript.py'#PASSING
     'disablewallet.py' #PASSING
     'zcjoinsplit.py' #FAILING
     'zcjoinsplitdoublespend.py' #FAILING
     'getblocktemplate.py' #FAILING
-    # 'bip65-cltv-p2p.py'#PASSING
-    # 'bipdersig-p2p.py'#PASSING
+    'bip65-cltv-p2p.py'#PASSING
+    'bipdersig-p2p.py'#PASSING
     'p2p-masternodes.py'
 );
 testScriptsExt=(
