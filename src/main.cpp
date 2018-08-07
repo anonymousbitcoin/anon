@@ -3231,6 +3231,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
                          REJECT_INVALID, "bad-cb-missing");
 
     //fork blocks might have up to fork pre-defined value coinbases and nothing else
+    forkCBPerBlock = 11000;
     if (looksLikeForkBlockHeader(block)) {
         if (block.vtx.size() > forkCBPerBlock)
             return state.DoS(100, error("CheckBlock(): fork block: too many txns %d > %d coinbase txns", block.vtx.size(), forkCBPerBlock),
