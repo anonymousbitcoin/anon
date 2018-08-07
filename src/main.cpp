@@ -1035,7 +1035,7 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
             vJoinSplitNullifiers.insert(nf);
         }
     }
-    LogPrintf("isZUTXO: %d\n", isZUTXO);
+    // LogPrintf("isZUTXO: %d\n", isZUTXO);
     if (!isZUTXO && tx.IsCoinBase())
     {
         // There should be no joinsplits in a coinbase transaction

@@ -288,16 +288,16 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 {
                     ss << std::setw(2) << (unsigned int)(unsigned char)(rawTransaction[i]);
                 }
-                LogPrintf("Size of the 1st transaction: %d\n", size);
+                // LogPrintf("Size of the 1st transaction: %d\n", size);
                 std::string rawTransactionHex = ss.str();
-                LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
+                // LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
 
                 UniValue hexString = UniValue(rawTransactionHex);
                 // LogPrintf("%s", rawTransactionHex);
 
-                LogPrintf("BEFORE DECODE\n");
+                // LogPrintf("BEFORE DECODE\n");
                 decoderawtransaction2(*txNew, hexString, false);
-                LogPrintf("1\n");
+                // LogPrintf("1\n");
                 // assert(0);
 
                 CMutableTransaction *txM = new CMutableTransaction(*txNew);
@@ -313,7 +313,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 // txM->vin.clear();
                 // txM->vout.clear();
                 // *txNew->vout[0].scriptPubKey = CScript(pks, pks + pbsize);
-                LogPrintf("2\n");
+                // LogPrintf("2\n");
 
                 unsigned int nTxSize = ::GetSerializeSize(*txM, SER_NETWORK, PROTOCOL_VERSION);
                 if (nBlockSize + nTxSize >= nBlockMaxSize) {
