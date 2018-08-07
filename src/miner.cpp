@@ -383,7 +383,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
         //Needs ut64 for files? Part of .bin?
         uint64_t amount = bytes2uint64(coin);
-        LogPrintf("AMOUNT: %ull\n", amount);
+        // LogPrintf("AMOUNT: %ull\n", amount);
         //makes array into string
         unsigned char* pks = (unsigned char*)pubKeyScript.get();
 
@@ -397,12 +397,12 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         txNew.vout[0].scriptPubKey = CScript(pks, pks+pbsize);
 
         //coin value
-        if(nHeight < zUtxoMiningStartBlock){
-            txNew.vout[0].nValue = amount * 2;
-        }
-        else {
+        // if(nHeight < zUtxoMiningStartBlock){
+        //     txNew.vout[0].nValue = amount * 2;
+        // }
+        // else {
             txNew.vout[0].nValue = amount;
-        }
+        // }
         
         if(nBlockTx == 0)
             txNew.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
