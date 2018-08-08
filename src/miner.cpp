@@ -276,11 +276,11 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 int size = 0; 
 
                 for(int i = 0; i < 32; i++){
-                    if(transSize[i] = 48){ 
+                    if(transSize[i] == 48){ 
                         LogPrintf("inside 0\n");
                         continue;
                     }
-                    else if(transSize[i] = 49){
+                    else if(transSize[i] == 49){
                         LogPrintf("inside 1\n");
                         size += pow(2, 32-i);
                     }
