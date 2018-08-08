@@ -45,10 +45,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     else if(!isAirdropBlock(nHeight) && isAirdropBlock(nHeight - params.nPowAveragingWindow))
         return nProofOfWorkLimit;
 
-<<<<<<< HEAD
-=======
 
->>>>>>> master-alt-with-tests
     // Find the first block in the averaging interval
     const CBlockIndex* pindexFirst = pindexLast;
     arith_uint256 bnTot {0};
@@ -109,6 +106,7 @@ bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& param
 
     size_t nSolSize = pblock->nSolution.size();
     switch (nSolSize){
+        case 1344: n=200; k=9; break;
         case 100:  n=144; k=5; break;
         case 68:   n=96;  k=5; break;
         case 36:   n=48;  k=5; break;
