@@ -265,7 +265,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
                 //convert binary size to int size
                 char* endptr;
-                long int size = strtol(transSize, &endptr, 2);
+                int size = strtol(transSize, &endptr, 2);
 
                 LogPrintf("UTXO-SIZE: %d\n", size);
                 if (size == 0) {
@@ -281,7 +281,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 }
                 //load transaction (binary)
                 LogPrintf("Size is: %d\n", size);
-                char *rawTransaction = new char[size/8];
+                char *rawTransaction = new char[size/8  + 1];
                 if (!if_utxo.read(rawTransaction, size)) {
                     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction\n", nHeight, nForkHeight, forkHeightRange);
                     break;
@@ -290,7 +290,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 //converting binary raw transaction to hex-string raw transaction  10111011111010 => 2EFA
                 std::stringstream ss;
                 ss << std::hex << std::setfill('0');
-                for (int i = 0; i < size/8; i++)
+                for (int i = 0; i < size/8 + 1; i++)
                 {   LogPrintf("i: %d\n", i);
                     ss << std::setw(2) << (unsigned int)(unsigned char)(rawTransaction[i]);
                 }
