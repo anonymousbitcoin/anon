@@ -254,8 +254,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
                 CTransaction *txNew = new CTransaction();
 
-                char* transSize = new char[32];
-                for(int i = 0; i < 32; i++){
+                char* transSize = new char[4];
+                for(int i = 0; i < 4; i++){
                     transSize[i] = 0;
                     // LogPrintf("Char: %d\n", transSize[i]);
                 }
