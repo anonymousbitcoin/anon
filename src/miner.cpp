@@ -254,7 +254,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 }
 
                 CTransaction *txNew = new CTransaction();
-
+    
                 char* transSize = new char[32];
                 for(int i = 0; i < 32; i++){
                     transSize[i] = 0;
@@ -288,7 +288,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                     assert(0 && "Binary size string doesn't include 0 or 1");
                     // LogPrintf("Char: %d\n", transSize[i]);
                 }
-
+                size = size / 2;
+ 
                 
 
                 LogPrintf("UTXO-SIZE: %d\n", size);
