@@ -843,9 +843,9 @@ UniValue getgovernanceinfo(const UniValue& params, bool fHelp)
             "  \"governanceminquorum\": xxxxx,           (numeric) the absolute minimum number of votes needed to trigger a governance action\n"
             "  \"masternodewatchdogmaxseconds\": xxxxx,  (numeric) sentinel watchdog expiration time in seconds\n"
             "  \"proposalfee\": xxx.xx,                  (numeric) the collateral transaction fee which must be paid to create a proposal in\n"
-            "  \"superblockcycle\": xxxxx,               (numeric) the number of blocks between superblocks\n"
-            "  \"lastsuperblock\": xxxxx,                (numeric) the block number of the last superblock\n"
-            "  \"nextsuperblock\": xxxxx,                (numeric) the block number of the next superblock\n"
+            // "  \"superblockcycle\": xxxxx,               (numeric) the number of blocks between superblocks\n"
+            // "  \"lastsuperblock\": xxxxx,                (numeric) the block number of the last superblock\n"
+            // "  \"nextsuperblock\": xxxxx,                (numeric) the block number of the next superblock\n"
             "}\n"
             "\nExamples:\n"
             + HelpExampleCli("getgovernanceinfo", "")

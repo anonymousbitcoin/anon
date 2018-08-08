@@ -21,8 +21,30 @@ import subprocess
 import time
 import re
 
-from authproxy import AuthServiceProxy, JSONRPCException
-from util import *
+from .authproxy import AuthServiceProxy, JSONRPCException
+from .util import *
+
+#Set Mocktime default to OFF.
+#MOCKTIME is only needed for scripts that use the
+#cached version of the blockchain.  If the cached
+#version of the blockchain is used without MOCKTIME
+#then the mempools will not sync due to IBD.
+MOCKTIME = 0
+
+def enable_mocktime():
+    #For backwared compatibility of the python scripts
+    #with previous versions of the cache, set MOCKTIME 
+    #to regtest genesis time + (201 * 156)
+    global MOCKTIME
+    MOCKTIME = 1482971059 + (201 * 156)    
+
+def disable_mocktime():
+    global MOCKTIME
+    MOCKTIME = 0
+
+def get_mocktime():
+    return MOCKTIME
+
 
 def p2p_port(n):
     return 11000 + n + os.getpid()%999
@@ -85,6 +107,7 @@ def initialize_datadir(dirname, n):
         f.write("rpcport="+str(rpc_port(n))+"\n");
         f.write("listenonion=0\n");
         f.write("txindex=1\n");
+        f.write("debug=1\n");
     return datadir
 
 def initialize_chain(test_dir):
@@ -94,8 +117,14 @@ def initialize_chain(test_dir):
     anond and anon-cli must be in search path.
     """
 
-    if not os.path.isdir(os.path.join("cache", "node0")):
+    # if not os.path.isdir(os.path.join("cache", "node0")):
+    if (not os.path.isdir(os.path.join("cache","node0"))
+        or not os.path.isdir(os.path.join("cache","node1"))
+        or not os.path.isdir(os.path.join("cache","node2"))
+        or not os.path.isdir(os.path.join("cache","node3"))):
+
         devnull = open("/dev/null", "w+")
+        
         # Create cache directories, run bitcoinds:
         for i in range(4):
             datadir=initialize_datadir("cache", i)
@@ -104,11 +133,11 @@ def initialize_chain(test_dir):
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
             bitcoind_processes[i] = subprocess.Popen(args)
             if os.getenv("PYTHON_DEBUG", ""):
-                print "initialize_chain: anond started, calling anon-cli -rpcwait getblockcount"
+                print( "initialize_chain: anond started, calling anon-cli -rpcwait getblockcount")
             subprocess.check_call([ os.getenv("ANONCLI", "anon-cli"), "-datadir="+datadir,
                                     "-rpcwait", "getblockcount"], stdout=devnull)
             if os.getenv("PYTHON_DEBUG", ""):
-                print "initialize_chain: anon-cli -rpcwait getblockcount completed"
+                print( "initialize_chain: anon-cli -rpcwait getblockcount completed")
         devnull.close()
         rpcs = []
         for i in range(4):
@@ -123,7 +152,8 @@ def initialize_chain(test_dir):
         # gets 25 mature blocks and 25 immature.
         # blocks are created with timestamps 10 minutes apart, starting
         # at 1 Jan 2014
-        block_time = 1388534400
+        enable_mocktime()
+        block_time = get_mocktime() - (201 * 156)
         for i in range(2):
             for peer in range(4):
                 for j in range(25):
@@ -136,6 +166,7 @@ def initialize_chain(test_dir):
         # Shut them down, and clean up cache directories:
         stop_nodes(rpcs)
         wait_bitcoinds()
+        disable_mocktime()
         for i in range(4):
             os.remove(log_filename("cache", i, "debug.log"))
             os.remove(log_filename("cache", i, "db.log"))
@@ -184,17 +215,17 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
     datadir = os.path.join(dirname, "node"+str(i))
     if binary is None:
         binary = os.getenv("ANOND", "anond")
-    args = [ binary, "-datadir="+datadir, "-keypool=1", "-discover=0", "-rest" ]
+    args = [ binary, "-datadir="+datadir, "-keypool=1", "-discover=0", "-rest", "-mocktime="+str(get_mocktime()) ]
     if extra_args is not None: args.extend(extra_args)
     bitcoind_processes[i] = subprocess.Popen(args)
     devnull = open("/dev/null", "w+")
     if os.getenv("PYTHON_DEBUG", ""):
-        print "start_node: anond started, calling anon-cli -rpcwait getblockcount"
+        print( "start_node: anond started, calling anon-cli -rpcwait getblockcount")
     subprocess.check_call([ os.getenv("ANONCLI", "anon-cli"), "-datadir="+datadir] +
                           _rpchost_to_args(rpchost)  +
                           ["-rpcwait", "getblockcount"], stdout=devnull)
     if os.getenv("PYTHON_DEBUG", ""):
-        print "start_node: calling anon-cli -rpcwait getblockcount returned"
+        print( "start_node: calling anon-cli -rpcwait getblockcount returned")
     devnull.close()
     url = "http://rt:rt@%s:%d" % (rpchost or '127.0.0.1', rpc_port(i))
     if timewait is not None:

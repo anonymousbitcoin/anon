@@ -944,11 +944,11 @@ static void AcceptConnection(const ListenSocket& hListenSocket) {
         }
     }
 
-    if(fMasterNode && !masternodeSync.IsSynced()) {
-        LogPrintf("AcceptConnection -- masternode is not synced yet, skipping inbound connection attempt\n");
-        CloseSocket(hSocket);
-        return;
-    }
+    // if(fMasterNode && !masternodeSync.IsSynced()) {
+    //     LogPrintf("AcceptConnection -- masternode is not synced yet, skipping inbound connection attempt\n");
+    //     CloseSocket(hSocket);
+    //     return;
+    // }
 
     // According to the internet TCP_NODELAY is not carried into accepted sockets
     // on all platforms.  Set it again here just to be sure.

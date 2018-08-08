@@ -45,11 +45,13 @@ class WalletTest (BitcoinTestFramework):
 
         # Send 21 ANON from 0 to 2 using sendtoaddress call.
         # Second transaction will be child of first, and will require a fee
+        # node 0 has 4 generated utxo, with this below he will only have 2 utxo
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 11)
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 10)
 
         walletinfo = self.nodes[0].getwalletinfo()
         assert_equal(walletinfo['immature_balance'], 0)
+        assert_equal(len(self.nodes[0].listunspent(1)), 2)
 
         # Have node0 mine a block, thus it will collect its own fee.
         self.sync_all()
@@ -62,20 +64,20 @@ class WalletTest (BitcoinTestFramework):
 
         # node0 should end up with 50 btc in block rewards plus fees, but
         # minus the 21 plus fees sent to node2
-        assert_equal(self.nodes[0].getbalance(), 50-21)
+        assert_equal(self.nodes[0].getbalance(), 41.5)
         assert_equal(self.nodes[2].getbalance(), 21)
-        assert_equal(self.nodes[0].getbalance("*"), 50-21)
+        assert_equal(self.nodes[0].getbalance("*"), 41.5)
         assert_equal(self.nodes[2].getbalance("*"), 21)
 
         # Node0 should have three unspent outputs.
         # Create a couple of transactions to send them to node2, submit them through
         # node1, and make sure both node0 and node2 pick them up properly:
         node0utxos = self.nodes[0].listunspent(1)
-        assert_equal(len(node0utxos), 3)
+        assert_equal(len(node0utxos), 5)
 
         # Check 'generated' field of listunspent
-        # Node 0: has one coinbase utxo and two regular utxos
-        assert_equal(sum(int(uxto["generated"] is True) for uxto in node0utxos), 1)
+        # Node 0: has three coinbase utxo and two regular utxos
+        assert_equal(sum(int(uxto["generated"] is True) for uxto in node0utxos), 3)
         # Node 1: has 101 coinbase utxos and no regular utxos
         node1utxos = self.nodes[1].listunspent(1)
         assert_equal(len(node1utxos), 101)

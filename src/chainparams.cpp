@@ -64,7 +64,8 @@ public:
         nDefaultPort = 9695;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
-        const size_t N = 144, K = 5;
+        // const size_t N = 144, K = 5;
+        const size_t N = 200, K = 9;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         nEquihashN = N;
         nEquihashK = K;
@@ -105,23 +106,19 @@ public:
         //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.[INSERT].org"));
         //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.[INSERT].co"));
         
-        // guarantees the first 2 characters, when base58 encoded, are "bK"
-        base58Prefixes[PUBKEY_ADDRESS]     = {0x13,0x53};
-
-        // guarantees the first 2 characters, when base58 encoded, are "3Z"
-        base58Prefixes[SCRIPT_ADDRESS]     = {0x53,0x89};
-
+        // guarantees the first 2 characters, when base58 encoded, are "b1"
+        base58Prefixes[PUBKEY_ADDRESS]     = {0x13,0x25};
+        // guarantees the first 2 characters, when base58 encoded, are "bx"
+        base58Prefixes[SCRIPT_ADDRESS]     = {0x13,0xAF};
         // the first character, when base58 encoded, is "5" or "K" or "L" (as in Bitcoin)
         base58Prefixes[SECRET_KEY]         = {0x80};
         // do not rely on these BIP32 prefixes; they are not specified and may change
         base58Prefixes[EXT_PUBLIC_KEY]     = {0x04,0x88,0xB2,0x1E};
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x88,0xAD,0xE4};
-;
-        // guarantees the first 2 characters, when base58 encoded, are "B3"
-        base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x05,0xA8};
-
-        // guarantees the first 2 characters, when base58 encoded, are "LY"
-        base58Prefixes[ZCSPENDING_KEY]     = {0x0B, 0x01};
+        // guarantees the first 2 characters, when base58 encoded, are "zk"
+        base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xA8};
+        // guarantees the first 2 characters, when base58 encoded, are "SK"
+        base58Prefixes[ZCSPENDING_KEY]     = {0xAB,0x36};
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
@@ -168,7 +165,7 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         strCurrencyUnits = "ANONT";
-        consensus.fCoinbaseMustBeProtected = true;
+        consensus.fCoinbaseMustBeProtected = false;
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
@@ -210,23 +207,19 @@ public:
         //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.testnet.[INSERT].org"));
         //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.testnet1.[INSERT].co"));
 
-        // guarantees the first 2 characters, when base58 encoded, are "6W"
-        base58Prefixes[PUBKEY_ADDRESS]     = {0x03,0x1A};
-
-        // guarantees the first 2 characters, when base58 encoded, are "jQ"
-        base58Prefixes[SCRIPT_ADDRESS]     = {0x17,0xE0};
-
+        // guarantees the first 2 characters, when base58 encoded, are "n1"
+        base58Prefixes[PUBKEY_ADDRESS]     = {0x19,0x57};
+        // guarantees the first 2 characters, when base58 encoded, are "nx"
+        base58Prefixes[SCRIPT_ADDRESS]     = {0x19,0xE0};
         // the first character, when base58 encoded, is "9" or "c" (as in Bitcoin)
         base58Prefixes[SECRET_KEY]         = {0xEF};
         // do not rely on these BIP32 prefixes; they are not specified and may change
         base58Prefixes[EXT_PUBLIC_KEY]     = {0x04,0x35,0x87,0xCF};
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x35,0x83,0x94};
-
-         // guarantees the first 2 characters, when base58 encoded, are "vX" or "vW"
-        base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x14,0xff};
-
-        // guarantees the first 2 characters, when base58 encoded, are "2B"
-        base58Prefixes[ZCSPENDING_KEY]     = {0xAA};
+        // guarantees the first 2 characters, when base58 encoded, are "zz"
+        base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xC0};
+        // guarantees the first 2 characters, when base58 encoded, are "ST"
+        base58Prefixes[ZCSPENDING_KEY]     = {0xAC,0x08};
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
 
