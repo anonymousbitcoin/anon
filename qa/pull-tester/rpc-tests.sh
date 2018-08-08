@@ -33,17 +33,17 @@ testScripts=(
     'proxy_test.py' #PASSING
     'merkle_blocks.py' #FAILING
     'fundrawtransaction.py' #FAILING
-    'signrawtransactions.py'#PASSING
+    'signrawtransactions.py' #PASSING
     'walletbackup.py' #PASSING
     'nodehandling.py' #PASSING
     'reindex.py' #PASSING
-    'decodescript.py'#PASSING
+    'decodescript.py' #PASSING
     'disablewallet.py' #PASSING
     'zcjoinsplit.py' #FAILING
     'zcjoinsplitdoublespend.py' #FAILING
     'getblocktemplate.py' #FAILING
-    'bip65-cltv-p2p.py'#PASSING
-    'bipdersig-p2p.py'#PASSING
+    'bip65-cltv-p2p.py' #PASSING
+    'bipdersig-p2p.py' #PASSING
     #'p2p-masternodes.py'
 );
 testScriptsExt=(

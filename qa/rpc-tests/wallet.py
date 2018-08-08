@@ -289,18 +289,18 @@ class WalletTest (BitcoinTestFramework):
         #     errorString = e.error['message']
         # assert("size of raw transaction would be larger than limit" in errorString)
 
-        recipients = []
-        num_z_recipients = 50
-        amount_per_recipient = Decimal('0.00000001')
-        errorString = ''
-        for i in xrange(0,num_z_recipients):
-            newzaddr = self.nodes[2].z_getnewaddress()
-            recipients.append({"address":newzaddr, "amount":amount_per_recipient})
-        try:
-            self.nodes[0].z_sendmany(myzaddr, recipients)
-        except JSONRPCException,e:
-            errorString = e.error['message']
-        assert("Invalid parameter, too many zaddr outputs" in errorString)
+#        recipients = []
+#        num_z_recipients = 50
+#        amount_per_recipient = Decimal('0.00000001')
+#        errorString = ''
+#        for i in xrange(0,num_z_recipients):
+#            newzaddr = self.nodes[2].z_getnewaddress()
+#            recipients.append({"address":newzaddr, "amount":amount_per_recipient})
+#        try:
+#            self.nodes[0].z_sendmany(myzaddr, recipients)
+#        except JSONRPCException,e:
+#            errorString = e.error['message']
+#        assert("Invalid parameter, too many zaddr outputs" in errorString)
 
         # add zaddr to node 2
         myzaddr = self.nodes[2].z_getnewaddress()
@@ -332,7 +332,7 @@ class WalletTest (BitcoinTestFramework):
         # check balances
         zsendmanynotevalue = Decimal('7.0')
         zsendmanyfee = Decimal('0.0001')
-        node2utxobalance = Decimal('23.998') - zsendmanynotevalue - zsendmanyfee
+        node2utxobalance = Decimal('26.498') - zsendmanynotevalue - zsendmanyfee
 
         assert_equal(self.nodes[2].getbalance(), node2utxobalance)
         assert_equal(self.nodes[2].getbalance("*"), node2utxobalance)
