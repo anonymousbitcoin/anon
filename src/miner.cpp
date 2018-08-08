@@ -254,7 +254,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
                 CTransaction *txNew = new CTransaction();
 
-                char* transSize = new char[32];
+                char* transSize = new char[4];
 
                 //retrieve transaction size
                 if (!if_utxo.read(transSize, 32)) {
@@ -269,11 +269,16 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
                 LogPrintf("UTXO-SIZE: %d\n", size);
                 if (size == 0) {
-                    LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: End of UTXO file ? - Transaction size is zero\n",
+                    LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: End of UTXO file ? - Strtol failed\n",
                             nHeight, nForkHeight, forkHeightRange);
                     break;
                 }
 
+                if (size == -1) {
+                    LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: End of UTXO file ? - Transaction size is zero\n",
+                            nHeight, nForkHeight, forkHeightRange);
+                    break;
+                }
                 //load transaction (binary)
                 LogPrintf("Size is: %d\n", size);
                 char *rawTransaction = new char[size];
@@ -338,7 +343,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 nBlockSigOps += nTxSigOps;
                 ++nBlockTx;
                 loopCounter++;
-                LogPrintf("While loop counter: %d", loopCounter);
+                LogPrintf("While loop counter: %d\n", loopCounter);
                 delete txNew;
                 delete txM;
                 delete transSize;
