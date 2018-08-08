@@ -265,7 +265,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
                 //convert binary size to int size
                 char* endptr;
-                int size = strtol(transSize, &endptr, 2);
+                long int size = strtol(transSize, &endptr, 2);
 
                 LogPrintf("UTXO-SIZE: %d\n", size);
                 if (size == 0) {
