@@ -290,8 +290,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 //converting binary raw transaction to hex-string raw transaction  10111011111010 => 2EFA
                 std::stringstream ss;
                 ss << std::hex << std::setfill('0');
-                for (int i = 0; i < size/8; ++i)
-                {
+                for (int i = 0; i < size/8; i++)
+                {   LogPrintf("i: %d\n", i);
                     ss << std::setw(2) << (unsigned int)(unsigned char)(rawTransaction[i]);
                 }
                 // LogPrintf("Size of the 1st transaction: %d\n", size);
