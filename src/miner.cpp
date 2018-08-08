@@ -276,9 +276,9 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 int size = 0; 
 
                 for(int i = 0; i < 32; i++){
-                    if(transSize[i] = '0')
+                    if(transSize[i] = '48')
                         continue;
-                    else if(transSize[i] = '1'){
+                    else if(transSize[i] = '49'){
                         size += pow(2, 32-i);
                     }
                     else
