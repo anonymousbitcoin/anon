@@ -24,7 +24,7 @@ testScripts=(
     'txn_doublespend.py --mineblock' #FAILING
     'getchaintips.py' #PASSING
     'rawtransactions.py' #PASSING
-    'rest.py'#PASSING
+    'rest.py' #PASSING
     'mempool_spendcoinbase.py' #FAILING
     'mempool_coinbase_spends.py' #FAILING
     'mempool_tx_input_limit.py' #FAILING
