@@ -89,12 +89,12 @@ if ENABLE_ZMQ:
 #Tests
 testScripts=[
     'prioritisetransaction.py'
-    'wallet_treestate.py', #FAILING
+    'wallet_treestate.py', #PASSES
     'wallet_protectcoinbase.py', #FAILING
     'wallet_shieldcoinbase.py', #PASSES
     'wallet.py', #FAILING
-    'wallet_nullifiers.py', #FAILING
-    'wallet_1941.py', #FAILING
+    'wallet_nullifiers.py', #PASSES
+    'wallet_1941.py', #PASSES
     'listtransactions.py', #PASSING
     'mempool_resurrect_test.py', #PASSES
     'txn_doublespend.py', #PASSES PYTHON TEST HANDLER IS NOT ACCEPTING THE PARAMTER
@@ -104,11 +104,11 @@ testScripts=[
     'rest.py',#PASSING
     'mempool_spendcoinbase.py', #PASSES
     'mempool_coinbase_spends.py', #PASSES Doesn't work on mac
-    'mempool_tx_input_limit.py', #FAILING
+    'mempool_tx_input_limit.py', #PASSES
     'httpbasics.py', #PASSING
     'zapwallettxes.py', #PASSING
     'proxy_test.py', #PASSING
-    'merkle_blocks.py', #FAILING
+    'merkle_blocks.py', #PASSES
     'fundrawtransaction.py', #FAILING
     'signrawtransactions.py',#PASSING
     'walletbackup.py', #PASSING
@@ -116,8 +116,8 @@ testScripts=[
     'reindex.py', #PASSING
     'decodescript.py',#PASSING
     'disablewallet.py', #PASSING
-    'zcjoinsplit.py', #FAILING
-    'zcjoinsplitdoublespend.py', #FAILING
+    'zcjoinsplit.py', #PASSES
+    'zcjoinsplitdoublespend.py', #PASSES
     'getblocktemplate.py', #PASSES
     'bip65-cltv-p2p.py',#PASSING
     'bipdersig-p2p.py',#PASSING
