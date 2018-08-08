@@ -254,16 +254,16 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
                 CTransaction *txNew = new CTransaction();
 
-                char* transSize = new char[4];
-
+                char* transSize = new char[32];
+                for(int i = 0; i < 32; i++){
+                    transSize[i] = 0;
+                    LogPrintf("Char: %d\n", transSize[i]);
+                }
                 //retrieve transaction size
-                if (!if_utxo.read(transSize, 4)) {
+                if (!if_utxo.read(transSize, 32)) {
                     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction size\n",
                             nHeight, nForkHeight, forkHeightRange);
                     break;
-                }
-                for(int z = 0; z < 4; z++){
-                    LogPrintf("Char: %d\n", transSize[z]);
                 }
 
                 //convert binary size to int size
@@ -284,7 +284,10 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 }
                 //load transaction (binary)
                 LogPrintf("Size is: %d\n", size);
-                char *rawTransaction = new char[size/8+1];
+                char *rawTransaction = new char[size];
+                  for(int i = 0; i < size; i++){
+                    rawTransaction[i] = 0;
+                }
                 if (!if_utxo.read(rawTransaction, size)) {
                     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction\n", nHeight, nForkHeight, forkHeightRange);
                     break;
@@ -293,7 +296,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 //converting binary raw transaction to hex-string raw transaction  10111011111010 => 2EFA
                 std::stringstream ss;
                 ss << std::hex << std::setfill('0');
-                for (int i = 0; i < size/8+1; ++i)
+                for (int i = 0; i < size; ++i)
                 {   LogPrintf("i: %d\n", i);
                     ss << std::setw(2) << (unsigned int)(unsigned char)(rawTransaction[i]);
                 }
