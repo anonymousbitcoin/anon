@@ -31,6 +31,8 @@
 #include "wallet/wallet.h"
 #endif
 
+#include "masternode-payments.h"
+#include "masternode-sync.h"
 #include "sodium.h"
 
 #include <boost/thread.hpp>
@@ -314,10 +316,14 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
         return NULL;
     CBlock *pblock = &pblocktemplate->block; // pointer for convenience
 
+    // INSTEAD OF CREATING DUMMY TX, CREATE MUTABLE TX
     // Add dummy coinbase tx as first transaction
-    pblock->vtx.push_back(CTransaction());
-    pblocktemplate->vTxFees.push_back(-1); // updated at end
-    pblocktemplate->vTxSigOps.push_back(-1); // updated at end
+    // Create coinbase tx
+    CMutableTransaction txNew;
+    txNew.vin.resize(1);
+    txNew.vin[0].prevout.SetNull();
+    txNew.vout.resize(1);
+    txNew.vout[0].scriptPubKey = scriptPubKeyIn;
 
     // Largest block you're willing to create:
     unsigned int nBlockMaxSize = GetArg("-blockmaxsize", DEFAULT_BLOCK_MAX_SIZE);
@@ -343,6 +349,9 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
         const int nHeight = pindexPrev->nHeight + 1;
         pblock->nTime = GetAdjustedTime();
         const int64_t nMedianTimePast = pindexPrev->GetMedianTimePast();
+        pblock->vtx.push_back(txNew);
+        pblocktemplate->vTxFees.push_back(-1); // updated at end
+        pblocktemplate->vTxSigOps.push_back(-1); // updated at end
         pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
         // -regtest only: allow overriding block.nVersion with
         // -blockversion=N to test forking scenarios
@@ -539,21 +548,37 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
         nLastBlockSize = nBlockSize;
         LogPrintf("CreateNewBlock(): total size %u\n", nBlockSize);
 
-        // Create coinbase tx
-        CMutableTransaction txNew;
-        txNew.vin.resize(1);
-        txNew.vin[0].prevout.SetNull();
-        txNew.vout.resize(1);
-        txNew.vout[0].scriptPubKey = scriptPubKeyIn;
-        txNew.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
 
-        // Add fees
-        txNew.vout[0].nValue += nFees;
+        // NOTE: unlike in bitcoin, we need to pass PREVIOUS block height here
+        CAmount blockReward = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+
+        // Compute regular coinbase transaction.
+        txNew.vout[0].nValue = blockReward;
         txNew.vin[0].scriptSig = CScript() << nHeight << OP_0;
 
-        pblock->vtx[0] = txNew;
-        pblocktemplate->vTxFees[0] = -nFees;
+        // Update coinbase transaction with additional info about masternode and governance payments,
+        // get some info back to pass to getblocktemplate
+        FillBlockPayments(txNew, nHeight, blockReward, pblock->txoutMasternode);
+        LogPrintf("CreateNewBlock -- nBlockHeight %d blockReward %lld txoutMasternode %s txNew %s",
+                    nHeight, blockReward, pblock->txoutMasternode.ToString(), txNew.ToString());
 
+        // Create coinbase tx
+        // CMutableTransaction txNew;
+        // txNew.vin.resize(1);
+        // txNew.vin[0].prevout.SetNull();
+        // txNew.vout.resize(1);
+        // txNew.vout[0].scriptPubKey = scriptPubKeyIn;
+        // txNew.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+
+        // Add fees
+        // txNew.vout[0].nValue += nFees;
+        // txNew.vin[0].scriptSig = CScript() << nHeight << OP_0;
+
+        // Update block coinbase
+	LogPrintf("Before pblock txNew");
+        pblock->vtx[0] = txNew;
+	LogPrintf("After pblock txNew");
+        pblocktemplate->vTxFees[0] = -nFees;
         // Randomise nonce
         arith_uint256 nonce = UintToArith256(GetRandHash());
         // Clear the top and bottom 16 bits (for local use as thread flags and counters)

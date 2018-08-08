@@ -14,6 +14,9 @@ src/zcash/CreateJoinSplit
 
 *zcashTest.pk
 *zcashTest.vk
+*zcash-gtest.dSYM
+*btcpd.dSYM
+*test_bitcoin.dSYM
 
 # autoreconf
 Makefile.in
@@ -106,6 +109,7 @@ qa/pull-tester/run-bitcoind-for-test.sh
 qa/pull-tester/tests-config.sh
 qa/pull-tester/cache/*
 qa/pull-tester/test.*/*
+qa/pull-tester/tests_config.py
 
 !src/leveldb*/Makefile
 
@@ -119,6 +123,15 @@ contrib/debian/substvars
 *.gen
 
 
+../../src/btcp-cli.dSYM/Contents/Resources/DWARF/btcp-cli
+../../src/zcash-tx.dSYM/Contents/Resources/DWARF/zcash-tx
+../../src/zcash/CreateJoinSplit.dSYM/Contents/Resources/DWARF/CreateJoinSplit
+../../src/zcash/GenerateParams.dSYM/Contents/Resources/DWARF/GenerateParams
+btcp-cli.dSYM/*
+zcash-tx.dSYM/Contents/*
+zcash/CreateJoinSplit.dSYM/*
+zcash/GenerateParams.dSYM/*
+zcash-tx.dSYM/*
 **/btcp-cli.dSYM
 **/zcash-tx.dSYM
 **/zcash/CreateJoinSplit.dSYM
@@ -128,3 +141,7 @@ contrib/debian/substvars
 **/anon-cli.dSYM
 **/anond.dSYM
 **/src/test/test_bitcoin.dSYM
+**/src/test/test_bitcoin.dSYM
+
+doc/html/**
+doc/latex/**

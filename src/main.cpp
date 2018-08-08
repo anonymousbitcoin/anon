@@ -25,11 +25,19 @@
 #include "ui_interface.h"
 #include "undo.h"
 #include "util.h"
+#include "sync.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
 #include "versionbits.h"
 #include "wallet/asyncrpcoperation_sendmany.h"
 #include "wallet/asyncrpcoperation_shieldcoinbase.h"
+
+#include "masternode-payments.h"
+#include "masternode-sync.h"
+#include "masternodeman.h"
+#include "governance.h"
+
+
 
 #include <sstream>
 
@@ -114,6 +122,7 @@ struct COrphanTx {
 map<uint256, COrphanTx> mapOrphanTransactions GUARDED_BY(cs_main);;
 map<uint256, set<uint256> > mapOrphanTransactionsByPrev GUARDED_BY(cs_main);;
 void EraseOrphansFor(NodeId peer) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+map<uint256, int64_t> mapRejectedBlocks GUARDED_BY(cs_main);
 
 /**
  * Returns true if there are nRequired or more blocks of minVersion or above
@@ -1004,6 +1013,27 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
     return true;
 }
 
+int GetInputAge(const CTxIn& txin)
+{
+    CCoinsView viewDummy;
+    CCoinsViewCache view(&viewDummy);
+    {
+        LOCK(mempool.cs);
+        CCoinsViewMemPool viewMempool(pcoinsTip, mempool);
+        view.SetBackend(viewMempool); // temporarily switch cache backend to db+mempool view
+
+        const CCoins* coins = view.AccessCoins(txin.prevout.hash);
+
+        if (coins) {
+            if (coins->nHeight < 0)
+                return 0;
+            return chainActive.Height() - coins->nHeight + 1;
+        } else {
+            return -1;
+        }
+    }
+}
+
 bool CheckJoinSplitSigs(const CTransaction& tx, CValidationState &state, const unsigned int flags)
 {
     if (tx.vjoinsplit.size() > 0) {
@@ -1418,7 +1448,7 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex)
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
-    CAmount nSubsidy = 200 * COIN;
+    CAmount nSubsidy = 50 * COIN;
 
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
@@ -1461,12 +1491,71 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     return nSubsidy;
 }
 
+//ANON
+CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
+{
+    CAmount ret = blockValue/5; // start at 20%
+
+    int nMNPIBlock = Params().GetConsensus().nMasternodePaymentsIncreaseBlock;
+    int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
+
+                                                                      // mainnet:
+    if(nHeight > nMNPIBlock)                  ret += blockValue / 20; // 158000 - 25.0% - 2014-10-24
+    if(nHeight > nMNPIBlock+(nMNPIPeriod* 1)) ret += blockValue / 20; // 175280 - 30.0% - 2014-11-25
+    if(nHeight > nMNPIBlock+(nMNPIPeriod* 2)) ret += blockValue / 20; // 192560 - 35.0% - 2014-12-26
+    if(nHeight > nMNPIBlock+(nMNPIPeriod* 3)) ret += blockValue / 40; // 209840 - 37.5% - 2015-01-26
+    if(nHeight > nMNPIBlock+(nMNPIPeriod* 4)) ret += blockValue / 40; // 227120 - 40.0% - 2015-02-27
+    if(nHeight > nMNPIBlock+(nMNPIPeriod* 5)) ret += blockValue / 40; // 244400 - 42.5% - 2015-03-30
+    if(nHeight > nMNPIBlock+(nMNPIPeriod* 6)) ret += blockValue / 40; // 261680 - 45.0% - 2015-05-01
+    if(nHeight > nMNPIBlock+(nMNPIPeriod* 7)) ret += blockValue / 40; // 278960 - 47.5% - 2015-06-01
+    if(nHeight > nMNPIBlock+(nMNPIPeriod* 9)) ret += blockValue / 40; // 313520 - 50.0% - 2015-08-03
+
+    return ret;
+}
+
+//ANON
+bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos, const Consensus::Params& consensusParams)
+{
+    block.SetNull();
+
+    // Open history file to read
+    CAutoFile filein(OpenBlockFile(pos, true), SER_DISK, CLIENT_VERSION);
+    if (filein.IsNull())
+        return error("ReadBlockFromDisk: OpenBlockFile failed for %s", pos.ToString());
+
+    // Read block
+    try {
+        filein >> block;
+    }
+    catch (const std::exception& e) {
+        return error("%s: Deserialize or I/O error - %s at %s", __func__, e.what(), pos.ToString());
+    }
+
+    // Check the header
+    if (!CheckProofOfWork(block.GetHash(), block.nBits, consensusParams))
+        return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
+
+    return true;
+}
+
+bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus::Params& consensusParams)
+{
+    if (!ReadBlockFromDisk(block, pindex->GetBlockPos(), consensusParams))
+        return false;
+    if (block.GetHash() != pindex->GetBlockHash())
+        return error("ReadBlockFromDisk(CBlock&, CBlockIndex*): GetHash() doesn't match index for %s at %s",
+                pindex->ToString(), pindex->GetBlockPos().ToString());
+    return true;
+}
+
+
 bool IsInitialBlockDownload(bool includeFork)
 {
     const CChainParams& chainParams = Params();
-    LOCK(cs_main);
+    
     if (fImporting || fReindex)
         return true;
+    LOCK(cs_main);
     if (fCheckpointsEnabled && chainActive.Height() < Checkpoints::GetTotalBlocksEstimate(chainParams.Checkpoints()))
         return true;
     if (includeFork && chainActive.Height() < airdropStartHeight + AirdropHeightRange)
@@ -2113,6 +2202,19 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     return nVersion;
 }
 
+bool GetBlockHash(uint256& hashRet, int nBlockHeight)
+{
+    LOCK(cs_main);
+    if (chainActive.Tip() == NULL)
+        return false;
+    if (nBlockHeight < -1 || nBlockHeight > chainActive.Height())
+        return false;
+    if (nBlockHeight == -1)
+        nBlockHeight = chainActive.Height();
+    hashRet = chainActive[nBlockHeight]->GetBlockHash();
+    return true;
+}
+
 /**
  * Threshold condition checker that triggers when unknown versionbits are seen on the network.
  */
@@ -2310,11 +2412,23 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (!isAirdropBlock(pindex->nHeight)){  //when block is in forking region - don't check coinbase amount
 #endif
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
+    std::string strError = "";
     if (block.vtx[0].GetValueOut() > blockReward)
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0].GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
+
+    if (!IsBlockValueValid(block, pindex->nHeight, blockReward, strError)) {
+        return state.DoS(0, error("ConnectBlock(ANON): %s", strError), REJECT_INVALID, "bad-cb-amount");
+    }
+
+    if (!IsBlockPayeeValid(block.vtx[0], pindex->nHeight, blockReward)) {
+        mapRejectedBlocks.insert(make_pair(block.GetHash(), GetTime()));
+        return state.DoS(0, error("ConnectBlock(ANON): couldn't find masternode or superblock payments"),
+                                REJECT_INVALID, "bad-cb-payee");
+    }
+
 #ifdef FORK_CB_INPUT
     }
 #endif
@@ -3538,6 +3652,11 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
     if (!ActivateBestChain(state, pblock))
         return error("%s: ActivateBestChain failed", __func__);
 
+    masternodeSync.IsBlockchainSynced(true);
+
+    LogPrintf("%s : ACCEPTED\n", __func__);
+
+
     return true;
 }
 
@@ -4433,6 +4552,49 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
         }
     case MSG_BLOCK:
         return mapBlockIndex.count(inv.hash);
+
+
+    /* 
+        ANON Related Inventory Messages
+
+        --
+
+        We shouldn't update the sync times for each of the messages when we already have it. 
+        We're going to be asking many nodes upfront for the full inventory list, so we'll get duplicates of these.
+        We want to only update the time on new hits, so that we can time out appropriately if needed.
+    */
+    // case MSG_TXLOCK_REQUEST:
+    //     return instantsend.AlreadyHave(inv.hash);
+
+    // case MSG_TXLOCK_VOTE:
+    //     return instantsend.AlreadyHave(inv.hash);
+
+    // case MSG_SPORK:
+    //     return mapSporks.count(inv.hash);
+
+    case MSG_MASTERNODE_PAYMENT_VOTE:
+        return mnpayments.mapMasternodePaymentVotes.count(inv.hash);
+// 
+    case MSG_MASTERNODE_PAYMENT_BLOCK: {
+        BlockMap::iterator mi = mapBlockIndex.find(inv.hash);
+        return mi != mapBlockIndex.end() && mnpayments.mapMasternodeBlocks.find(mi->second->nHeight) != mnpayments.mapMasternodeBlocks.end();
+    }
+
+    case MSG_MASTERNODE_ANNOUNCE:
+        return mnodeman.mapSeenMasternodeBroadcast.count(inv.hash) && !mnodeman.IsMnbRecoveryRequested(inv.hash);
+
+    case MSG_MASTERNODE_PING:
+        return mnodeman.mapSeenMasternodePing.count(inv.hash);
+
+    // case MSG_DSTX:
+        // return mapDarksendBroadcastTxes.count(inv.hash);
+
+    case MSG_GOVERNANCE_OBJECT:
+    case MSG_GOVERNANCE_OBJECT_VOTE:
+        return !governance.ConfirmInventoryRequest(inv);
+
+    case MSG_MASTERNODE_VERIFY:
+        return mnodeman.mapSeenMasternodeVerification.count(inv.hash);
     }
     // Don't know what it is, just say we already got one
     return true;
@@ -4544,6 +4706,146 @@ void static ProcessGetData(CNode* pfrom)
                         pushed = true;
                     }
                 }
+
+                // if (!pushed && inv.type == MSG_TXLOCK_REQUEST) {
+                //     CTxLockRequest txLockRequest;
+                //     if (instantsend.GetTxLockRequest(inv.hash, txLockRequest)) {
+                //         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                //         ss.reserve(1000);
+                //         ss << txLockRequest;
+                //         pfrom->PushMessage(NetMsgType::TXLOCKREQUEST, ss);
+                //         pushed = true;
+                //     }
+                // }
+
+                // if (!pushed && inv.type == MSG_TXLOCK_VOTE) {
+                //     CTxLockVote vote;
+                //     if (instantsend.GetTxLockVote(inv.hash, vote)) {
+                //         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                //         ss.reserve(1000);
+                //         ss << vote;
+                //         pfrom->PushMessage(NetMsgType::TXLOCKVOTE, ss);
+                //         pushed = true;
+                //     }
+                // }
+
+                // if (!pushed && inv.type == MSG_SPORK) {
+                //     if (mapSporks.count(inv.hash)) {
+                //         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                //         ss.reserve(1000);
+                //         ss << mapSporks[inv.hash];
+                //         pfrom->PushMessage(NetMsgType::SPORK, ss);
+                //         pushed = true;
+                //     }
+                // }
+
+                if (!pushed && inv.type == MSG_MASTERNODE_PAYMENT_VOTE) {
+                    if (mnpayments.HasVerifiedPaymentVote(inv.hash)) {
+                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                        ss.reserve(1000);
+                        ss << mnpayments.mapMasternodePaymentVotes[inv.hash];
+                        pfrom->PushMessage(NetMsgType::MASTERNODEPAYMENTVOTE, ss);
+                        pushed = true;
+                    }
+                }
+
+                if (!pushed && inv.type == MSG_MASTERNODE_PAYMENT_BLOCK) {
+                    BlockMap::iterator mi = mapBlockIndex.find(inv.hash);
+                    LOCK(cs_mapMasternodeBlocks);
+                    if (mi != mapBlockIndex.end() && mnpayments.mapMasternodeBlocks.count(mi->second->nHeight)) {
+                        BOOST_FOREACH (CMasternodePayee& payee, mnpayments.mapMasternodeBlocks[mi->second->nHeight].vecPayees) {
+                            std::vector<uint256> vecVoteHashes = payee.GetVoteHashes();
+                            BOOST_FOREACH (uint256& hash, vecVoteHashes) {
+                                if (mnpayments.HasVerifiedPaymentVote(hash)) {
+                                    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                                    ss.reserve(1000);
+                                    ss << mnpayments.mapMasternodePaymentVotes[hash];
+                                    pfrom->PushMessage(NetMsgType::MASTERNODEPAYMENTVOTE, ss);
+                                }
+                            }
+                        }
+                        pushed = true;
+                    }
+                }
+
+                if (!pushed && inv.type == MSG_MASTERNODE_ANNOUNCE) {
+                    if (mnodeman.mapSeenMasternodeBroadcast.count(inv.hash)) {
+                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                        ss.reserve(1000);
+                        ss << mnodeman.mapSeenMasternodeBroadcast[inv.hash].second;
+                        pfrom->PushMessage(NetMsgType::MNANNOUNCE, ss);
+                        pushed = true;
+                    }
+                }
+
+                if (!pushed && inv.type == MSG_MASTERNODE_PING) {
+                    if (mnodeman.mapSeenMasternodePing.count(inv.hash)) {
+                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                        ss.reserve(1000);
+                        ss << mnodeman.mapSeenMasternodePing[inv.hash];
+                        pfrom->PushMessage(NetMsgType::MNPING, ss);
+                        pushed = true;
+                    }
+                }
+
+                // if (!pushed && inv.type == MSG_DSTX) {
+                //     if (mapDarksendBroadcastTxes.count(inv.hash)) {
+                //         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                //         ss.reserve(1000);
+                //         ss << mapDarksendBroadcastTxes[inv.hash];
+                //         pfrom->PushMessage(NetMsgType::DSTX, ss);
+                //         pushed = true;
+                //     }
+                // }
+
+                if (!pushed && inv.type == MSG_GOVERNANCE_OBJECT) {
+                    LogPrint("net", "ProcessGetData -- MSG_GOVERNANCE_OBJECT: inv = %s\n", inv.ToString());
+                    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                    bool topush = false;
+                    {
+                        if (governance.HaveObjectForHash(inv.hash)) {
+                            ss.reserve(1000);
+                            if (governance.SerializeObjectForHash(inv.hash, ss)) {
+                                topush = true;
+                            }
+                        }
+                    }
+                    LogPrint("net", "ProcessGetData -- MSG_GOVERNANCE_OBJECT: topush = %d, inv = %s\n", topush, inv.ToString());
+                    if (topush) {
+                        pfrom->PushMessage(NetMsgType::MNGOVERNANCEOBJECT, ss);
+                        pushed = true;
+                    }
+                }
+
+                if (!pushed && inv.type == MSG_GOVERNANCE_OBJECT_VOTE) {
+                    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                    bool topush = false;
+                    {
+                        if (governance.HaveVoteForHash(inv.hash)) {
+                            ss.reserve(1000);
+                            if (governance.SerializeVoteForHash(inv.hash, ss)) {
+                                topush = true;
+                            }
+                        }
+                    }
+                    if (topush) {
+                        LogPrint("net", "ProcessGetData -- pushing: inv = %s\n", inv.ToString());
+                        pfrom->PushMessage(NetMsgType::MNGOVERNANCEOBJECTVOTE, ss);
+                        pushed = true;
+                    }
+                }
+
+                if (!pushed && inv.type == MSG_MASTERNODE_VERIFY) {
+                    if (mnodeman.mapSeenMasternodeVerification.count(inv.hash)) {
+                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                        ss.reserve(1000);
+                        ss << mnodeman.mapSeenMasternodeVerification[inv.hash];
+                        pfrom->PushMessage(NetMsgType::MNVERIFY, ss);
+                        pushed = true;
+                    }
+                }
+
+
                 if (!pushed) {
                     vNotFound.push_back(inv);
                 }
@@ -4580,9 +4882,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         LogPrintf("dropmessagestest DROPPING RECV MESSAGE\n");
         return true;
     }
-
-
-
 
     if (strCommand == "version")
     {
@@ -4643,6 +4942,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             pfrom->PushVersion();
 
         pfrom->fClient = !(pfrom->nServices & NODE_NETWORK);
+    //ANON
+        // CNodeState* pNodeState = NULL;
+        // {
+        //     LOCK(cs_main);
+        //     pNodeState = State(pfrom->GetId());
+        //     assert(pNodeState);
+        // }
+    //ANON END
 
         // Potentially mark this peer as a preferred download peer.
         UpdatePreferredDownload(pfrom, State(pfrom->GetId()));
@@ -5402,16 +5709,37 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         }
     }
 
+
+
     else if (strCommand == "notfound") {
         // We do not care about the NOTFOUND message, but logging an Unknown Command
         // message would be undesirable as we transmit it ourselves.
     }
 
     else {
-        // Ignore unknown commands for extensibility
-        LogPrint("net", "Unknown command \"%s\" from peer=%d\n", SanitizeString(strCommand), pfrom->id);
-    }
+        bool found = false;
+        const std::vector<std::string>& allMessages = getAllNetMessageTypes();
+        BOOST_FOREACH (const std::string msg, allMessages) {
+            if (msg == strCommand) {
+                found = true;
+                break;
+            }
+        }
 
+        if (found) {
+            //probably one the extensions
+            // darkSendPool.ProcessMessage(pfrom, strCommand, vRecv);
+            mnodeman.ProcessMessage(pfrom, strCommand, vRecv);
+            mnpayments.ProcessMessage(pfrom, strCommand, vRecv);
+            // instantsend.ProcessMessage(pfrom, strCommand, vRecv);
+            // sporkManager.ProcessSpork(pfrom, strCommand, vRecv);
+            masternodeSync.ProcessMessage(pfrom, strCommand, vRecv);
+            governance.ProcessMessage(pfrom, strCommand, vRecv);
+        } else {
+            // Ignore unknown commands for extensibility
+            LogPrint("net", "Unknown command \"%s\" from peer=%d\n", SanitizeString(strCommand), pfrom->id);
+        }
+    }
 
 
     return true;

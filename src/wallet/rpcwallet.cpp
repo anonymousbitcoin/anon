@@ -99,10 +99,19 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     entry.push_back(Pair("vjoinsplit", TxJoinSplitToJSON(wtx)));
 }
 
+// string AccountFromValue(const UniValue& value)
+// {
+//     string strAccount = value.get_str();
+//     if (strAccount != "")
+//         throw JSONRPCError(RPC_WALLET_ACCOUNTS_UNSUPPORTED, "Accounts are unsupported");
+//     return strAccount;
+// }
+
+//dash
 string AccountFromValue(const UniValue& value)
 {
     string strAccount = value.get_str();
-    if (strAccount != "")
+    if (strAccount == "*")
         throw JSONRPCError(RPC_WALLET_ACCOUNTS_UNSUPPORTED, "Accounts are unsupported");
     return strAccount;
 }

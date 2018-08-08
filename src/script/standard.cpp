@@ -57,7 +57,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
 
         // Empty, provably prunable, data-carrying output
         if (GetBoolArg("-datacarrier", true))
-            mTemplates.insert(make_pair(TX_NULL_DATA, CScript() << OP_RETURN << OP_SMALLDATA));
+        	mTemplates.insert(make_pair(TX_NULL_DATA, CScript() << OP_RETURN << OP_SMALLDATA));
         mTemplates.insert(make_pair(TX_NULL_DATA, CScript() << OP_RETURN));
     }
 
@@ -70,6 +70,17 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         vSolutionsRet.push_back(hashBytes);
         return true;
     }
+
+
+    // Provably prunable, data-carrying output
+    //
+    // So long as script passes the IsUnspendable() test and all but the first
+    // byte passes the IsPushOnly() test we don't care what exactly is in the
+    // script.
+//    if (scriptPubKey.size() >= 1 && scriptPubKey[0] == OP_RETURN) {
+//        typeRet = TX_NULL_DATA;
+//        return true;
+//    }
 
     int witnessversion;
     std::vector<unsigned char> witnessprogram;
@@ -160,11 +171,11 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                     break;
             }
             else if (opcode2 == OP_SMALLDATA)
-            {
-                // small pushdata, <= nMaxDatacarrierBytes
-                if (vch1.size() > nMaxDatacarrierBytes)
-                    break;
-            }
+             {
+            //     // small pushdata, <= nMaxDatacarrierBytes
+                 if (vch1.size() > nMaxDatacarrierBytes)
+                     break;
+             }
             else if (opcode1 != opcode2 || vch1 != vch2)
             {
                 // Others must match exactly

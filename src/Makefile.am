@@ -95,6 +95,7 @@ BITCOIN_CORE_H = \
   addrman.h \
   alert.h \
   amount.h \
+  activemasternode.h \
   amqp/amqpabstractnotifier.h \
   amqp/amqpconfig.h \
   amqp/amqpnotificationinterface.h \
@@ -124,11 +125,20 @@ BITCOIN_CORE_H = \
   consensus/validation.h \
   core_io.h \
   core_memusage.h \
+  darksend.h\
+  dsnotificationinterface.h \
   deprecation.h \
+  flat-database.h \
   hash.h \
   httprpc.h \
   httpserver.h \
   init.h \
+  governance.h \
+  governance-classes.h \
+  governance-exceptions.h \
+  governance-object.h \
+  governance-vote.h \
+  governance-votedb.h \
   key.h \
   keystore.h \
   leveldbwrapper.h \
@@ -136,16 +146,23 @@ BITCOIN_CORE_H = \
   main.h \
   memusage.h \
   merkleblock.h \
+  masternodeconfig.h \
+  masternode.h \
+  masternode-payments.h \
+  masternode-sync.h \
+  masternodeman.h \
   metrics.h \
   miner.h \
   mruset.h \
   net.h \
+  netfulfilledman.h \
   netbase.h \
   noui.h \
   policy/fees.h \
   pow.h \
   primitives/block.h \
   primitives/transaction.h \
+  prevector.h \
   protocol.h \
   pubkey.h \
   random.h \
@@ -167,6 +184,8 @@ BITCOIN_CORE_H = \
   support/cleanse.h \
   support/events.h \
   support/pagelocker.h \
+  spentindex.h \
+  spork.h \
   sync.h \
   threadsafety.h \
   timedata.h \
@@ -209,6 +228,8 @@ libbitcoin_server_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT
 libbitcoin_server_a_SOURCES = \
   sendalert.cpp \
   addrman.cpp \
+  activemasternode.cpp \
+  darksend.cpp \
   alert.cpp \
   alertkeys.h \
   asyncrpcoperation.cpp \
@@ -216,16 +237,28 @@ libbitcoin_server_a_SOURCES = \
   bloom.cpp \
   chain.cpp \
   checkpoints.cpp \
+  dsnotificationinterface.cpp \
   deprecation.cpp \
   httprpc.cpp \
   httpserver.cpp \
   init.cpp \
+  governance.cpp \
+  governance-classes.cpp \
+  governance-object.cpp \
+  governance-vote.cpp \
+  governance-votedb.cpp \
   leveldbwrapper.cpp \
   main.cpp \
   merkleblock.cpp \
+  masternodeconfig.cpp \
+  masternode.cpp \
+  masternode-payments.cpp \
+  masternode-sync.cpp \
+  masternodeman.cpp \
   metrics.cpp \
   miner.cpp \
   net.cpp \
+  netfulfilledman.cpp \
   noui.cpp \
   policy/fees.cpp \
   pow.cpp \
@@ -235,7 +268,9 @@ libbitcoin_server_a_SOURCES = \
   rpcmisc.cpp \
   rpcnet.cpp \
   rpcrawtransaction.cpp \
+  rpcgovernance.cpp \
   rpcserver.cpp \
+  rpcmasternode.cpp \
   script/sigcache.cpp \
   timedata.cpp \
   torcontrol.cpp \
@@ -243,6 +278,7 @@ libbitcoin_server_a_SOURCES = \
   txmempool.cpp \
   validationinterface.cpp \
   versionbits.cpp \
+  spork.cpp \
   $(BITCOIN_CORE_H) \
   $(LIBZCASH_H)
 

@@ -45,6 +45,10 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     else if(!isAirdropBlock(nHeight) && isAirdropBlock(nHeight - params.nPowAveragingWindow))
         return nProofOfWorkLimit;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> master-alt-with-tests
     // Find the first block in the averaging interval
     const CBlockIndex* pindexFirst = pindexLast;
     arith_uint256 bnTot {0};

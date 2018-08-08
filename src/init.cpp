@@ -14,21 +14,25 @@
 #ifdef ENABLE_MINING
 #include "base58.h"
 #endif
+#include "activemasternode.h"
+#include "chain.h"
 #include "checkpoints.h"
 #include "compat/sanity.h"
 #include "consensus/validation.h"
-#include "httpserver.h"
+#include "flat-database.h"
 #include "httprpc.h"
+#include "httpserver.h"
 #include "key.h"
 #include "main.h"
 #include "metrics.h"
 #include "miner.h"
 #include "net.h"
 #include "rpcserver.h"
-#include "script/standard.h"
 #include "scheduler.h"
-#include "txdb.h"
+#include "script/standard.h"
+#include "sync.h"
 #include "torcontrol.h"
+#include "txdb.h"
 #include "ui_interface.h"
 #include "util.h"
 #include "utilmoneystr.h"
@@ -37,6 +41,15 @@
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h"
 #endif
+#include "darksend.h"
+#include "governance.h"
+
+#include "dsnotificationinterface.h"
+#include "masternode-payments.h"
+#include "masternode-sync.h"
+#include "masternodeconfig.h"
+#include "masternodeman.h"
+#include "netfulfilledman.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -50,6 +63,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
 #include <boost/interprocess/sync/file_lock.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
 
@@ -81,6 +95,8 @@ static CZMQNotificationInterface* pzmqNotificationInterface = NULL;
 #if ENABLE_PROTON
 static AMQPNotificationInterface* pAMQPNotificationInterface = NULL;
 #endif
+
+static CDSNotificationInterface* pdsNotificationInterface = NULL;
 
 #ifdef WIN32
 // Win32 LevelDB doesn't use file descriptors, and the ones used for
@@ -207,6 +223,16 @@ void Shutdown()
     StopTorControl();
     UnregisterNodeSignals(GetNodeSignals());
 
+    // STORE DATA CACHES INTO SERIALIZED DAT FILES
+    CFlatDB<CMasternodeMan> flatdb1("mncache.dat", "magicMasternodeCache");
+    flatdb1.Dump(mnodeman);
+    CFlatDB<CMasternodePayments> flatdb2("mnpayments.dat", "magicMasternodePaymentsCache");
+    flatdb2.Dump(mnpayments);
+    CFlatDB<CGovernanceManager> flatdb3("governance.dat", "magicGovernanceCache");
+    flatdb3.Dump(governance);
+    CFlatDB<CNetFulfilledRequestManager> flatdb4("netfulfilled.dat", "magicFulfilledCache");
+    flatdb4.Dump(netfulfilledman);
+
     if (fFeeEstimatesInitialized)
     {
         boost::filesystem::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
@@ -244,6 +270,7 @@ void Shutdown()
         pzmqNotificationInterface = NULL;
     }
 #endif
+
 
 #if ENABLE_PROTON
     if (pAMQPNotificationInterface) {
@@ -824,6 +851,12 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             LogPrintf("%s: parameter interaction: -whitebind set -> setting -listen=1\n", __func__);
     }
 
+    if (GetBoolArg("-masternode", false)) {
+        // masternodes must accept connections from outside
+        if (SoftSetBoolArg("-listen", true))
+            LogPrintf("%s: parameter interaction: -masternode=1 -> setting -listen=1\n", __func__);
+    }
+
     if (mapArgs.count("-connect") && mapMultiArgs["-connect"].size() > 0) {
         // when only connecting to trusted nodes, do not seed via DNS, or listen by default
         if (SoftSetBoolArg("-dnsseed", false))
@@ -1310,6 +1343,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 #endif
 
+    pdsNotificationInterface = new CDSNotificationInterface();
+    RegisterValidationInterface(pdsNotificationInterface);
+
     // ********************************************************* Step 7: load block chain
 
     fReindex = GetBoolArg("-reindex", false);
@@ -1419,6 +1455,18 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                     LogPrintf("Prune: pruned datadir may not have more than %d blocks; -checkblocks=%d may fail\n",
                         MIN_BLOCKS_TO_KEEP, GetArg("-checkblocks", 288));
                 }
+
+                {
+                    LOCK(cs_main);
+                    CBlockIndex* tip = chainActive.Tip();
+                    if (tip && tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
+                        strLoadError = _("The block database contains a block which appears to be from the future. "
+                                "This may be due to your computer's date and time being set incorrectly. "
+                                "Only rebuild the block database if you are sure that your computer's date and time are correct");
+                        break;
+                    }
+                }
+                
                 if (!CVerifyDB().VerifyDB(pcoinsdbview, GetArg("-checklevel", 3),
                               GetArg("-checkblocks", 288))) {
                     strLoadError = _("Corrupted block database detected");
@@ -1678,16 +1726,108 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 
     // ********************************************************* Step 11: start node
+    // ********************************************************* Step 11: start MASTERNODE
+    fMasterNode = GetBoolArg("-masternode", false);
 
-    if (!CheckDiskSpace())
-        return false;
+    if ((fMasterNode || masternodeConfig.getCount() > -1) && fTxIndex == false) {
+        return InitError("Enabling Masternode support requires turning on transaction indexing."
+                         "Please add txindex=1 to your configuration and start with -reindex");
+    }
 
-    if (!strErrors.str().empty())
-        return InitError(strErrors.str());
+    if (fMasterNode) {
+        LogPrintf("MASTERNODE:\n");
 
-    //// debug print
-    LogPrintf("mapBlockIndex.size() = %u\n",   mapBlockIndex.size());
-    LogPrintf("nBestHeight = %d\n",                   chainActive.Height());
+        if (!GetArg("-masternodeaddr", "").empty()) {
+            // Hot masternode (either local or remote) should get its address in
+            // CActiveMasternode::ManageState() automatically and no longer relies on masternodeaddr.
+            return InitError(_("masternodeaddr option is deprecated. Please use masternode.conf to manage your remote masternodes."));
+        }
+
+        std::string strMasterNodePrivKey = GetArg("-masternodeprivkey", "");
+        if (!strMasterNodePrivKey.empty()) {
+            if (!darkSendSigner.GetKeysFromSecret(strMasterNodePrivKey, activeMasternode.keyMasternode, activeMasternode.pubKeyMasternode))
+                return InitError(_("Invalid masternodeprivkey. Please see documenation."));
+
+            LogPrintf("  pubKeyMasternode: %s\n", CBitcoinAddress(activeMasternode.pubKeyMasternode.GetID()).ToString());
+            // LogPrintf("  pubKeyMasternode ---> 1B: %s\n", activeMasternode.pubKeyMasternode.GetID().ToString());
+        } else {
+            return InitError(_("You must specify a masternodeprivkey in the configuration. Please see documentation for help."));
+        }
+    }
+
+
+        // ********************************************************* Step 11b: Load cache data
+
+        // LOAD SERIALIZED DAT FILES INTO DATA CACHES FOR INTERNAL USE
+
+        uiInterface.InitMessage(_("Loading masternode cache..."));
+        CFlatDB<CMasternodeMan> flatdb1("mncache.dat", "magicMasternodeCache");
+        if (!flatdb1.Load(mnodeman)) {
+            return InitError("Failed to load masternode cache from mncache.dat");
+        }
+
+        if (mnodeman.size()) {
+            uiInterface.InitMessage(_("Loading masternode payment cache..."));
+            CFlatDB<CMasternodePayments> flatdb2("mnpayments.dat", "magicMasternodePaymentsCache");
+            if (!flatdb2.Load(mnpayments)) {
+                return InitError("Failed to load masternode payments cache from mnpayments.dat");
+            }
+
+            // uiInterface.InitMessage(_("Loading governance cache..."));
+            CFlatDB<CGovernanceManager> flatdb3("governance.dat", "magicGovernanceCache");
+            if (!flatdb3.Load(governance)) {
+                return InitError("Failed to load governance cache from governance.dat");
+            }
+            governance.InitOnLoad();
+        } else {
+            uiInterface.InitMessage(_("Masternode cache is empty, skipping payments and governance cache..."));
+        }
+
+        uiInterface.InitMessage(_("Loading fulfilled requests cache..."));
+        CFlatDB<CNetFulfilledRequestManager> flatdb4("netfulfilled.dat", "magicFulfilledCache");
+        if (!flatdb4.Load(netfulfilledman)) {
+            return InitError("Failed to load fulfilled requests cache from netfulfilled.dat");
+        }
+
+        // UPDATE MASTERNODE MODULES WITH BLOCKTIP/CURRENTBLOCKINDEX
+        mnodeman.UpdatedBlockTip(chainActive.Tip());
+        mnpayments.UpdatedBlockTip(chainActive.Tip());
+        masternodeSync.UpdatedBlockTip(chainActive.Tip());
+        governance.UpdatedBlockTip(chainActive.Tip());
+
+        LogPrintf("Using masternode config file %s\n", GetMasternodeConfigFile().string());
+
+        if (GetBoolArg("-mnconflock", true) && pwalletMain && (masternodeConfig.getCount() > 0)) {
+            LOCK(pwalletMain->cs_wallet);
+            LogPrintf("Locking Masternodes:\n");
+            uint256 mnTxHash;
+            int outputIndex;
+            BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
+                mnTxHash.SetHex(mne.getTxHash());
+                outputIndex = boost::lexical_cast<unsigned int>(mne.getOutputIndex());
+                COutPoint outpoint = COutPoint(mnTxHash, outputIndex);
+                // don't lock non-spendable outpoint (i.e. it's already spent or it's not from this wallet at all)
+                if (pwalletMain->IsMine(CTxIn(outpoint)) != ISMINE_SPENDABLE) {
+                    LogPrintf("  %s %s - IS NOT SPENDABLE, was not locked\n", mne.getTxHash(), mne.getOutputIndex());
+                    continue;
+                }
+                pwalletMain->LockCoin(outpoint);
+                LogPrintf("  %s %s - locked successfully\n", mne.getTxHash(), mne.getOutputIndex());
+            }
+        }
+
+
+        threadGroup.create_thread(boost::bind(&ThreadMasternodeInit));
+
+        if (!CheckDiskSpace())
+            return false;
+
+        if (!strErrors.str().empty())
+            return InitError(strErrors.str());
+
+        //// debug print
+        LogPrintf("mapBlockIndex.size() = %u\n", mapBlockIndex.size());
+        LogPrintf("nBestHeight = %d\n", chainActive.Height());
 #ifdef ENABLE_WALLET
     LogPrintf("setKeyPool.size() = %u\n",      pwalletMain ? pwalletMain->setKeyPool.size() : 0);
     LogPrintf("mapWallet.size() = %u\n",       pwalletMain ? pwalletMain->mapWallet.size() : 0);

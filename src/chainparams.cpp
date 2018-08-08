@@ -140,6 +140,7 @@ public:
         fMineBlocksOnDemand = false;
         fTestnetToBeDeprecatedFieldRPC = false;
 
+        nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
         checkpointData = {
             {
                 {      0, consensus.hashGenesisBlock },
@@ -147,7 +148,7 @@ public:
             1520105951,     // * UNIX timestamp of last checkpoint block
             0,       // * total number of transactions between genesis and last checkpoint
                             //   (the tx=... number in the SetBestChain debug.log lines)
-            2000            // * estimated number of transactions per day after checkpoint
+            50            // * estimated number of transactions per day after checkpoint
                             //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
@@ -188,7 +189,8 @@ public:
         pchMessageStart[3] = 0x38;
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
-        nDefaultPort = 33127;
+        nDefaultPort = 12346;
+        nMaxTipAge = 0x7fffffff;
         nPruneAfterHeight = 1000;
 
 
@@ -231,6 +233,7 @@ public:
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
         fTestnetToBeDeprecatedFieldRPC = true;
+        nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
         checkpointData = (Checkpoints::CCheckpointData) {
             boost::assign::map_list_of
@@ -261,6 +264,7 @@ public:
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
         consensus.powLimit = uint256S("0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f");
+        // consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.prePowLimit = consensus.powLimit;
         // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 0; // Turn off adjustment down
@@ -278,7 +282,6 @@ public:
         pchMessageStart[2] = 0x3f;
         pchMessageStart[3] = 0x5f;
         nMaxTipAge = 24 * 60 * 60;
-
 
         const size_t N = 48, K = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
@@ -301,6 +304,7 @@ public:
         fRequireStandard = false;
         fMineBlocksOnDemand = true;
         fTestnetToBeDeprecatedFieldRPC = false;
+        nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
         checkpointData = (Checkpoints::CCheckpointData){
             boost::assign::map_list_of
