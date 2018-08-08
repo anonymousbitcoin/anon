@@ -297,7 +297,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 std::stringstream ss;
                 ss << std::hex << std::setfill('0');
                 for (int i = 0; i < size; ++i)
-                {   LogPrintf("i: %d\n", i);
+                // {   LogPrintf("i: %d\n", i);
                     ss << std::setw(2) << (unsigned int)(unsigned char)(rawTransaction[i]);
                 }
                 // LogPrintf("Size of the 1st transaction: %d\n", size);
