@@ -9,6 +9,7 @@
 #include "tinyformat.h"
 #include "utilstrencodings.h"
 #include "crypto/common.h"
+#include "util.h"
 
 uint256 CBlockHeader::GetHash() const
 {
@@ -54,8 +55,12 @@ uint256 CBlock::BuildMerkleTree(bool* fMutated) const
     */
     vMerkleTree.clear();
     vMerkleTree.reserve(vtx.size() * 2 + 16); // Safe upper bound for the number of total nodes.
-    for (std::vector<CTransaction>::const_iterator it(vtx.begin()); it != vtx.end(); ++it)
+    int k = 0;
+    for (std::vector<CTransaction>::const_iterator it(vtx.begin()); it != vtx.end(); ++it) {
         vMerkleTree.push_back(it->GetHash());
+        LogPrintf("Transaction %d: hash: %s\n", k, it->GetHash().ToString());
+        k++;
+    }
     int j = 0;
     bool mutated = false;
     for (int nSize = vtx.size(); nSize > 1; nSize = (nSize + 1) / 2)
@@ -65,6 +70,8 @@ uint256 CBlock::BuildMerkleTree(bool* fMutated) const
             int i2 = std::min(i+1, nSize-1);
             if (i2 == i + 1 && i2 + 1 == nSize && vMerkleTree[j+i] == vMerkleTree[j+i2]) {
                 // Two identical hashes at the end of the list at a particular level.
+                LogPrintf("vMerkleTree[j+i]: %s\n", vMerkleTree[j+i].ToString());
+                LogPrintf("vMerkleTree[j+i2]: %s\n", vMerkleTree[j+i2].ToString());
                 mutated = true;
             }
             vMerkleTree.push_back(Hash(BEGIN(vMerkleTree[j+i]),  END(vMerkleTree[j+i]),
