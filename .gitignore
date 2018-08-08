@@ -141,3 +141,6 @@ zcash-tx.dSYM/*
 **/anon-cli.dSYM
 **/anond.dSYM
 **/src/test/test_bitcoin.dSYM
+
+doc/html/**
+doc/latex/**
