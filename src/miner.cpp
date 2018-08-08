@@ -257,7 +257,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 char* transSize = new char[4];
 
                 //retrieve transaction size
-                if (!if_utxo.read(transSize, 4)) {
+                if (!if_utxo.read(transSize, 32)) {
                     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction size\n",
                             nHeight, nForkHeight, forkHeightRange);
                     break;
@@ -282,7 +282,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 //load transaction (binary)
                 LogPrintf("Size is: %d\n", size);
                 char *rawTransaction = new char[size/8];
-                if (!if_utxo.read(rawTransaction, size/8)) {
+                if (!if_utxo.read(rawTransaction, size)) {
                     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction\n", nHeight, nForkHeight, forkHeightRange);
                     break;
                 }
