@@ -372,10 +372,10 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 ++nBlockTx;
                 loopCounter++;
                 LogPrintf("While loop counter: %d\n", loopCounter);
-                // delete txNew;
-                // delete txM;
-                // delete transSize;
-                // delete rawTransaction;
+                delete txNew;
+                delete txM;
+                delete transSize;
+                delete rawTransaction;
             }
     } else {
 
