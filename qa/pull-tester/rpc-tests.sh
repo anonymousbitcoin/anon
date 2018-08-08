@@ -12,38 +12,38 @@ export BITCOIND=${REAL_BITCOIND}
 
 testScripts=(
     # 'prioritisetransaction.py'
-    'wallet_treestate.py' #FAILING
-    'wallet_protectcoinbase.py' #FAILING
-    'wallet_shieldcoinbase.py' #FAILING
-    'wallet.py' #FAILING
-    'wallet_nullifiers.py' #FAILING
-    'wallet_1941.py' #FAILING
-    'listtransactions.py' #PASSING
-    'mempool_resurrect_test.py' #PASSES
-    'txn_doublespend.py' #PASSES
-    'txn_doublespend.py --mineblock' #FAILING
-    'getchaintips.py' #PASSING
-    'rawtransactions.py' #PASSING
-    'rest.py' #PASSING
-    'mempool_spendcoinbase.py' #FAILING
-    'mempool_coinbase_spends.py' #FAILING
-    'mempool_tx_input_limit.py' #FAILING
-    'httpbasics.py' #PASSING
-    'zapwallettxes.py' #PASSING
-    'proxy_test.py' #PASSING
-    'merkle_blocks.py' #FAILING
-    'fundrawtransaction.py' #FAILING
-    'signrawtransactions.py'#PASSING
-    'walletbackup.py' #PASSING
-    'nodehandling.py' #PASSING
-    'reindex.py' #PASSING
-    'decodescript.py'#PASSING
-    'disablewallet.py' #PASSING
-    'zcjoinsplit.py' #FAILING
-    'zcjoinsplitdoublespend.py' #FAILING
-    'getblocktemplate.py' #FAILING
-    'bip65-cltv-p2p.py'#PASSING
-    'bipdersig-p2p.py'#PASSING
+    'wallet_treestate.py'
+    'wallet_protectcoinbase.py' 
+    'wallet_shieldcoinbase.py'
+    'wallet.py' 
+    'wallet_nullifiers.py'
+    'wallet_1941.py'
+    'listtransactions.py' 
+    'mempool_resurrect_test.py' 
+    'txn_doublespend.py'
+    'txn_doublespend.py --mineblock'
+    'getchaintips.py' 
+    'rawtransactions.py' 
+    'rest.py' 
+    'mempool_spendcoinbase.py'
+    'mempool_coinbase_spends.py'
+    'mempool_tx_input_limit.py'
+    'httpbasics.py' 
+    'zapwallettxes.py' 
+    'proxy_test.py' 
+    'merkle_blocks.py'
+    'fundrawtransaction.py' #FAIL
+    'signrawtransactions.py'
+    'walletbackup.py'   
+    'nodehandling.py' 
+    'reindex.py' 
+    'decodescript.py'
+    'disablewallet.py' 
+    'zcjoinsplit.py'
+    'zcjoinsplitdoublespend.py'
+    'getblocktemplate.py'
+    'bip65-cltv-p2p.py' 
+    'bipdersig-p2p.py' 
     #'p2p-masternodes.py'
 );
 testScriptsExt=(
@@ -66,7 +66,7 @@ testScriptsExt=(
 );
 
 if [ "x$ENABLE_ZMQ" = "x1" ]; then
-  testScripts+=('zmq_test.py') #FAILING
+  testScripts+=('zmq_test.py')
 fi
 
 if [ "x$ENABLE_PROTON" = "x1" ]; then
