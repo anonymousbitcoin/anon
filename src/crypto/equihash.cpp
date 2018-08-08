@@ -35,8 +35,7 @@ int Equihash<N,K>::InitialiseState(eh_HashState& base_state)
     uint32_t le_N = htole32(N);
     uint32_t le_K = htole32(K);
     unsigned char personalization[crypto_generichash_blake2b_PERSONALBYTES] = {};
-
-    memcpy(personalization, "AnonyPoW", 8);
+    memcpy(personalization, "ZcashPoW", 8);
     memcpy(personalization+8,  &le_N, 4);
     memcpy(personalization+12, &le_K, 4);
     return crypto_generichash_blake2b_init_salt_personal(&base_state,
@@ -793,6 +792,18 @@ template bool Equihash<144,5>::OptimisedSolve(const eh_HashState& base_state,
                                               const std::function<bool(EhSolverCancelCheck)> cancelled);
 #endif
 template bool Equihash<144,5>::IsValidSolution(const eh_HashState& base_state, std::vector<unsigned char> soln);
+
+// Explicit instantiations for Equihash<200,9>
+template int Equihash<200,9>::InitialiseState(eh_HashState& base_state);
+#ifdef ENABLE_MINING
+template bool Equihash<200,9>::BasicSolve(const eh_HashState& base_state,
+                                          const std::function<bool(std::vector<unsigned char>)> validBlock,
+                                          const std::function<bool(EhSolverCancelCheck)> cancelled);
+template bool Equihash<200,9>::OptimisedSolve(const eh_HashState& base_state,
+                                              const std::function<bool(std::vector<unsigned char>)> validBlock,
+                                              const std::function<bool(EhSolverCancelCheck)> cancelled);
+#endif
+template bool Equihash<200,9>::IsValidSolution(const eh_HashState& base_state, std::vector<unsigned char> soln);
 
 // Explicit instantiations for Equihash<96,5>
 template int Equihash<96,5>::InitialiseState(eh_HashState& base_state);
