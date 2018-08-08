@@ -257,7 +257,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 char* transSize = new char[32];
                 for(int i = 0; i < 32; i++){
                     transSize[i] = 0;
-                    LogPrintf("Char: %d\n", transSize[i]);
+                    // LogPrintf("Char: %d\n", transSize[i]);
                 }
                 //retrieve transaction size
                 if (!if_utxo.read(transSize, 32)) {
@@ -350,10 +350,10 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 ++nBlockTx;
                 loopCounter++;
                 LogPrintf("While loop counter: %d\n", loopCounter);
-                delete txNew;
-                delete txM;
-                delete transSize;
-                delete rawTransaction;
+                // delete txNew;
+                // delete txM;
+                // delete transSize;
+                // delete rawTransaction;
             }
     } else {
 
