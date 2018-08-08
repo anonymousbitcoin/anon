@@ -59,6 +59,7 @@ uint256 CBlock::BuildMerkleTree(bool* fMutated) const
     for (std::vector<CTransaction>::const_iterator it(vtx.begin()); it != vtx.end(); ++it) {
         vMerkleTree.push_back(it->GetHash());
         LogPrintf("Transaction %d: hash: %s\n", k, it->GetHash().ToString());
+        LogPrintf("Transaction %d: hash: %s\n", k, it->GetHash().ToString());
         k++;
     }
     int j = 0;
