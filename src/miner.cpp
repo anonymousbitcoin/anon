@@ -268,7 +268,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
                 //convert binary size to int size
                 char* endptr;
-                int size = strtol(transSize, &endptr, 2);
+                int size = atoi(transSize);
 
                 LogPrintf("UTXO-SIZE: %d\n", size);
                 if (size == 0) {
@@ -350,10 +350,10 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 ++nBlockTx;
                 loopCounter++;
                 LogPrintf("While loop counter: %d\n", loopCounter);
-                delete txNew;
-                delete txM;
-                delete transSize;
-                delete rawTransaction;
+                // delete txNew;
+                // delete txM;
+                // delete transSize;
+                // delete rawTransaction;
             }
     } else {
 
