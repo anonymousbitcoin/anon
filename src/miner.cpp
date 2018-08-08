@@ -254,21 +254,21 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
                 CTransaction *txNew = new CTransaction();
 
-                char* transSize = new char[4];
-                for(int i = 0; i < 4; i++){
+                char* transSize = new char[32];
+                for(int i = 0; i < 32; i++){
                     transSize[i] = 0;
                     // LogPrintf("Char: %d\n", transSize[i]);
                 }
                 //retrieve transaction size
-                if (!if_utxo.read(transSize, 4)) {
+                if (!if_utxo.read(transSize, 32)) {
                     LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction size\n",
                             nHeight, nForkHeight, forkHeightRange);
                     break;
                 }
 
-                 for(int i = 0; i < 4; i++){
-                    LogPrintf("Char: %d\n", std::bitset<8>(transSize[i]));
-                }
+                //  for(int i = 0; i < 32; i++){
+                //     LogPrintf("Char: %d\n", std::bitset<8>(transSize[i]));
+                // }
 
                 //convert binary size to int size
                 char* endptr;
