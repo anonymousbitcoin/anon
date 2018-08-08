@@ -302,7 +302,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 }
                 // LogPrintf("Size of the 1st transaction: %d\n", size);
                 std::string rawTransactionHex = ss.str();
-                // LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
+                LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
 
                 UniValue hexString = UniValue(rawTransactionHex);
                 // LogPrintf("%s", rawTransactionHex);
