@@ -55,12 +55,11 @@ uint256 CBlock::BuildMerkleTree(bool* fMutated) const
     */
     vMerkleTree.clear();
     vMerkleTree.reserve(vtx.size() * 2 + 16); // Safe upper bound for the number of total nodes.
-    int k = 0;
+    // int k = 0;
     for (std::vector<CTransaction>::const_iterator it(vtx.begin()); it != vtx.end(); ++it) {
         vMerkleTree.push_back(it->GetHash());
-        LogPrintf("Transaction %d: hash: %s\n", k, it->GetHash().ToString());
-        LogPrintf("Transaction %d: hash: %s\n", k, it->GetHash().ToString());
-        k++;
+        // LogPrintf("Transaction %d: hash: %s\n", k, it->GetHash().ToString());
+        // k++;
     }
     int j = 0;
     bool mutated = false;
