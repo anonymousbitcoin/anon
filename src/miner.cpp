@@ -13,6 +13,7 @@
 #include "chainparams.h"
 #include "consensus/consensus.h"
 #include "consensus/validation.h"
+#include <cmath>
 #ifdef ENABLE_MINING
 #include "crypto/equihash.h"
 #endif
@@ -272,7 +273,19 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
                 //convert binary size to int size
                 // int size = stol(transSize, NULL, 2);
-                int size = strtol(transSize, NULL, 2);
+                int size = 0; 
+
+                for(int i = 0; i < 32; i++){
+                    if(transSize[i] = '0')
+                        continue;
+                    else if(transSize[i] = '1'){
+                        size += pow(2, 32-i);
+                    }
+                    else
+                    assert(0 && "Binary size string doesn't include 0 or 1");
+                    // LogPrintf("Char: %d\n", transSize[i]);
+                }
+
                 
 
                 LogPrintf("UTXO-SIZE: %d\n", size);
