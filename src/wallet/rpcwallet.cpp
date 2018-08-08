@@ -720,6 +720,9 @@ CAmount GetAccountBalance(const string& strAccount, int nMinDepth, const isminef
 
 UniValue getbalance(const UniValue& params, bool fHelp)
 {
+    arith_uint256 diff;
+    diff.SetCompact(511273320);
+    LogPrintf("DIFF: %s", diff.GetHex());  
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
