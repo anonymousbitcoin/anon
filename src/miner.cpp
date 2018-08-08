@@ -263,7 +263,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                     break;
                 }
                 for(int z = 0; z < 4; z++){
-                    LogPrintf("Char: %c\n", transSize[z]);
+                    LogPrintf("Char: %d\n", transSize[z]);
                 }
 
                 //convert binary size to int size
@@ -293,7 +293,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 //converting binary raw transaction to hex-string raw transaction  10111011111010 => 2EFA
                 std::stringstream ss;
                 ss << std::hex << std::setfill('0');
-                for (int i = 0; i < size; i++)
+                for (int i = 0; i < size; ++i)
                 {   LogPrintf("i: %d\n", i);
                     ss << std::setw(2) << (unsigned int)(unsigned char)(rawTransaction[i]);
                 }
