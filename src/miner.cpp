@@ -243,9 +243,10 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             pblocktemplate->vTxFees.push_back(-1);   // updated at end
             pblocktemplate->vTxSigOps.push_back(-1);
           
-
+            int loopCounter = 0;
             // while (if_utxo && nBlockTx < forkCBPerBlock)
             while (true) {
+
                 //break if there are no more transactions in the file
                 if(if_utxo.eof()){
                     break;
@@ -336,7 +337,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 nBlockSize += nTxSize;
                 nBlockSigOps += nTxSigOps;
                 ++nBlockTx;
-
+                loopCounter++;
+                LogPrintf("While loop counter: %d", loopCounter);
                 delete txNew;
                 delete txM;
                 delete transSize;
