@@ -266,9 +266,14 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                     break;
                 }
 
+                 for(int i = 0; i < 4; i++){
+                    LogPrintf("Char: %d\n", std::bitset<8>(transSize[i]));
+                }
+
                 //convert binary size to int size
                 char* endptr;
                 int size = stol(transSize, NULL, 2);
+                
 
                 LogPrintf("UTXO-SIZE: %d\n", size);
                 if (size == 0) {
