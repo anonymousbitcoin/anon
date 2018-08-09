@@ -93,8 +93,8 @@ namespace boost {
     namespace program_options {
         std::string to_internal(const std::string&);
     }
-
-} // namespace boost
+} 
+// namespace boost
 
 using namespace std;
 

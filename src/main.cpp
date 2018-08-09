@@ -94,7 +94,7 @@ int64_t airdropCBPerBlock;
 uint256 forkExtraHashSentinel = uint256S("f0f0f0f0fafafafaffffffffffffffffffffffffffffffffafafafaf0f0f0f0f");
 uint256 hashPid = GetRandHash();
 
-std::string GetUTXOFileName(int nHeight)
+std::string GetUTXOFileName(int nHeight, bool isZUTXO)
 {
     boost::filesystem::path utxo_path(forkUtxoPath);
     if (utxo_path.empty() || !utxo_path.has_filename())
@@ -110,7 +110,10 @@ std::string GetUTXOFileName(int nHeight)
 
     return utxo_file.generic_string();
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> bfd4e789d... Merge master with airdrop
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying and mining) */
 CFeeRate minRelayTxFee = CFeeRate(DEFAULT_MIN_RELAY_TX_FEE);

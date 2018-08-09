@@ -45,10 +45,10 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
-        consensus.prePowLimit = uint256S("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9");
-        // consensus.powLimit = uint256S("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9");
-        consensus.powLimit = uint256S("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9");
-        consensus.nPowAveragingWindow = 60; //diffuculty adjusts every 2 weeks
+        consensus.prePowLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        // consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.nPowAveragingWindow = 2016; //diffuculty adjusts every 2 weeks
         // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
@@ -152,8 +152,10 @@ public:
                             //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
-        nAirdropStartHeight = 0;
-        nAirdropHeightRange = 0;
+        nForkStartHeight = 7;
+        nForkHeightRange = 36;
+        zUtxoMiningStartBlock = 25;
+
     }
 };
 static CMainParams mainParams;

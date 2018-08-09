@@ -1024,9 +1024,6 @@ std::string GetUTXOFileName(int nHeight);
 //
 inline bool isForkBlock(int nHeight)
 {   
-    // LogPrintf("nHeight: %d \n", nHeight);
-    // LogPrintf("forkStartHeight: %d \n", forkStartHeight);
-    // LogPrintf("forkHeightRange: %d \n", forkHeightRange);
     return (nHeight > forkStartHeight && nHeight <= forkStartHeight + forkHeightRange);
 }
 
@@ -1054,7 +1051,6 @@ inline bool isForkEnabled(int nHeight)
 {
     return nHeight > airdropStartHeight;
 }
-
 extern uint256 hashPid;
 /**
  * Return true if hash can be found in chainActive at nBlockHeight height.

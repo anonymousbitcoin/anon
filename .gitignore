@@ -140,8 +140,14 @@ zcash-tx.dSYM/*
 **/zcash-gtest.dSYM
 **/anon-cli.dSYM
 **/anond.dSYM
+<<<<<<< HEAD
 **/src/test/test_bitcoin.dSYM
 **/src/test/test_bitcoin.dSYM
 
 doc/html/**
 doc/latex/**
+=======
+**/anon-cli.dSYM
+**/anond.dSYM
+**/src/test/test_bitcoin.dSYM
+>>>>>>> bfd4e789d... Merge master with airdrop

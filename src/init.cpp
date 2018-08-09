@@ -934,10 +934,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #ifdef FORK_CB_INPUT
     auto default_data_dir = GetDataDir() / "utxo_snapshot";
     forkUtxoPath = GetArg("-utxo-path", default_data_dir.string());
-    airdropStartHeight = GetArg("-fork-startheight", chainparams.airdropStartHeight());
-    AirdropHeightRange = GetArg("-fork-heightrange", chainparams.AirdropHeightRange());
-    airdropCBPerBlock = GetArg("-fork-cbperblock", FORK_COINBASE_PER_BLOCK);
-    LogPrintf("Running with fork parameters datadir=%s airdropStartHeight=%d, AirdropHeightRange=%d\n", forkUtxoPath, airdropStartHeight, AirdropHeightRange);
+    forkStartHeight = GetArg("-fork-startheight", chainparams.ForkStartHeight());
+    forkHeightRange = GetArg("-fork-heightrange", chainparams.ForkHeightRange());
+    forkCBPerBlock = GetArg("-fork-cbperblock", FORK_COINBASE_PER_BLOCK);
+    LogPrintf("Running with fork parameters datadir=%s forkStartHeight=%d, nForkHeightRange=%d\n", forkUtxoPath, forkStartHeight, forkHeightRange);
 #endif
 
     // ********************************************************* Step 3: parameter-to-internal-flags
