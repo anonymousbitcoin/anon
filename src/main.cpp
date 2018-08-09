@@ -41,13 +41,15 @@
 
 #include <sstream>
 
-#include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/replace.hpp>   
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/math/distributions/poisson.hpp>
 #include <boost/thread.hpp>
 #include <boost/static_assert.hpp>
 
+
+#include "core_io.h" //for tests, can be removed later
 using namespace std;
 
 #if defined(NDEBUG)
@@ -2043,6 +2045,8 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
             if (outsBlock.nVersion < 0)
                 outs->nVersion = outsBlock.nVersion;
             if (*outs != outsBlock) {
+                string strHex = EncodeHexTx(tx);
+                LogPrintf("Hex transaction: \n%s\n",tx);
                 fClean = fClean && error("DisconnectBlock(): added transaction mismatch? database corrupted");
                 LogPrintf("Transaction mismatch?: id: %d: Amount: %d; ScriptPubKey: %s\n", i, tx.vout[0].nValue, tx.vout[0].scriptPubKey.ToString());
             }
@@ -3628,7 +3632,9 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
 {
     // Preliminary checks
     auto verifier = libzcash::ProofVerifier::Disabled();
-    bool checked = CheckBlock(*pblock, state, verifier);
+    // LogPrintf("Is blocked forked?: %d\n" ,isForkBlock(chainActive.Tip()->nHeight + 1));
+    // LogPrintf("nHeight: %d\n" ,chainActive.Tip()->nHeight);
+    bool checked = CheckBlock(*pblock, state, verifier, true, true, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
 
     {
         LOCK(cs_main);
