@@ -196,6 +196,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     assert(nForkHeight >= 0);
     //Here is the UTXO directory, which file we will read from
+    LogPrintf("nHeight: %d \n", nHeight);
     string utxo_file_path = GetUTXOFileName(nHeight);
     LogPrintf("utxo_file_path: %s \n", utxo_file_path);
     //Read from the specified UTXO file
@@ -217,17 +218,20 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
 
     // Largest block you're willing to create:
-    unsigned int nBlockMaxSize = (unsigned int)(MAX_BLOCK_SIZE);
+    unsigned int nBlockMaxSize = (unsigned int)(MAX_BLOCK_SIZE) + 1000000;
 
     uint64_t nBlockTotalAmount = 0;
     uint64_t nBlockSize = 0;
     uint64_t nBlockTx = 0;
     uint64_t nBlockSigOps = 100;
+
+    int tCounter = 0;
     //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
 
     LogPrintf("Size of the block: %d \n", pblock->vtx.size());
     //START MINING Z-ADDRESSES
     if (nHeight >= zUtxoMiningStartBlock) {
+        LogPrintf("ANON Miner: switching into z-fork mode\n");
         // Add dummy coinbase tx as first transaction
         //Needed for ZK blocks, nValue of ZKtx data returns negative value
         CMutableTransaction txCoinbase;
@@ -267,10 +271,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 break;
             }
 
-            //  for(int i = 0; i < 32; i++){
-            //     LogPrintf("Char: %d\n", std::bitset<8>(transSize[i]));
-            // }
-
             //convert binary size to int size
             // int size = stol(transSize, NULL, 2);
             int size = 0;
@@ -288,8 +288,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             }
             size = size / 2;
 
-
-            LogPrintf("UTXO-SIZE: %d\n", size);
+            // LogPrintf("UTXO-SIZE: %d\n", size);
             if (size == 0) {
                 LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: End of UTXO file ? - Strtol failed\n",
                           nHeight, nForkHeight, forkHeightRange);
@@ -302,7 +301,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 break;
             }
             //load transaction (binary)
-            LogPrintf("Size is: %d\n", size);
+            // LogPrintf("Size is: %d\n", size);
             char* rawTransaction = new char[size];
             for (int i = 0; i < size; i++) {
                 rawTransaction[i] = 0;
@@ -321,7 +320,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             }
             // LogPrintf("Size of the 1st transaction: %d\n", size);
             std::string rawTransactionHex = ss.str();
-            LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
+            // LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
 
             UniValue hexString = UniValue(rawTransactionHex);
             // LogPrintf("%s", rawTransactionHex);
@@ -348,6 +347,9 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
             unsigned int nTxSize = ::GetSerializeSize(*txM, SER_NETWORK, PROTOCOL_VERSION);
             if (nBlockSize + nTxSize >= nBlockMaxSize) {
+                LogPrintf("Counter: %d\n", tCounter);
+                LogPrintf("nTxSize: %d\n", nTxSize);
+                LogPrintf("Total size: %d\n", nTxSize + nBlockSize);
                 LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: %u: block would exceed max size\n",
                           nHeight, nForkHeight, forkHeightRange, nBlockTx);
                 break;
@@ -368,13 +370,16 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             nBlockSigOps += nTxSigOps;
             ++nBlockTx;
             loopCounter++;
-            LogPrintf("While loop counter: %d\n", loopCounter);
+            // LogPrintf("While loop counter: %d\n", loopCounter);
             delete txNew;
             delete txM;
             delete transSize;
             delete rawTransaction;
+            tCounter++;
         }
+
     } else {
+        LogPrintf("ANON Miner: switching into t-fork mode\n");
         while (if_utxo && nBlockTx < forkCBPerBlock) {
             char term = 0;
             ////////////////////////Format checks, explore more when looking at UTXO raw
@@ -463,6 +468,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 break;
             }
         }
+    }
         LogPrintf("CreateNewForkBlock(): [%u, %u of %u]: txns=%u size=%u amount=%u sigops=%u\n",
                   nHeight, nForkHeight, nForkHeightRange, nBlockTx, nBlockSize, nBlockTotalAmount, nBlockSigOps);
 
@@ -479,7 +485,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         LogPrintf("End of createforkblock - size of the block: %d \n", pblock->vtx.size());
         return pblocktemplate.release();
     }
-}
+    
 CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
 {
     const CChainParams& chainparams = Params();
@@ -1208,8 +1214,8 @@ UniValue decoderawtransaction2(CTransaction& tx, const UniValue& params, bool fH
     TxToJSON(tx, uint256(), result);
 
     string strJSON = result.write() + "\n";
-    LogPrintf("JSON: \n");
-    LogPrintf("%s", strJSON);
+    // LogPrintf("JSON: \n");
+    // LogPrintf("%s", strJSON);
 
     return result;
 }

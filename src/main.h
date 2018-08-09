@@ -985,7 +985,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 }
 
 #ifdef FORK_CB_INPUT
-#define FORK_COINBASE_PER_BLOCK 10000
+#define FORK_COINBASE_PER_BLOCK 12000
 
 extern std::string forkUtxoPath;
 extern int64_t forkStartHeight;

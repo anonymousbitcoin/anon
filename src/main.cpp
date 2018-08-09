@@ -3257,7 +3257,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
                 bool fCheckPOW, bool fCheckMerkleRoot, bool isZUTXO)
 {
     // These are checks that are independent of context.
-    LogPrintf("isZUTXO inside checkblock: %d\n", isZUTXO);
+    // LogPrintf("isZUTXO inside checkblock: %d\n", isZUTXO);
     // Check that the header is valid (particularly PoW).  This is mostly
     // redundant with the call in AcceptBlockHeader.
     if (!CheckBlockHeader(block, state, fCheckPOW))
@@ -3284,7 +3284,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
     // because we receive the wrong transactions for it.
 
     // Size limits
-    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
+    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE || (!isForkEnabled(chainActive.Tip()->nHeight + 1) && ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE )) 
         return state.DoS(100, error("CheckBlock(): size limits failed"),
                          REJECT_INVALID, "bad-blk-length");
 
