@@ -1022,9 +1022,12 @@ std::string GetUTXOFileName(int nHeight);
 //   n+1. Current height = 365 001
 //                  nHeight is 365 001 - return false - no verification
 //
-inline bool isAirdropBlock(int nHeight)
-{
-    return (nHeight > airdropStartHeight && nHeight <= airdropStartHeight + AirdropHeightRange);
+inline bool isForkBlock(int nHeight)
+{   
+    // LogPrintf("nHeight: %d \n", nHeight);
+    // LogPrintf("forkStartHeight: %d \n", forkStartHeight);
+    // LogPrintf("forkHeightRange: %d \n", forkHeightRange);
+    return (nHeight > forkStartHeight && nHeight <= forkStartHeight + forkHeightRange);
 }
 
 inline bool looksLikeForkBlockHeader(const CBlockHeader& header)
