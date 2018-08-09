@@ -1,5 +1,5 @@
 // Copyright (c) 2016 The Zcash developers
-// Copyright (c) 2018 The Bitcoin Private developers
+// Copyright (c) 2018 The Anonymous Bitcoin developers
 // Original code from: https://gist.github.com/laanwj/0e689cfa37b52bcbbb44
 
 /*
@@ -28,7 +28,7 @@ Modify the alert parameters, id and message found in this file.
 
 Build and run with -sendalert or -printalert.
 
-./btcpd -printtoconsole -sendalert
+./anond -printtoconsole -sendalert
 
 One minute after starting up, the alert will be broadcast. It is then
 flooded through the network until the nRelayUntil time, and will be
@@ -89,12 +89,12 @@ void ThreadSendAlert()
     //  4000 or higher will put the RPC into safe mode
     alert.nPriority     = 1500;
     alert.strComment    = "";
-    alert.strStatusBar  = "Your client is out of date and vulnerable to denial of service. Please update to the most recent version of Bitcoin Private. More info at: https://btcprivate.org/";
+    alert.strStatusBar  = "Your client is out of date and vulnerable to denial of service. Please update to the most recent version of Anonymous Bitcoin. More info at: https://[INSERT].org/";
     alert.strRPCError   = alert.strStatusBar;
 
     // Set specific client version/versions here. If setSubVer is empty, no filtering on subver is done:
-    // alert.setSubVer.insert(std::string("/BTCP:1.0.12/"));
-    const std::vector<std::string> useragents = {"BTCP"};
+    // alert.setSubVer.insert(std::string("/ANON:1.0.12/"));
+    const std::vector<std::string> useragents = {"ANON"};
 
     BOOST_FOREACH(const std::string& useragent, useragents) {
         alert.setSubVer.insert(std::string("/"+useragent+":1.0.10-1/"));

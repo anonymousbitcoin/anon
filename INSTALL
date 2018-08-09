@@ -1,5 +1,5 @@
-Building Bitcoin Private
+Building Anonymous Bitcoin
 
-See the Bitcoin Private github wiki (https://github.com/BTCPrivate/BitcoinPrivate/wiki) for instructions on building btcpd,
+See the Anonymous Bitcoin github wiki ([INSERT_GITHUB_REPO_URL]) for instructions on building anond,
 the intended-for-services, no-graphical-interface, reference
-implementation of Bitcoin Private.
+implementation of Anonymous Bitcoin.

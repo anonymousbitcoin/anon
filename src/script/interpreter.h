@@ -38,11 +38,11 @@ static const int SIGHASH_BASE_MASK = ~SIGHASH_FLAGS_MASK;
 enum
 {
     FORKID_NONE = 0,
-    FORKID_BTCP = 42,
-    FORKID_BTCGPU = 79
+    FORKID_ANONP = 42,
+    FORKID_ANONGPU = 79
 };
 
-static const int FORKID_IN_USE = FORKID_BTCP;
+static const int FORKID_IN_USE = FORKID_ANONP;
 
 /** Script verification flags */
 enum
@@ -59,7 +59,7 @@ enum
 
     // Passing a non-strict-DER signature to a checksig operation causes script failure (softfork safe, BIP62 rule 1)
     // In Zcash this is required, and validation of non-strict-DER signatures is not implemented.
-    //SCRIPT_VERIFY_DERSIG    = (1U << 2),
+    // SCRIPT_VERIFY_DERSIG    = (1U << 2),
 
     // Passing a non-strict-DER signature or one with S > order/2 to a checksig operation causes script failure
     // (softfork safe, BIP62 rule 5).
@@ -131,6 +131,12 @@ enum
 };
 
 uint256 SignatureHash(const CScript &scriptCode, const CTransaction& txTo, unsigned int nIn, int nHashType, const int forkid=FORKID_NONE);
+
+// DASH
+bool CheckSignatureEncoding_2(const std::vector<unsigned char> &vchSig, unsigned int flags, ScriptError* serror);
+// BTCP
+// bool static CheckSignatureEncoding(const valtype &vchSig, unsigned int flags, ScriptError* serror);
+
 
 class BaseSignatureChecker
 {

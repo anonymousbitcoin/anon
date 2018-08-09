@@ -4,7 +4,7 @@ Security Warnings
 Security Audit
 --------------
 
-Bitcoin Private's originally forked codebase, Zcash, has been subjected to a formal third-party security review. For security
+Anonymous Bitcoin's originally forked codebase, Zcash, has been subjected to a formal third-party security review. For security
 announcements, audit results, and other general security information, see
 https://z.cash/support/security.html
 
@@ -47,9 +47,9 @@ runnng on your OS can read your wallet.dat file.
 Side-Channel Attacks
 --------------------
 
-This implementation of Bitcoin Private is not resistant to side-channel attacks. You
+This implementation of Anonymous Bitcoin is not resistant to side-channel attacks. You
 should assume (even unprivileged) users who are running on the hardware, or who
-are physically near the hardware, that your `btcpd` process is running on will
+are physically near the hardware, that your `anond` process is running on will
 be able to:
 
 - Determine the values of your secret spending keys, as well as which notes you
@@ -64,7 +64,7 @@ be able to:
   each note ciphertext on the blockchain.
 
 You should ensure no other users have the ability to execute code (even
-unprivileged) on the hardware your `btcpd` process runs on until these
+unprivileged) on the hardware your `anond` process runs on until these
 vulnerabilities are fully analyzed and fixed.
 
 REST Interface
@@ -77,14 +77,14 @@ security review.
 RPC Interface
 ---------------
 
-Users should choose a strong RPC password. If no RPC username and password are set, btcpd will not start and will print an error message with a suggestion for a strong random password. If the client knows the RPC password, they have at least full access to the node. In addition, certain RPC commands can be misused to overwrite files and/or take over the account that is running btcpd. (In the future we may restrict these commands, but full node access – including the ability to spend from and export keys held by the wallet – would still be possible unless wallet methods are disabled.)
+Users should choose a strong RPC password. If no RPC username and password are set, anond will not start and will print an error message with a suggestion for a strong random password. If the client knows the RPC password, they have at least full access to the node. In addition, certain RPC commands can be misused to overwrite files and/or take over the account that is running anond. (In the future we may restrict these commands, but full node access – including the ability to spend from and export keys held by the wallet – would still be possible unless wallet methods are disabled.)
 
-Users should also refrain from changing the default setting that only allows RPC connections from localhost. Allowing connections from remote hosts would enable a MITM to execute arbitrary RPC commands, which could lead to compromise of the account running btcpd and loss of funds. For multi-user services that use one or more btcpd instances on the backend, the parameters passed in by users should be controlled to prevent confused-deputy attacks which could spend from any keys held by that btcpd.
+Users should also refrain from changing the default setting that only allows RPC connections from localhost. Allowing connections from remote hosts would enable a MITM to execute arbitrary RPC commands, which could lead to compromise of the account running anond and loss of funds. For multi-user services that use one or more anond instances on the backend, the parameters passed in by users should be controlled to prevent confused-deputy attacks which could spend from any keys held by that anond.
 
 Block Chain Reorganization: Major Differences
 -------------------------------------------------
 
-Users should be aware of new behavior in Bitcoin Private (and Zcash) that differs significantly from Bitcoin: in the case of a block chain reorganization, Bitcoin's coinbase maturity rule helps to ensure that any reorganization shorter than the maturity interval will not invalidate any of the rolled-back transactions. BTCP & Zcash keep Bitcoin's 100-block maturity interval for generation transactions, but because JoinSplits must be anchored within a block, this provides more limited protection against transactions becoming invalidated. In the case of a block chain reorganization for BTCP & Zcash, all JoinSplits which were anchored within the reorganization interval and any transactions that depend on them will become invalid, rolling back transactions and reverting funds to the original owner. The transaction rebroadcast mechanism inherited from Bitcoin will not successfully rebroadcast transactions depending on invalidated JoinSplits if the anchor needs to change. The creator of an invalidated JoinSplit, as well as the creators of all transactions dependent on it, must rebroadcast the transactions themselves.
+Users should be aware of new behavior in Anonymous Bitcoin (and Zcash) that differs significantly from Bitcoin: in the case of a block chain reorganization, Bitcoin's coinbase maturity rule helps to ensure that any reorganization shorter than the maturity interval will not invalidate any of the rolled-back transactions. ANON & Zcash keep Bitcoin's 100-block maturity interval for generation transactions, but because JoinSplits must be anchored within a block, this provides more limited protection against transactions becoming invalidated. In the case of a block chain reorganization for ANON & Zcash, all JoinSplits which were anchored within the reorganization interval and any transactions that depend on them will become invalid, rolling back transactions and reverting funds to the original owner. The transaction rebroadcast mechanism inherited from Bitcoin will not successfully rebroadcast transactions depending on invalidated JoinSplits if the anchor needs to change. The creator of an invalidated JoinSplit, as well as the creators of all transactions dependent on it, must rebroadcast the transactions themselves.
 
 Receivers of funds from a JoinSplit can mitigate the risk of relying on funds received from transactions that may be rolled back by using a higher minconf (minimum number of confirmations).
 

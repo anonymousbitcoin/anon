@@ -26,7 +26,7 @@ _zcash_accounts() {
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$accounts" -- "$cur" ) )
 }
 
-_btcp_cli() {
+_anon_cli() {
     local cur prev words=() cword
     local bitcoin_cli
 
@@ -145,7 +145,7 @@ _btcp_cli() {
             ;;
     esac
 } &&
-complete -F _btcp_cli btcp-cli
+complete -F _anon_cli anon-cli
 
 # Local variables:
 # mode: shell-script

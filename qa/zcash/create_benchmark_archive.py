@@ -11,13 +11,13 @@ import sys
 import tarfile
 import time
 
-ZCASH_CLI = './src/btcp-cli'
+ZCASH_CLI = './src/anon-cli'
 USAGE = """
 Requirements:
 - find
 - xz
 - %s (edit ZCASH_CLI in this script to alter the path)
-- A running mainnet btcpd using the default datadir with -txindex=1
+- A running mainnet anond using the default datadir with -txindex=1
 
 Example usage:
 

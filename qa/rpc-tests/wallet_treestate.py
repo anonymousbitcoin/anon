@@ -18,7 +18,7 @@ class WalletTreeStateTest (BitcoinTestFramework):
 
     # Start nodes with -regtestprotectcoinbase to set fCoinbaseMustBeProtected to true.
     def setup_network(self, split=False):
-        self.nodes = start_nodes(3, self.options.tmpdir, extra_args=[['-regtestprotectcoinbase','-debug=zrpc']] * 3 )
+        self.nodes = start_nodes(3, self.options.tmpdir, extra_args=[['-regtestprotectcoinbase','-debug=zrpc', '-reindex']] * 3 )
         connect_nodes_bi(self.nodes,0,1)
         connect_nodes_bi(self.nodes,1,2)
         connect_nodes_bi(self.nodes,0,2)
@@ -62,7 +62,7 @@ class WalletTreeStateTest (BitcoinTestFramework):
 
         # Spend coinbase utxos to create three notes of 9.99990000 each
         recipients = []
-        recipients.append({"address":myzaddr, "amount":Decimal('10.0') - Decimal('0.0001')})
+        recipients.append({"address":myzaddr, "amount":Decimal('12.5') - Decimal('0.0001')})
         myopid = self.nodes[0].z_sendmany(mytaddr, recipients)
         self.wait_and_assert_operationid_status(myopid)
         self.sync_all()
@@ -81,7 +81,7 @@ class WalletTreeStateTest (BitcoinTestFramework):
 
         # Check balance
         resp = self.nodes[0].z_getbalance(myzaddr)
-        assert_equal(Decimal(resp), Decimal('9.9999') * 3 )
+        assert_equal(Decimal(resp), Decimal('12.4999') * 3 )
 
         # We want to test a real-world situation where during the time spent creating a transaction
         # with joinsplits, other transactions containing joinsplits have been mined into new blocks,
@@ -89,7 +89,7 @@ class WalletTreeStateTest (BitcoinTestFramework):
 
         # Tx 1 will change the treestate while Tx 2 containing chained joinsplits is still being generated
         recipients = []
-        recipients.append({"address":self.nodes[2].z_getnewaddress(), "amount":Decimal('10.0') - Decimal('0.0001')})
+        recipients.append({"address":self.nodes[2].z_getnewaddress(), "amount":Decimal('12.5') - Decimal('0.0001')})
         myopid = self.nodes[0].z_sendmany(mytaddr, recipients)
         self.wait_and_assert_operationid_status(myopid)
 
