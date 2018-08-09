@@ -589,9 +589,9 @@ std::string GetUTXOFileName(int nHeight, bool isZUTXO = false);
 //
 inline bool isForkBlock(int nHeight)
 {   
-    LogPrintf("nHeight: %d \n", nHeight);
-    LogPrintf("forkStartHeight: %d \n", forkStartHeight);
-    LogPrintf("forkHeightRange: %d \n", forkHeightRange);
+    // LogPrintf("nHeight: %d \n", nHeight);
+    // LogPrintf("forkStartHeight: %d \n", forkStartHeight);
+    // LogPrintf("forkHeightRange: %d \n", forkHeightRange);
     return (nHeight > forkStartHeight && nHeight <= forkStartHeight + forkHeightRange);
 }
 
