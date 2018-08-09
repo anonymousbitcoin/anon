@@ -191,7 +191,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     const int zUtxoMiningStartBlock = chainparams.ZUtxoMiningStartBlock();
     const int nForkHeightRange = chainparams.ForkHeightRange();
 
-
     assert(nForkHeight >= 0);
     //Here is the UTXO directory, which file we will read from
     string utxo_file_path = GetUTXOFileName(nHeight);
@@ -222,7 +221,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     uint64_t nBlockSigOps = 100;
     //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
     
-    
+
 
     LogPrintf("Size of the block: %d \n", pblock->vtx.size());
     //START MINING Z-ADDRESSES
@@ -277,15 +276,15 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
                 for(int i = 0; i < 32; i++){
                     if(transSize[i] == 48){ 
-                        LogPrintf("inside 0\n");
+                        // LogPrintf("inside 0\n");
                         continue;
                     }
                     else if(transSize[i] == 49){
-                        LogPrintf("inside 1\n");
+                        // LogPrintf("inside 1\n");
                         size += pow(2, 32-i);
                     }
                     else
-                    assert(0 && "Binary size string doesn't include 0 or 1");
+                    assert(0 && "Unknown character. String size must be in binary - 0 or 1.");
                     // LogPrintf("Char: %d\n", transSize[i]);
                 }
                 size = size / 2;
