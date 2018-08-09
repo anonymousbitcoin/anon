@@ -40,8 +40,8 @@ public:
         consensus.fCoinbaseMustBeProtected = true;
 
         //TODO To be decided
-        consensus.nSubsidySlowStartInterval = 2;
-        consensus.nSubsidyHalvingInterval = 105000;
+        // consensus.nSubsidySlowStartInterval = 2;
+        consensus.nSubsidyHalvingInterval = 129000;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
@@ -97,7 +97,7 @@ public:
         genesis.nTime    = 1532704413;
         genesis.nBits    = 0x1f07ffff;
         // genesis.nBits    = 0x1d00ffff;
-        
+
         genesis.nNonce   = uint256S("0x000000000000000000000000000000000000000000000000000000000000068f");
         genesis.nSolution = ParseHex("18469d916cd847f65e7013d622db5a95991165544d31874eb6216cdca2a04d50c927fdc24a57c3a1c4eede522cc197ed23262078e9b69154af0ce938a35689e6f25da872a2fa0099acef372395d79c6874ae9c61d8aa1b24706c7b89507ede0c85825d17");
 
@@ -112,7 +112,7 @@ public:
         // TODO: setup a DNSSeed
         //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.[INSERT].org"));
         //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.[INSERT].co"));
-        
+
         // guarantees the first 2 characters, when base58 encoded, are "bK"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x13,0x53};
 
