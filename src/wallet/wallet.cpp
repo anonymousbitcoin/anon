@@ -558,11 +558,10 @@ void CWallet::SyncMetaData(pair<typename TxSpendMap<T>::iterator, typename TxSpe
  * spends it:
  */
 bool CWallet::IsSpent(const uint256& hash, unsigned int n) const
-{
+{   
     const COutPoint outpoint(hash, n);
     pair<TxSpends::const_iterator, TxSpends::const_iterator> range;
     range = mapTxSpends.equal_range(outpoint);
-
     for (TxSpends::const_iterator it = range.first; it != range.second; ++it)
     {
         const uint256& wtxid = it->second;
@@ -578,10 +577,9 @@ bool CWallet::IsSpent(const uint256& hash, unsigned int n) const
  * spends it:
  */
 bool CWallet::IsSpent(const uint256& nullifier) const
-{
+{   
     pair<TxNullifiers::const_iterator, TxNullifiers::const_iterator> range;
     range = mapTxNullifiers.equal_range(nullifier);
-
     for (TxNullifiers::const_iterator it = range.first; it != range.second; ++it) {
         const uint256& wtxid = it->second;
         std::map<uint256, CWalletTx>::const_iterator mit = mapWallet.find(wtxid);
@@ -614,7 +612,8 @@ void CWallet::AddToSpends(const uint256& wtxid)
 {
     assert(mapWallet.count(wtxid));
     CWalletTx& thisTx = mapWallet[wtxid];
-    if (thisTx.IsCoinBase()) // Coinbases don't spend anything!
+
+    if(!thisTx.vjoinsplit.size()&& thisTx.IsCoinBase()) // Coinbases don't spend anything!
         return;
 
     for (const CTxIn& txin : thisTx.vin) {
@@ -2227,7 +2226,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
             if (fOnlyConfirmed && !pcoin->IsTrusted())
                 continue;
 
-            if (pcoin->IsCoinBase() && !isAirdropBlock(pcoin->GetHeightInMainChain()) && !fIncludeCoinBase)
+            if (pcoin->IsCoinBase() && !isForkBlock(pcoin->GetHeightInMainChain()) && !fIncludeCoinBase)
                 continue;
 
             if (pcoin->IsCoinBase() && pcoin->GetBlocksToMaturity() > 0)
@@ -3863,10 +3862,12 @@ void CWallet::GetFilteredNotes(std::vector<CNotePlaintextEntry> & outEntries, st
             }
 
             // skip note which has been spent
+            // LogPrintf("Nullifer: %s\n" , (*nd.nullifier).ToString());
             if (ignoreSpent && nd.nullifier && IsSpent(*nd.nullifier)) {
+                // LogPrintf("This nullifer is spent\n\n");
                 continue;
             }
-
+    
             int i = jsop.js; // Index into CTransaction.vjoinsplit
             int j = jsop.n; // Index into JSDescription.ciphertexts
 

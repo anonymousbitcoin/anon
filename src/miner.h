@@ -11,6 +11,8 @@
 #include <boost/optional.hpp>
 #include <stdint.h>
 
+#include <univalue.h>
+
 class CBlockIndex;
 class CScript;
 #ifdef ENABLE_WALLET
@@ -35,6 +37,7 @@ CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey);
 boost::optional<CScript> GetMinerScriptPubKey();
 CBlockTemplate* CreateNewBlockWithKey();
 #endif
+UniValue decoderawtransaction2(CTransaction &tx , const UniValue& params, bool fHelp);
 
 #ifdef ENABLE_MINING
 /** Modify the extranonce in a block */
@@ -50,8 +53,8 @@ void GenerateBitcoins(bool fGenerate, int nThreads);
 void UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);
 
 #ifdef FORK_CB_INPUT
-CBlockTemplate* CreateNewAirdropBlock(bool&);
-CBlockTemplate* CreateNewAirdropBlock(bool&,const int);
+CBlockTemplate* CreateNewForkBlock(bool&);
+CBlockTemplate* CreateNewForkBlock(bool&,const int);
 #endif
 
 #endif // BITCOIN_MINER_H

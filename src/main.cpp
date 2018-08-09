@@ -83,14 +83,14 @@ size_t nCoinCacheUsage = 5000 * 300;
 uint64_t nPruneTarget = 0;
 bool fAlerts = DEFAULT_ALERTS;
 
-#ifdef FORK_CB_INPUT
+// #ifdef FORK_CB_INPUT
 #include <boost/format.hpp>
 #include <boost/range/combine.hpp>
 
 std::string forkUtxoPath;
-int64_t airdropStartHeight;
-int64_t AirdropHeightRange;
-int64_t airdropCBPerBlock;
+int64_t forkStartHeight;
+int64_t forkHeightRange;
+int64_t forkCBPerBlock;
 uint256 forkExtraHashSentinel = uint256S("f0f0f0f0fafafafaffffffffffffffffffffffffffffffffafafafaf0f0f0f0f");
 uint256 hashPid = GetRandHash();
 
@@ -104,16 +104,13 @@ std::string GetUTXOFileName(int nHeight, bool isZUTXO)
     }
 
     std::stringstream ss;
-    ss << boost::format("utxo-%05i.bin") % (nHeight - airdropStartHeight);
+    ss << boost::format("utxo-%05i.bin") % (nHeight - forkStartHeight);
     boost::filesystem::path utxo_file = utxo_path;
     utxo_file /= ss.str();
 
     return utxo_file.generic_string();
 }
-<<<<<<< HEAD
 #endif
-=======
->>>>>>> bfd4e789d... Merge master with airdrop
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying and mining) */
 CFeeRate minRelayTxFee = CFeeRate(DEFAULT_MIN_RELAY_TX_FEE);
@@ -857,14 +854,14 @@ unsigned int GetP2SHSigOpCount(const CTransaction& tx, const CCoinsViewCache& in
 }
 
 bool CheckTransaction(const CTransaction& tx, CValidationState &state,
-                      libzcash::ProofVerifier& verifier)
+                      libzcash::ProofVerifier& verifier, bool isZUTXO)
 {
     // Don't count coinbase transactions because mining skews the count
     if (!tx.IsCoinBase()) {
         transactionsValidated.increment();
     }
 
-    if (!CheckTransactionWithoutProofVerification(tx, state)) {
+    if (!CheckTransactionWithoutProofVerification(tx, state, isZUTXO)) {
         return false;
     } else {
         // Ensure that zk-SNARKs verify
@@ -878,7 +875,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state,
     }
 }
 
-bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidationState &state)
+bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidationState &state, bool isZUTXO)
 {
     // Basic checks that don't depend on any context
 
@@ -907,7 +904,7 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
     CAmount nValueOut = 0;
     BOOST_FOREACH(const CTxOut& txout, tx.vout)
     {
-        if (txout.nValue < 0)
+        if (!isZUTXO && txout.nValue < 0)
             return state.DoS(100, error("CheckTransaction(): txout.nValue negative"),
                              REJECT_INVALID, "bad-txns-vout-negative");
         if (txout.nValue > MAX_MONEY)
@@ -995,22 +992,25 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
             vJoinSplitNullifiers.insert(nf);
         }
     }
-
-    if (tx.IsCoinBase())
+    // LogPrintf("isZUTXO: %d\n", isZUTXO);
+    if (!isZUTXO && tx.IsCoinBase())
     {
         // There should be no joinsplits in a coinbase transaction
-        if (tx.vjoinsplit.size() > 0)
+        if (tx.vjoinsplit.size() > 0) {
+            LogPrintf("tx.vjoinsplit.size: %d\n", tx.vjoinsplit.size());
             return state.DoS(100, error("CheckTransaction(): coinbase has joinsplits"),
                              REJECT_INVALID, "bad-cb-has-joinsplits");
-
-        if (tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)
+        }
+        if ((tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)){
+            LogPrintf("Script size: %s\n", tx.vin[0].scriptSig.size());
             return state.DoS(100, error("CheckTransaction(): coinbase script size"),
                              REJECT_INVALID, "bad-cb-length");
+        }
     }
     else
     {
         BOOST_FOREACH(const CTxIn& txin, tx.vin)
-            if (txin.prevout.IsNull())
+            if (!isZUTXO && txin.prevout.IsNull())
                 return state.DoS(10, error("CheckTransaction(): prevout is null"),
                                  REJECT_INVALID, "bad-txns-prevout-null");
     }
@@ -1458,19 +1458,13 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
     // MAX_SUBSIDY/2 to keep the monetary curve consistent with no slow start.
-    LogPrintf("Inside getblocksubsity:\n");
-    LogPrintf("nHeight: %d\n", nHeight);
-    LogPrintf("consensus:%d\n", consensusParams.nSubsidySlowStartInterval);
-
     if (nHeight < consensusParams.nSubsidySlowStartInterval / 2) {
         nSubsidy /= consensusParams.nSubsidySlowStartInterval;
         nSubsidy *= nHeight;
-        LogPrintf("1 Subsidy: %d\n", nSubsidy);
         return nSubsidy;
     } else if (nHeight < consensusParams.nSubsidySlowStartInterval) {
         nSubsidy /= consensusParams.nSubsidySlowStartInterval;
         nSubsidy *= (nHeight+1);
-        LogPrintf("2 Subsidy: %d\n", nSubsidy);
         return nSubsidy;
     }
 
@@ -1482,7 +1476,6 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     }
 
     int halvings = (nHeight - consensusParams.SubsidySlowStartShift()) / halvingInterval;
-    LogPrintf("halvings: %d\n", halvings);
     if(isForkEnabled(nHeight))
         halvings += 2;
 
@@ -1492,7 +1485,6 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
     // Subsidy is cut in half every 105,000 blocks which will occur approximately every 2 years.
     nSubsidy >>= halvings;
-    LogPrintf("3 Subsidy: %d\n", nSubsidy);
     return nSubsidy;
 }
 
@@ -1563,7 +1555,7 @@ bool IsInitialBlockDownload(bool includeFork)
     LOCK(cs_main);
     if (fCheckpointsEnabled && chainActive.Height() < Checkpoints::GetTotalBlocksEstimate(chainParams.Checkpoints()))
         return true;
-    if (includeFork && chainActive.Height() < airdropStartHeight + AirdropHeightRange)
+    if (includeFork && chainActive.Height() < forkStartHeight + forkHeightRange)
         return true;
 
     static bool lockIBDState = false;
@@ -1798,7 +1790,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
                 // Ensure that coinbases cannot be spent to transparent outputs
                 // Disabled on regtest
                 if (fCoinbaseEnforcedProtectionEnabled &&
-                    !isAirdropBlock(coins->nHeight) &&
+                    !isForkBlock(coins->nHeight) &&
                     consensusParams.fCoinbaseMustBeProtected &&
                     !tx.vout.empty()) {
                     return state.Invalid(
@@ -2066,8 +2058,8 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
         }
 
 #ifdef FORK_CB_INPUT
-        if (isAirdropBlock(pindex->nHeight)){  //when block in forking region - all transcations are coinbase
-            nNonCBIdx = airdropCBPerBlock;
+        if (isForkBlock(pindex->nHeight)){  //when block in forking region - all transcations are coinbase
+            nNonCBIdx = forkCBPerBlock;
         }
 #endif
         if (i > nNonCBIdx) { // not coinbases
@@ -2268,11 +2260,11 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex) {
     return flags;
 };
 
-bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck)
-{
+bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck, bool isZUTXO)
+{    LogPrintf("1:");
     const CChainParams& chainparams = Params();
     AssertLockHeld(cs_main);
-
+    LogPrintf("2:");
     bool fExpensiveChecks = true;
     if (fCheckpointsEnabled) {
         CBlockIndex *pindexLastCheckpoint = Checkpoints::GetLastCheckpoint(chainparams.Checkpoints());
@@ -2281,14 +2273,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             fExpensiveChecks = false;
         }
     }
-
+    LogPrintf("3:");
     auto verifier = libzcash::ProofVerifier::Strict();
     auto disabledVerifier = libzcash::ProofVerifier::Disabled();
-
+    LogPrintf("4:");
     // Check it again to verify JoinSplit proofs, and in case a previous version let a bad block in
-    if (!CheckBlock(block, state, fExpensiveChecks ? verifier : disabledVerifier, !fJustCheck, !fJustCheck))
+    if (!CheckBlock(block, state, fExpensiveChecks ? verifier : disabledVerifier, !fJustCheck, !fJustCheck, isZUTXO))
         return false;
-
+    LogPrintf("5:");
     // verify that the view's current state corresponds to the previous block
     uint256 hashPrevBlock = pindex->pprev == NULL ? uint256() : pindex->pprev->GetBlockHash();
     assert(hashPrevBlock == view.GetBestBlock());
@@ -2416,7 +2408,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime1 - nTimeStart), 0.001 * (nTime1 - nTimeStart) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime1 - nTimeStart) / (nInputs-1), nTimeConnect * 0.000001);
 
 #ifdef FORK_CB_INPUT
-    if (!isAirdropBlock(pindex->nHeight)){  //when block is in forking region - don't check coinbase amount
+    if (!isForkBlock(pindex->nHeight)){  //when block is in forking region - don't check coinbase amount
 #endif
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
     std::string strError = "";
@@ -2748,9 +2740,17 @@ bool static ConnectTip(CValidationState &state, CBlockIndex *pindexNew, CBlock *
     int64_t nTime2 = GetTimeMicros(); nTimeReadFromDisk += nTime2 - nTime1;
     int64_t nTime3;
     LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
-    {
+    {   bool rv;
         CCoinsViewCache view(pcoinsTip);
-        bool rv = ConnectBlock(*pblock, state, pindexNew, view);
+        LogPrintf("pindexNew->nHeight: %d\n", pindexNew->nHeight);
+        if(pindexNew->nHeight == 1){
+            LogPrintf("111!!111111\n");
+            rv = ConnectBlock(*pblock, state, pindexNew, view, false);
+        } else {
+            LogPrintf("2222222222\n");
+            rv = ConnectBlock(*pblock, state, pindexNew, view, false, isForkBlock(pindexNew->nHeight));
+        }
+        LogPrintf("Beofer bool:\n");
         GetMainSignals().BlockChecked(*pblock, state);
         if (!rv) {
             if (state.IsInvalid())
@@ -3255,10 +3255,10 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool f
 
 bool CheckBlock(const CBlock& block, CValidationState& state,
                 libzcash::ProofVerifier& verifier,
-                bool fCheckPOW, bool fCheckMerkleRoot)
+                bool fCheckPOW, bool fCheckMerkleRoot, bool isZUTXO)
 {
     // These are checks that are independent of context.
-
+    LogPrintf("isZUTXO inside checkblock: %d\n", isZUTXO);
     // Check that the header is valid (particularly PoW).  This is mostly
     // redundant with the call in AcceptBlockHeader.
     if (!CheckBlockHeader(block, state, fCheckPOW))
@@ -3296,8 +3296,8 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
 
     //fork blocks might have up to fork pre-defined value coinbases and nothing else
     if (looksLikeForkBlockHeader(block)) {
-        if (block.vtx.size() > airdropCBPerBlock)
-            return state.DoS(100, error("CheckBlock(): fork block: too many txns %d > %d coinbase txns", block.vtx.size(), airdropCBPerBlock),
+        if (block.vtx.size() > forkCBPerBlock)
+            return state.DoS(100, error("CheckBlock(): fork block: too many txns %d > %d coinbase txns", block.vtx.size(), forkCBPerBlock),
                              REJECT_INVALID, "bad-fork-too-many-tx");
 
         for (unsigned int i = 1; i < block.vtx.size(); i++)
@@ -3313,7 +3313,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
 
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, block.vtx)
-        if (!CheckTransaction(tx, state, verifier))
+        if (!CheckTransaction(tx, state, verifier, isZUTXO))
             return error("CheckBlock(): CheckTransaction failed");
 
     unsigned int nSigOps = 0;
@@ -3343,11 +3343,11 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     // because we bypass checks using the indicia in the header
     // we reject any blocks that look like fork blocks but really
     // are non-fork blocks
-    if(looksLikeForkBlockHeader(block) && !isAirdropBlock(nHeight))
+    if(looksLikeForkBlockHeader(block) && !isForkBlock(nHeight))
         return state.DoS(100, error("%s: non-fork block looks like fork block", __func__),
                          REJECT_INVALID, "bad-fork-hashreserved");
 
-    if(!looksLikeForkBlockHeader(block) && isAirdropBlock(nHeight))
+    if(!looksLikeForkBlockHeader(block) && isForkBlock(nHeight))
         return state.DoS(100, error("%s: fork block does not look like fork block", __func__),
                          REJECT_INVALID, "bad-fork-hashreserved");
 
@@ -3453,7 +3453,7 @@ bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBloc
     return true;
 }
 
-bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, bool fRequested, CDiskBlockPos* dbp)
+bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, bool fRequested, CDiskBlockPos* dbp, bool isZUTXO)
 {
     const CChainParams& chainparams = Params();
     AssertLockHeld(cs_main);
@@ -3486,7 +3486,7 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
 
     // See method docstring for why this is always disabled
     auto verifier = libzcash::ProofVerifier::Disabled();
-    if ((!CheckBlock(block, state, verifier)) || !ContextualCheckBlock(block, state, pindex->pprev)) {
+    if ((!CheckBlock(block, state, verifier, true, true, isZUTXO)) || !ContextualCheckBlock(block, state, pindex->pprev)) {
         if (state.IsInvalid() && !state.CorruptionPossible()) {
             pindex->nStatus |= BLOCK_FAILED_VALID;
             setDirtyBlockIndex.insert(pindex);
@@ -3504,10 +3504,9 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
     }
 
     int nHeight = pindex->nHeight;
-    if (fExpensiveChecks && isAirdropBlock(nHeight)) {
+    if (fExpensiveChecks && isForkBlock(nHeight)) {
         //if block is in forking region validate it agains file records
-        if (!forkUtxoPath.empty()) {
-
+        if (!isZUTXO && !forkUtxoPath.empty()) {
             std::string utxo_file_path = GetUTXOFileName(nHeight);
             std::ifstream if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
             if (!if_utxo.is_open()) {
@@ -3517,10 +3516,10 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
                           nHeight, block.GetHash().ToString(), utxo_file_path);
 
                 vector<pair<uint64_t, CScript> > txFromFile;
-                txFromFile.reserve(airdropCBPerBlock);
+                txFromFile.reserve(forkCBPerBlock);
                 int recs = 0;
 
-                while (if_utxo && recs < airdropCBPerBlock) {
+                while (if_utxo && recs < forkCBPerBlock) {
                     char term = 0;
                     char coin[8] = {};
                     if (!if_utxo.read(coin, 8)) {
@@ -3618,6 +3617,7 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
     return true;
 }
 
+
 static bool IsSuperMajority(int minVersion, const CBlockIndex* pstart, unsigned nRequired, const Consensus::Params& consensusParams)
 {
     unsigned int nFound = 0;
@@ -3649,7 +3649,7 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
 
         // Store to disk
         CBlockIndex *pindex = NULL;
-        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp);
+        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
         if (pindex && pfrom) {
             mapBlockSource[pindex->GetBlockHash()] = pfrom->GetId();
         }
@@ -3669,7 +3669,7 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
     return true;
 }
 
-bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex * const pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot)
+bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex * const pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot, bool isZUTXO)
 {
     AssertLockHeld(cs_main);
     assert(pindexPrev == chainActive.Tip());
@@ -3685,11 +3685,11 @@ bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex
     if (!ContextualCheckBlockHeader(block, state, pindexPrev))
         return false;
 
-    if (!CheckBlock(block, state, verifier, fCheckPOW, fCheckMerkleRoot))
+    if (!CheckBlock(block, state, verifier, fCheckPOW, fCheckMerkleRoot, isZUTXO))
         return false;
     if (!ContextualCheckBlock(block, state, pindexPrev))
         return false;
-    if (!ConnectBlock(block, state, &indexDummy, viewNew, true))
+    if (!ConnectBlock(block, state, &indexDummy, viewNew, true, isZUTXO))
         return false;
     assert(state.IsValid());
 
@@ -4038,8 +4038,9 @@ bool CVerifyDB::VerifyDB(CCoinsView *coinsview, int nCheckLevel, int nCheckDepth
         if (!ReadBlockFromDisk(block, pindex))
             return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         // check level 1: verify block validity
-        if (nCheckLevel >= 1 && !CheckBlock(block, state, verifier))
+        if (nCheckLevel >= 1 && !CheckBlock(block, state, verifier, true, true, isForkBlock(pindex->nHeight))){
             return error("VerifyDB(): *** found bad block at %d, hash=%s\n", pindex->nHeight, pindex->GetBlockHash().ToString());
+        }
         // check level 2: verify undo validity
         if (nCheckLevel >= 2 && pindex) {
             CBlockUndo undo;
@@ -4185,17 +4186,19 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
 
     int nLoaded = 0;
     try {
+        LogPrintf("1\n");
         // This takes over fileIn and calls fclose() on it in the CBufferedFile destructor
         CBufferedFile blkdat(fileIn, 2*MAX_BLOCK_SIZE, MAX_BLOCK_SIZE+8, SER_DISK, CLIENT_VERSION);
         uint64_t nRewind = blkdat.GetPos();
         while (!blkdat.eof()) {
             boost::this_thread::interruption_point();
-
+            LogPrintf("2\n");
             blkdat.SetPos(nRewind);
             nRewind++; // start one byte further next time, in case of failure
             blkdat.SetLimit(); // remove former limit
             unsigned int nSize = 0;
             try {
+                LogPrintf("3\n");
                 // locate a header
                 unsigned char buf[MESSAGE_START_SIZE];
                 blkdat.FindByte(Params().MessageStart()[0]);
@@ -4212,6 +4215,7 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                 break;
             }
             try {
+                LogPrintf("4\n");
                 // read block
                 uint64_t nBlockPos = blkdat.GetPos();
                 if (dbp)
@@ -4221,7 +4225,7 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                 CBlock block;
                 blkdat >> block;
                 nRewind = blkdat.GetPos();
-
+                LogPrintf("5\n");
                 // detect out of order blocks, and store them for later
                 uint256 hash = block.GetHash();
                 if (hash != chainparams.GetConsensus().hashGenesisBlock && mapBlockIndex.find(block.hashPrevBlock) == mapBlockIndex.end()) {
@@ -4231,22 +4235,26 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                         mapBlocksUnknownParent.insert(std::make_pair(block.hashPrevBlock, *dbp));
                     continue;
                 }
-
+                LogPrintf("6\n");
                 // process in case the block isn't known yet
                 if (mapBlockIndex.count(hash) == 0 || (mapBlockIndex[hash]->nStatus & BLOCK_HAVE_DATA) == 0) {
                     CValidationState state;
+                    LogPrintf("6.1\n");
                     if (ProcessNewBlock(state, NULL, &block, true, dbp))
                         nLoaded++;
+                    LogPrintf("6.2\n");
                     if (state.IsError())
                         break;
+                    LogPrintf("6.3\n");
                 } else if (hash != chainparams.GetConsensus().hashGenesisBlock && mapBlockIndex[hash]->nHeight % 1000 == 0) {
                     LogPrintf("Block Import: already had block %s at height %d\n", hash.ToString(), mapBlockIndex[hash]->nHeight);
                 }
-
+                LogPrintf("7\n");
                 // Recursively process earlier encountered successors of this block
                 deque<uint256> queue;
                 queue.push_back(hash);
                 while (!queue.empty()) {
+                    LogPrintf("8\n");
                     uint256 head = queue.front();
                     queue.pop_front();
                     std::pair<std::multimap<uint256, CDiskBlockPos>::iterator, std::multimap<uint256, CDiskBlockPos>::iterator> range = mapBlocksUnknownParent.equal_range(head);
@@ -4267,6 +4275,7 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                         mapBlocksUnknownParent.erase(it);
                     }
                 }
+                LogPrintf("9\n");
             } catch (const std::exception& e) {
                 LogPrintf("%s: Deserialize or I/O error - %s\n", __func__, e.what());
             }

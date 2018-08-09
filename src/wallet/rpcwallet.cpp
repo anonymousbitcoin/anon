@@ -719,7 +719,7 @@ CAmount GetAccountBalance(const string& strAccount, int nMinDepth, const isminef
 
 
 UniValue getbalance(const UniValue& params, bool fHelp)
-{
+{   
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 

@@ -38,11 +38,11 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         return nProofOfWorkLimit;
 
     // right at fork
-    else if(isAirdropBlock(nHeight) && !isAirdropBlock(nHeight - params.nPowAveragingWindow))
+    else if(isForkBlock(nHeight) && !isForkBlock(nHeight - params.nPowAveragingWindow))
         return nProofOfWorkLimit;
 
     // right post fork
-    else if(!isAirdropBlock(nHeight) && isAirdropBlock(nHeight - params.nPowAveragingWindow))
+    else if(!isForkBlock(nHeight) && isForkBlock(nHeight - params.nPowAveragingWindow))
         return nProofOfWorkLimit;
 
     // Find the first block in the averaging interval
@@ -61,7 +61,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 
     arith_uint256 bnAvg {bnTot / params.nPowAveragingWindow};
 
-    bool isFork = isAirdropBlock(pindexLast->nHeight + 1);
+    bool isFork = isForkBlock(pindexLast->nHeight + 1);
     return CalculateNextWorkRequired(bnAvg, pindexLast->GetMedianTimePast(), pindexFirst->GetMedianTimePast(), params, proofOfWorkLimit, isFork);
 }
 

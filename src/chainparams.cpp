@@ -210,23 +210,36 @@ public:
         //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.testnet.[INSERT].org"));
         //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.testnet1.[INSERT].co"));
 
-        // guarantees the first 2 characters, when base58 encoded, are "6W"
-        base58Prefixes[PUBKEY_ADDRESS]     = {0x03,0x1A};
+        // // guarantees the first 2 characters, when base58 encoded, are "n1"
+        // base58Prefixes[PUBKEY_ADDRESS]     = {0x19,0x57};
+        // // guarantees the first 2 characters, when base58 encoded, are "nx"
+        // base58Prefixes[SCRIPT_ADDRESS]     = {0x19,0xE0};
+        // // the first character, when base58 encoded, is "9" or "c" (as in Bitcoin)
+        // base58Prefixes[SECRET_KEY]         = {0xEF};
+        // // do not rely on these BIP32 prefixes; they are not specified and may change
+        // base58Prefixes[EXT_PUBLIC_KEY]     = {0x04,0x35,0x87,0xCF};
+        // base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x35,0x83,0x94};
+        // // guarantees the first 2 characters, when base58 encoded, are "zz"
+        // base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xC0};
+        // // guarantees the first 2 characters, when base58 encoded, are "ST"
+        // base58Prefixes[ZCSPENDING_KEY]     = {0xAC,0x08};
 
-        // guarantees the first 2 characters, when base58 encoded, are "jQ"
-        base58Prefixes[SCRIPT_ADDRESS]     = {0x17,0xE0};
 
+        // guarantees the first 2 characters, when base58 encoded, are "tm"
+        base58Prefixes[PUBKEY_ADDRESS]     = {0x1D,0x25};
+        // guarantees the first 2 characters, when base58 encoded, are "t2"
+        base58Prefixes[SCRIPT_ADDRESS]     = {0x1C,0xBA};
         // the first character, when base58 encoded, is "9" or "c" (as in Bitcoin)
         base58Prefixes[SECRET_KEY]         = {0xEF};
         // do not rely on these BIP32 prefixes; they are not specified and may change
         base58Prefixes[EXT_PUBLIC_KEY]     = {0x04,0x35,0x87,0xCF};
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x35,0x83,0x94};
+        // guarantees the first 2 characters, when base58 encoded, are "zt"
+        base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xB6};
+        // guarantees the first 2 characters, when base58 encoded, are "ST"
+        base58Prefixes[ZCSPENDING_KEY]     = {0xAC,0x08};
 
-         // guarantees the first 2 characters, when base58 encoded, are "vX" or "vW"
-        base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x14,0xff};
 
-        // guarantees the first 2 characters, when base58 encoded, are "2B"
-        base58Prefixes[ZCSPENDING_KEY]     = {0xAA};
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
 
@@ -245,8 +258,9 @@ public:
             0
         };
 
-        nAirdropStartHeight = 0;
-        nAirdropHeightRange = 0;
+        nForkStartHeight = 7;
+        nForkHeightRange = 36;
+        zUtxoMiningStartBlock = 25;
     }
 };
 static CTestNetParams testNetParams;
@@ -316,8 +330,8 @@ public:
             0
         };
 
-        nAirdropStartHeight = 0;
-        nAirdropHeightRange = 0;
+        nForkStartHeight = 0;
+        nForkHeightRange = 0;
     }
 };
 static CRegTestParams regTestParams;

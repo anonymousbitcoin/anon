@@ -81,8 +81,9 @@ public:
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
     int FulfilledRequestExpireTime() const { return nFulfilledRequestExpireTime; }
 
-    uint64_t airdropStartHeight() const { return nAirdropStartHeight; };
-    uint64_t AirdropHeightRange() const { return nAirdropHeightRange; };
+    uint64_t ForkStartHeight() const { return nForkStartHeight; };
+    uint64_t ForkHeightRange() const { return nForkHeightRange; };
+    uint64_t ZUtxoMiningStartBlock() const { return zUtxoMiningStartBlock; };
 protected:
     CChainParams() {}
 
@@ -111,8 +112,9 @@ protected:
     int nFulfilledRequestExpireTime;
     std::vector<std::string> vFoundersRewardAddress;
 
-    uint64_t nAirdropStartHeight;
-    uint64_t nAirdropHeightRange;
+    uint64_t nForkStartHeight;
+    uint64_t nForkHeightRange;
+    uint64_t zUtxoMiningStartBlock;
 };
 
 /**

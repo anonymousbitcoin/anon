@@ -122,24 +122,21 @@ contrib/debian/substvars
 
 *.gen
 
-
-../../src/btcp-cli.dSYM/Contents/Resources/DWARF/btcp-cli
-../../src/zcash-tx.dSYM/Contents/Resources/DWARF/zcash-tx
-../../src/zcash/CreateJoinSplit.dSYM/Contents/Resources/DWARF/CreateJoinSplit
-../../src/zcash/GenerateParams.dSYM/Contents/Resources/DWARF/GenerateParams
-btcp-cli.dSYM/*
-zcash-tx.dSYM/Contents/*
-zcash/CreateJoinSplit.dSYM/*
-zcash/GenerateParams.dSYM/*
-zcash-tx.dSYM/*
 **/btcp-cli.dSYM
 **/zcash-tx.dSYM
 **/zcash/CreateJoinSplit.dSYM
 **/zcash/GenerateParams.dSYM
 **/zcash-tx.dSYM
 **/zcash-gtest.dSYM
+**/btcpd.dSYM/Contents
+**/test_bitcoin.dSYM
+**/anon-cli
+**/anon-cli.dSYM
+**/anond
+**/anond.dSYM
 **/anon-cli.dSYM
 **/anond.dSYM
+<<<<<<< HEAD
 <<<<<<< HEAD
 **/src/test/test_bitcoin.dSYM
 **/src/test/test_bitcoin.dSYM
@@ -151,3 +148,6 @@ doc/latex/**
 **/anond.dSYM
 **/src/test/test_bitcoin.dSYM
 >>>>>>> bfd4e789d... Merge master with airdrop
+=======
+**/src/test/test_bitcoin.dSYM
+>>>>>>> a5bd308ae... Merge pull request #6 from ByeBugDevelopment/live-nodes-test

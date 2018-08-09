@@ -28,6 +28,7 @@
 #include "txmempool.h"
 #include "uint256.h"
 #include "versionbits.h"
+#include "util.h"
 
 #include <algorithm>
 #include <exception>
@@ -735,9 +736,9 @@ bool ContextualCheckInputs(const CTransaction& tx, CValidationState& state, cons
 void UpdateCoins(const CTransaction& tx, CValidationState& state, CCoinsViewCache& inputs, int nHeight);
 
 /** Context-independent validity checks */
-bool CheckTransaction(const CTransaction& tx, CValidationState& state, libzcash::ProofVerifier& verifier);
-bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidationState& state);
-bool CheckJoinSplitSigs(const CTransaction& tx, CValidationState& state, const unsigned int flags);
+bool CheckTransaction(const CTransaction& tx, CValidationState& state, libzcash::ProofVerifier& verifier, bool isZUTXO = false);
+bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidationState &state, bool isZUTXO = false);
+bool CheckJoinSplitSigs(const CTransaction& tx, CValidationState &state, const unsigned int flags);
 
 /** Check for standard transaction types
  * @return True if all outputs (scriptPubKeys) use only standard transaction forms
@@ -851,18 +852,21 @@ bool DisconnectBlocks(int blocks);
 void ReprocessBlocks(int nBlocks);
 
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins */
-bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& coins, bool fJustCheck = false);
+bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& coins, bool fJustCheck = false, bool isZUTXO = false);
 
 /** Context-independent validity checks */
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool fCheckPOW = true);
 
-bool CheckBlock(const CBlock& block, CValidationState& state, libzcash::ProofVerifier& verifier, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
+bool CheckBlock(const CBlock& block, CValidationState& state,
+                libzcash::ProofVerifier& verifier,
+                bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool isZUTXO = false);
 
 /** Context-dependent validity checks */
 bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex* pindexPrev);
 bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindexPrev);
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block, with cs_main held) */
+bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex *pindexPrev, bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool isZUTXO = false);
 
 /**
  * Store block on disk.
@@ -871,11 +875,9 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
  * - The only caller of AcceptBlock verifies JoinSplit proofs elsewhere.
  * If dbp is non-NULL, the file is known to already reside on disk
  */
-bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** pindex, bool fRequested, CDiskBlockPos* dbp);
-bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex** ppindex = NULL);
+bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex **pindex, bool fRequested, CDiskBlockPos* dbp, bool isZUTXO = false);
+bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex **ppindex= NULL);
 
-// bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
-bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
 
 
 class CBlockFileInfo
@@ -986,14 +988,15 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 #define FORK_COINBASE_PER_BLOCK 10000
 
 extern std::string forkUtxoPath;
-extern int64_t airdropStartHeight;
-extern int64_t AirdropHeightRange;
-extern int64_t airdropCBPerBlock;
+extern int64_t forkStartHeight;
+extern int64_t forkHeightRange;
+extern int64_t forkCBPerBlock;
 extern uint256 forkExtraHashSentinel;
 
-std::string GetUTXOFileName(int nHeight);
+//std::string GetUTXOFileName(int nHeight);
+std::string GetUTXOFileName(int nHeight, bool isZUTXO = false);
 
-//ex: airdropStartHeight = 300 000; AirdropHeightRange = 65K
+//ex: forkStartHeight = 300 000; forkHeightRange = 65K
 //A. for miner:
 //   1.   Current height = 299 999; the next block to create 300 000
 //                  nHeight is 300 000 - return false
@@ -1049,7 +1052,7 @@ inline uint64_t bytes2uint64(char* array)
 
 inline bool isForkEnabled(int nHeight)
 {
-    return nHeight > airdropStartHeight;
+    return nHeight > forkStartHeight;
 }
 extern uint256 hashPid;
 /**
