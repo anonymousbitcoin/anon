@@ -2006,7 +2006,7 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
                 outs->nVersion = outsBlock.nVersion;
             if (*outs != outsBlock) {
                 string strHex = EncodeHexTx(tx);
-                LogPrintf("Hex transaction: \n%s\n",tx);
+                LogPrintf("Hex transaction: \n%s\n", strHex);
                 fClean = fClean && error("DisconnectBlock(): added transaction mismatch? database corrupted");
                 LogPrintf("Transaction mismatch?: id: %d: Amount: %d; ScriptPubKey: %s\n", i, tx.vout[0].nValue, tx.vout[0].scriptPubKey.ToString());
             }
