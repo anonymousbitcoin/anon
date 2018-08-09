@@ -110,7 +110,6 @@ std::string GetUTXOFileName(int nHeight, bool isZUTXO)
 
     return utxo_file.generic_string();
 }
-#endif
 
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying and mining) */
 CFeeRate minRelayTxFee = CFeeRate(DEFAULT_MIN_RELAY_TX_FEE);
