@@ -207,8 +207,8 @@ void CActiveMasternode::ManageStateInitial()
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet is locked\n", GetStateString());
         return;
     }
-    if(pwalletMain->GetBalance() < 10*COIN) {
-        LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet balance is < 100 ANON\n", GetStateString());
+    if(pwalletMain->GetBalance() < 500*COIN) {
+        LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet balance is < 500 ANON\n", GetStateString());
         return;
     }
 

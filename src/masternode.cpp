@@ -709,9 +709,9 @@ bool CMasternodeBroadcast::CheckOutpoint(int &nDos)
             LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
             return false;
         }
-        if (coins.vout[vin.prevout.n].nValue != 10 * COIN)
+        if (coins.vout[vin.prevout.n].nValue != 500 * COIN)
         {
-            LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO should have 100 ANON, masternode=%s\n", vin.prevout.ToStringShort());
+            LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO should have 500 ANON, masternode=%s\n", vin.prevout.ToStringShort());
             return false;
         }
         if (chainActive.Height() - coins.nHeight + 1 < Params().GetConsensus().nMasternodeMinimumConfirmations)
@@ -736,7 +736,7 @@ bool CMasternodeBroadcast::CheckOutpoint(int &nDos)
     }
 
     // verify that sig time is legit in past
-    // should be at least not earlier than block when 100 ANON tx got nMasternodeMinimumConfirmations
+    // should be at least not earlier than block when 500 ANON tx got nMasternodeMinimumConfirmations
     uint256 hashBlock = uint256();
     CTransaction tx2;
     GetTransaction(vin.prevout.hash, tx2, hashBlock, true);
