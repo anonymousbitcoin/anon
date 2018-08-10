@@ -210,8 +210,8 @@ public:
         //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.testnet.[INSERT].org"));
         //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.testnet1.[INSERT].co"));
 
-        // guarantees the first 2 characters, when base58 encoded, are "tm"
-        base58Prefixes[PUBKEY_ADDRESS]     = {0x1D,0x25};
+        // guarantees the first 2 characters, when base58 encoded, are "tA"
+        base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xCE};
         // guarantees the first 2 characters, when base58 encoded, are "t2"
         base58Prefixes[SCRIPT_ADDRESS]     = {0x1C,0xBA};
         // the first character, when base58 encoded, is "9" or "c" (as in Bitcoin)
@@ -241,9 +241,9 @@ public:
             0
         };
 
-        nForkStartHeight = 0;
-        nForkHeightRange = 0;
-        zUtxoMiningStartBlock = 0;
+        nForkStartHeight = 7;
+        nForkHeightRange = 7988;
+        zUtxoMiningStartBlock = 1674;
     }
 };
 static CTestNetParams testNetParams;
