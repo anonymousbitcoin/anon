@@ -153,9 +153,9 @@ public:
                             //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
-        nForkStartHeight = 7;
-        nForkHeightRange = 36;
-        zUtxoMiningStartBlock = 24;
+        nForkStartHeight = 0;
+        nForkHeightRange = 0;
+        zUtxoMiningStartBlock = 0;
 
     }
 };
@@ -241,9 +241,9 @@ public:
             0
         };
 
-        nForkStartHeight = 2;
-        nForkHeightRange = 36;
-        zUtxoMiningStartBlock = 25;
+        nForkStartHeight = 0;
+        nForkHeightRange = 0;
+        zUtxoMiningStartBlock = 0;
     }
 };
 static CTestNetParams testNetParams;
