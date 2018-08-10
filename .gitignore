@@ -136,18 +136,9 @@ contrib/debian/substvars
 **/anond.dSYM
 **/anon-cli.dSYM
 **/anond.dSYM
-<<<<<<< HEAD
-<<<<<<< HEAD
-**/src/test/test_bitcoin.dSYM
 **/src/test/test_bitcoin.dSYM
 
 doc/html/**
 doc/latex/**
-=======
-**/anon-cli.dSYM
-**/anond.dSYM
 **/src/test/test_bitcoin.dSYM
->>>>>>> bfd4e789d... Merge master with airdrop
-=======
 **/src/test/test_bitcoin.dSYM
->>>>>>> a5bd308ae... Merge pull request #6 from ByeBugDevelopment/live-nodes-test

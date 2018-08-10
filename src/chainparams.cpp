@@ -26,12 +26,6 @@ using namespace std;
 
 const arith_uint256 maxUint = UintToArith256(uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 
-// Header Hash 0003e40b8e4c18bfea62fc8bc8646540ab3d83a6959b328298734466390c87c1
-// Nonce 0000000000000000000000000000000000000000000000000000000000000188
-//09312933fbe51fb59af3f2cb80be15f6d48e308968f3c1d235130b3eb9b81b4ed656f606c697c60a05b0ae624f9f2f82062f10a98efdd6509b0280de2967e147e16a4f2595776369d4497a2fc7d72af5492a34445aca0e64b68afebcc632dd2727f6f9c6
-
-
-
 class CMainParams : public CChainParams {
 public:
     CMainParams() {
@@ -41,13 +35,13 @@ public:
 
         //TODO To be decided
         // consensus.nSubsidySlowStartInterval = 2;
-        consensus.nSubsidyHalvingInterval = 129000;
+        consensus.nSubsidyHalvingInterval = 105000;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
-        consensus.prePowLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        // consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.prePowLimit = uint256S("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9");
+        // consensus.powLimit = uint256S("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9");
+        consensus.powLimit = uint256S("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9");
         consensus.nPowAveragingWindow = 2016; //diffuculty adjusts every 2 weeks
         // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
@@ -71,6 +65,7 @@ public:
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
         const size_t N = 144, K = 5;
+        // const size_t N = 200, K = 9;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         nEquihashN = N;
         nEquihashK = K;
@@ -103,7 +98,7 @@ public:
 
         consensus.hashGenesisBlock = genesis.GetHash();
         // assert(consensus.hashGenesisBlock == uint256S("0x0002aee7e57553028a6156fe28f6a74bfacc0a8c0cd45f19027b6adc0a628044"));
-        assert(consensus.hashGenesisBlock == uint256S("0x0006e2f1792ad5a97c2a266c2d65bbd53b0f44b153db1f35d40acbb7d24ae93b"));
+         assert(consensus.hashGenesisBlock == uint256S("0x0006e2f1792ad5a97c2a266c2d65bbd53b0f44b153db1f35d40acbb7d24ae93b"));
         assert(genesis.hashMerkleRoot == uint256S("0xe50058ee0a974a2e8562fe45782bc1a104af045df1b3d5c0de4aea2e972d1d59"));
         // assert(genesis.hashMerkleRoot == uint256S("19612bcf00ea7611d315d7f43554fa983c6e8c30cba17e52c679e0e80abf7d42"));
 
@@ -113,24 +108,22 @@ public:
         //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.[INSERT].org"));
         //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.[INSERT].co"));
 
-        // guarantees the first 2 characters, when base58 encoded, are "bK"
-        base58Prefixes[PUBKEY_ADDRESS]     = {0x13,0x53};
+        // guarantees the first 2 characters, when base58 encoded, are "An"
+        base58Prefixes[PUBKEY_ADDRESS]     = {0x05,0x82};
 
         // guarantees the first 2 characters, when base58 encoded, are "3Z"
         base58Prefixes[SCRIPT_ADDRESS]     = {0x53,0x89};
 
         // the first character, when base58 encoded, is "5" or "K" or "L" (as in Bitcoin)
         base58Prefixes[SECRET_KEY]         = {0x80};
-
         // do not rely on these BIP32 prefixes; they are not specified and may change
         base58Prefixes[EXT_PUBLIC_KEY]     = {0x04,0x88,0xB2,0x1E};
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x88,0xAD,0xE4};
-;
-        // guarantees the first 2 characters, when base58 encoded, are "B3"
-        base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x05,0xA8};
+        // guarantees the first 2 characters, when base58 encoded, are "zk"
+        base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xA8};
+        // guarantees the first 2 characters, when base58 encoded, are "SK"
+        base58Prefixes[ZCSPENDING_KEY]     = {0xAB,0x36};
 
-        // guarantees the first 2 characters, when base58 encoded, are "LY"
-        base58Prefixes[ZCSPENDING_KEY]     = {0x0B, 0x01};
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
@@ -143,9 +136,19 @@ public:
         nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
         checkpointData = {
             {
-                {      0, consensus.hashGenesisBlock },
+                {      0, consensus.hashGenesisBlock }
+                // {  30000, uint256S("0x000000005c2ad200c3c7c8e627f67b306659efca1268c9bb014335fdadc0c392") },
+                // { 160000, uint256S("0x000000065093005a1a46ee95d6d66c2b07008220ca64dd3b3a93bbd1945480c0") },
+                // { 272992, uint256S("0x0102a4e1353149c9221ebd7c45b3170ea4b8a7d1cf4075b3bc50c440fb9ebdd6") },
+                // { 273992, uint256S("0x000822e42b2128a296b704c273a4c3f0e707b06305d2be521cf7577ef67e476a") },
+                // { 274992, uint256S("0x03e91186991b31044179b82e88ee06c2205e3304a525d130070153fde4aaf414") },
+                // { 275992, uint256S("0x02bc3f08cec58ac79b35a29161b43cd301696e6e6421d704314d08a35b2169db") },
+                // { 276992, uint256S("0x0046665bbb64b609935ed0fd184d6c42657dc5c36b16ed1e59ecc2fcb0508d32") },
+                // { 277992, uint256S("0x0111d3ffc37fb3474ed2a6e3e9bfc53ee0d7cc0413a732f19d59061700f6b842") },
+                // { 278458, uint256S("0x0747cecedfd30754323c5afdaef547d5e90fd50485370ebf12dd33bbac61faaa") },
+                // { 279500, uint256S("0x0000000082ece76130c82337903b14a2109fab2dcd2d153fcdbf48a0054a694b") },
             },
-            1520105951,     // * UNIX timestamp of last checkpoint block
+            0,     // * UNIX timestamp of last checkpoint block
             0,       // * total number of transactions between genesis and last checkpoint
                             //   (the tx=... number in the SetBestChain debug.log lines)
             50            // * estimated number of transactions per day after checkpoint
@@ -154,7 +157,7 @@ public:
 
         nForkStartHeight = 7;
         nForkHeightRange = 36;
-        zUtxoMiningStartBlock = 25;
+        zUtxoMiningStartBlock = 24;
 
     }
 };
@@ -185,6 +188,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
+
         pchMessageStart[0] = 0x7a;
         pchMessageStart[1] = 0x74;
         pchMessageStart[2] = 0x8d;
@@ -192,7 +196,6 @@ public:
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
         nDefaultPort = 33127;
-        nMaxTipAge = 0x7fffffff;
         nPruneAfterHeight = 1000;
 
 
@@ -206,24 +209,8 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        //Final seed locations to be decided
         //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.testnet.[INSERT].org"));
         //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.testnet1.[INSERT].co"));
-
-        // // guarantees the first 2 characters, when base58 encoded, are "n1"
-        // base58Prefixes[PUBKEY_ADDRESS]     = {0x19,0x57};
-        // // guarantees the first 2 characters, when base58 encoded, are "nx"
-        // base58Prefixes[SCRIPT_ADDRESS]     = {0x19,0xE0};
-        // // the first character, when base58 encoded, is "9" or "c" (as in Bitcoin)
-        // base58Prefixes[SECRET_KEY]         = {0xEF};
-        // // do not rely on these BIP32 prefixes; they are not specified and may change
-        // base58Prefixes[EXT_PUBLIC_KEY]     = {0x04,0x35,0x87,0xCF};
-        // base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x35,0x83,0x94};
-        // // guarantees the first 2 characters, when base58 encoded, are "zz"
-        // base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xC0};
-        // // guarantees the first 2 characters, when base58 encoded, are "ST"
-        // base58Prefixes[ZCSPENDING_KEY]     = {0xAC,0x08};
-
 
         // guarantees the first 2 characters, when base58 encoded, are "tm"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1D,0x25};
@@ -238,8 +225,6 @@ public:
         base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xB6};
         // guarantees the first 2 characters, when base58 encoded, are "ST"
         base58Prefixes[ZCSPENDING_KEY]     = {0xAC,0x08};
-
-
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
 
@@ -258,7 +243,7 @@ public:
             0
         };
 
-        nForkStartHeight = 7;
+        nForkStartHeight = 2;
         nForkHeightRange = 36;
         zUtxoMiningStartBlock = 25;
     }
@@ -280,12 +265,9 @@ public:
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
         consensus.powLimit = uint256S("0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f");
-        // consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.prePowLimit = consensus.powLimit;
-        // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 0; // Turn off adjustment down
         consensus.nPowMaxAdjustUp = 0; // Turn off adjustment up
-        const char* pszTimestamp = "Zclassic860413afe207aa173afee4fcfa9166dc745651c754a41ea8f155646f5aa828ac";
 
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
         consensus.nMinerConfirmationWindow = 144; // Faster than normal for regtest (144 instead of 2016)
@@ -299,6 +281,7 @@ public:
         pchMessageStart[3] = 0x5f;
         nMaxTipAge = 24 * 60 * 60;
 
+        
         const size_t N = 48, K = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         nEquihashN = N;
