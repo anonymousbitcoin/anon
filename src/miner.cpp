@@ -218,7 +218,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
 
     // Largest block you're willing to create:
-    unsigned int nBlockMaxSize = (unsigned int)(MAX_BLOCK_SIZE) + 1000000;
+    unsigned int nBlockMaxSize = (unsigned int)(MAX_BLOCK_SIZE) + 4000000;
 
     uint64_t nBlockTotalAmount = 0;
     uint64_t nBlockSize = 0;

@@ -39,8 +39,9 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
-        consensus.prePowLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.prePowLimit = uint256S("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9");
+        // consensus.powLimit = uint256S("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9");
+        consensus.powLimit = uint256S("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff9");
         consensus.nPowAveragingWindow = 2016; //diffuculty adjusts every 2 weeks
         // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
@@ -242,7 +243,7 @@ public:
             0
         };
 
-        nForkStartHeight = 7;
+        nForkStartHeight = 2;
         nForkHeightRange = 36;
         zUtxoMiningStartBlock = 25;
     }
