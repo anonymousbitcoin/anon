@@ -64,7 +64,6 @@ private:
         fileout.fclose();
 
         LogPrintf("Written info to %s  %dms\n", strFilename, GetTimeMillis() - nStart);
-        // LogPrintf("     %s\n", objToSave.ToString());
 
         return true;
     }

@@ -3634,7 +3634,6 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
 {
     // Preliminary checks
     auto verifier = libzcash::ProofVerifier::Disabled();
-    LogPrintf("Right before chainActiveL: \n"); 
     // LogPrintf("Is blocked forked?: %d\n" ,isForkBlock(chainActive.Tip()->nHeight + 1));
     // LogPrintf("nHeight: %d\n" ,chainActive.Tip()->nHeight);
     bool checked = CheckBlock(*pblock, state, verifier, true, true, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
