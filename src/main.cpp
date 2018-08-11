@@ -2742,13 +2742,10 @@ bool static ConnectTip(CValidationState &state, CBlockIndex *pindexNew, CBlock *
         CCoinsViewCache view(pcoinsTip);
         LogPrintf("pindexNew->nHeight: %d\n", pindexNew->nHeight);
         if(pindexNew->nHeight == 1){
-            LogPrintf("111!!111111\n");
             rv = ConnectBlock(*pblock, state, pindexNew, view, false);
         } else {
-            LogPrintf("2222222222\n");
             rv = ConnectBlock(*pblock, state, pindexNew, view, false, isForkBlock(pindexNew->nHeight));
         }
-        LogPrintf("Beofer bool:\n");
         GetMainSignals().BlockChecked(*pblock, state);
         if (!rv) {
             if (state.IsInvalid())
