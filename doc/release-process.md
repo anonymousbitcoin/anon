@@ -1,4 +1,3 @@
-# Copyright (c) 2018 ANON Core developers
 Release Process
 ====================
 Meta: There should always be a single release engineer to disambiguate responsibility.

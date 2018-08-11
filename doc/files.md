@@ -1,4 +1,3 @@
-# Copyright (c) 2018 ANON Core developers
 * anon.conf: contains configuration settings for anond
 * anond.pid: stores the process id of anond while running
 * blocks/blk000??.dat: block data (custom, 128 MiB per file)

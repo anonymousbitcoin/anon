@@ -1,4 +1,3 @@
-#Copyright (c) 2017-2018 The ANON developers
 <!--- Remove text and sections that do not apply -->
 
 This issue tracker is only for technical issues related to anond.

@@ -1,4 +1,3 @@
-# Copyright (c) 2018 ANON Core developers
 ANON utilizes prior work by
 ==================
 
