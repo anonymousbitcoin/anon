@@ -184,6 +184,7 @@ public:
     }
 
     std::string ToString() const;
+    std::string ToStringShort() const;
 };
 
 /** An input of a transaction.  It contains the location of the previous
@@ -229,6 +230,11 @@ public:
     friend bool operator!=(const CTxIn& a, const CTxIn& b)
     {
         return !(a == b);
+    }
+
+    friend bool operator<(const CTxIn& a, const CTxIn& b)
+    {
+        return a.prevout < b.prevout;
     }
 
     std::string ToString() const;
@@ -324,7 +330,7 @@ public:
 
     // Transactions that include a list of JoinSplits are version 2.
     static const int32_t MIN_CURRENT_VERSION = 1;
-    static const int32_t MAX_CURRENT_VERSION = 2;
+    static const int32_t MAX_CURRENT_VERSION = 2;   
 
     static_assert(MIN_CURRENT_VERSION >= MIN_TX_VERSION,
                   "standard rule for tx version should be consistent with network rule");
@@ -446,6 +452,19 @@ struct CMutableTransaction
      * fly, as opposed to GetHash() in CTransaction, which uses a cached result.
      */
     uint256 GetHash() const;
+
+    std::string ToString() const;
+
+    friend bool operator==(const CMutableTransaction& a, const CMutableTransaction& b)
+    {
+        return a.GetHash() == b.GetHash();
+    }
+
+    friend bool operator!=(const CMutableTransaction& a, const CMutableTransaction& b)
+    {
+        return !(a == b);
+    }
+
 };
 
 #endif // BITCOIN_PRIMITIVES_TRANSACTION_H

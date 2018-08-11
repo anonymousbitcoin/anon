@@ -64,6 +64,8 @@ public:
     int64_t PruneAfterHeight() const { return nPruneAfterHeight; }
     unsigned int EquihashN() const { return nEquihashN; }
     unsigned int EquihashK() const { return nEquihashK; }
+
+
     std::string CurrencyUnits() const { return strCurrencyUnits; }
     /** Make miner stop after a block is found. In RPC, don't return until nGenProcLimit blocks are generated */
     bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
@@ -77,9 +79,11 @@ public:
     const Checkpoints::CCheckpointData& Checkpoints() const { return checkpointData; }
     /** Enforce coinbase consensus rule in regtest mode */
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
+    int FulfilledRequestExpireTime() const { return nFulfilledRequestExpireTime; }
 
     uint64_t ForkStartHeight() const { return nForkStartHeight; };
     uint64_t ForkHeightRange() const { return nForkHeightRange; };
+    uint64_t ZUtxoMiningStartBlock() const { return zUtxoMiningStartBlock; };
 protected:
     CChainParams() {}
 
@@ -90,6 +94,7 @@ protected:
     int nDefaultPort = 0;
     long nMaxTipAge = 0;
     uint64_t nPruneAfterHeight = 0;
+
     unsigned int nEquihashN = 0;
     unsigned int nEquihashK = 0;
     std::vector<CDNSSeedData> vSeeds;
@@ -104,10 +109,12 @@ protected:
     bool fMineBlocksOnDemand = false;
     bool fTestnetToBeDeprecatedFieldRPC = false;
     Checkpoints::CCheckpointData checkpointData;
+    int nFulfilledRequestExpireTime;
     std::vector<std::string> vFoundersRewardAddress;
 
     uint64_t nForkStartHeight;
     uint64_t nForkHeightRange;
+    uint64_t zUtxoMiningStartBlock;
 };
 
 /**

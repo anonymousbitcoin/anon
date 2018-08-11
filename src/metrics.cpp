@@ -226,7 +226,7 @@ int printMiningStatus(bool mining)
         lines++;
     } else {
         std::cout << _("You are currently not mining.") << std::endl;
-        std::cout << _("To enable mining, add 'gen=1' to your btcprivate.conf and restart.") << std::endl;
+        std::cout << _("To enable mining, add 'gen=1' to your anon.conf and restart.") << std::endl;
         lines += 2;
     }
     std::cout << std::endl;
@@ -397,7 +397,7 @@ void ThreadShowMetricsScreen()
         std::cout << std::endl;
 
         // Thank you text
-        std::cout << _("Thank you for running a Bitcoin Private node!") << std::endl;
+        std::cout << _("Thank you for running an Anonymous Bitcoin node!") << std::endl;
         std::cout << _("You're strengthening the network and contributing to a social good.") << std::endl;
 
         // Privacy notice text

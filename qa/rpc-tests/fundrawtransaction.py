@@ -401,7 +401,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         mSigObj = self.nodes[2].addmultisigaddress(2, [addr1Obj['pubkey'], addr2Obj['pubkey']])
 
 
-        # send 1.2 BTC to msig addr
+        # send 1.2 ANON to msig addr
         txId = self.nodes[0].sendtoaddress(mSigObj, 1.2);
         self.sync_all()
         self.nodes[1].generate(1)
@@ -460,7 +460,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.sync_all()
 
         # make sure funds are received at node1
-        assert_equal(oldBalance+Decimal('11.10000000'), self.nodes[0].getbalance())
+        assert_equal(oldBalance+Decimal('13.60000000'), self.nodes[0].getbalance())
 
 
 
@@ -469,13 +469,13 @@ class RawTransactionsTest(BitcoinTestFramework):
         ###############################################
 
         #empty node1, send some small coins from node0 to node1
-        self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), self.nodes[1].getbalance(), "", "", True);
+        self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), self.nodes[1].getbalance(), "", "", True)
         self.sync_all()
         self.nodes[0].generate(1)
         self.sync_all()
 
         for i in range(0,20):
-            self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.01);
+            self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.01)
         self.sync_all()
         self.nodes[0].generate(1)
         self.sync_all()
