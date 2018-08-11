@@ -70,7 +70,7 @@ addnode=198.58.124.152
 
 Run:
 ```
-./src/anond
+./src/anond -testnet
 ```
 
 ### Windows
@@ -158,7 +158,7 @@ Install:
 # fetch key
 ./anonutil/fetch-params.sh
 # Run
-./src/anond
+./src/anond -tesnet
 ```
 
 ### Additional notes
