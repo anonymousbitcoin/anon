@@ -1,3 +1,4 @@
+# Copyright (c) 2018 ANON Core developers
 # Block and Transaction Broadcasting With AMQP 1.0 (Experimental Feature)
 
 [AMQP](https://www.amqp.org/) is an enterprise-level message queuing

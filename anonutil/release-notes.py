@@ -1,3 +1,4 @@
+# Copyright (c) 2018 ANON Core developers
 import re, sys, os, os.path
 import subprocess
 import argparse

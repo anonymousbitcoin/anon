@@ -1,3 +1,4 @@
+# Copyright (c) 2018 ANON Core developers
 #!/bin/bash
 #
 # Warning: This deletes tags on "origin", so point that at the right target!

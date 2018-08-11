@@ -1,3 +1,4 @@
+# Copyright (c) 2018 ANON Core developers
 #!/bin/bash
 export CC=gcc-5
 export CXX=g++-5

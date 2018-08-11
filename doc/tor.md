@@ -1,3 +1,4 @@
+# Copyright (c) 2018 ANON Core developers
 *** Warning: Do not assume Tor support does the correct thing in Zcash; better Tor support is a future feature goal. ***
 
 TOR SUPPORT IN ZCASH

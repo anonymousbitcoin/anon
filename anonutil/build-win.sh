@@ -1,3 +1,4 @@
+# Copyright (c) 2018 ANON Core developers
 #!/bin/bash
 HOST=x86_64-w64-mingw32
 CXX=x86_64-w64-mingw32-g++-posix

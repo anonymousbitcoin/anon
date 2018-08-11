@@ -1,3 +1,4 @@
+# Copyright (c) 2018 ANON Core developers
 # Wallet Backup Instructions
 
 ## Overview

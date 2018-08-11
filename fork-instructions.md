@@ -1,4 +1,4 @@
-
+# Copyright (c) 2018 ANON Core developers
 # Instructions to set up a BitcoinPrivate full-node to Mine the Fork
 Linux ONLY, 500GB+ recommended
 

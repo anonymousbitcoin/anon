@@ -1,3 +1,4 @@
+# Copyright (c) 2018 ANON Core developers
 #!/usr/bin/env bash
 
 set -eu -o pipefail
