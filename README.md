@@ -5,6 +5,17 @@ Anonymous Bitcoin
 
 Anonymous Bitcoin is a dual-fork-merge of the Official Bitcoin and Zclassic Blockchains. We have snapshotted both blockchains, and seeded the UTXO's into the ANON blockchain.
 
+
+**Key Features**
+
+Masternodes
+Governance
+Zk-snarks
+Equihash <144,5>
+
+
+
+
 Build
 -----------------
 ### Linux
