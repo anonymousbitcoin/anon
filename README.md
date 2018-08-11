@@ -3,11 +3,7 @@ Anonymous Bitcoin
 
 **Anonymous Bitcoin v1.0.12-1**
 
-P2P Port: 7933
-
-RPC Port: 7932
-
-Anonymous Bitcoin is a fork of Zclassic, merging in a snapshotted UTXO set of Bitcoin.
+Anonymous Bitcoin is a dual-fork-merge of the Official Bitcoin and Zclassic Blockchains. We have snapshotted both blockchains, and seeded the UTXO's into the ANON blockchain.
 
 Build
 -----------------
@@ -153,7 +149,7 @@ Build the latest version of ANON using the instructions below, then follow the [
 About
 --------------
 
-[Anonymous Bitcoin](http://zclassic.org/), like [Zclassic](https://zclassic.org/) and [Zcash](https://z.cash/), is an implementation of the "Zerocash" protocol.
+[Anonymous Bitcoin](https://www.anonymousbitcoin.io/), like [Zclassic](https://zclassic.org/) and [Zcash](https://z.cash/), is an implementation of the "Zerocash" protocol.
 Based on Zclassic's code, it intends to offer a far higher standard of privacy
 through a sophisticated zero-knowledge proving scheme that preserves
 confidentiality of transaction metadata. Technical details are available
@@ -182,21 +178,19 @@ is an automatic deprecation shutdown feature which will halt the node some
 time after this 16 week time period. The automatic feature is based on block
 height and can be explicitly disabled.
 
-Where do I begin?
------------------
-We have a guide for joining the main Anonymous Bitcoin network:
-https://github.com/zcash/zcash/wiki/1.0-User-Guide
 
 ### Need Help?
 
-* See documentation at the [Zcash Wiki](https://github.com/zcash/zcash/wiki) and the [Zclassic Wiki](https://github.com/z-classic/zclassic/wiki)
-  for help and more information.
+* Official Documentation will be released soon
+* Visit the Discord or Telegram servers for help and more information.
+     Discord: https://discord.gg/qtV6AY
+     Telgram: https://t.me/anonymousbitcoin
 
 ### Want to participate in development?
 
 * Code review is welcome!
-* If you want to get to know us join our Discord: https://discord.gg/9xezcaK
-* We have a brief guide for joining the Bitcoin private testnet [here](doc/testnet.md)
+* If you want to get to know us join our Discord: https://discord.gg/qtV6AY
+* We will be released a brief guide for joining the ANON testnet soon!
 
 
 Participation in the Anonymous Bitcoin project is subject to a
