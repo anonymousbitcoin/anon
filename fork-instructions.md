@@ -29,6 +29,6 @@ touch ~/.anon/anon.conf
 
 **Run the daemon**
 ```
-cd ~/BitcoinPrivate
+cd ~/anon
 ./src/anond
 ```
