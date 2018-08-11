@@ -43,7 +43,7 @@ related to the DNS seed operation.
 
 If these expectations cannot be satisfied the operator should discontinue
 providing services and contact the active ANON development team as well as
-creating an issue in the [Anonymous Bitcoin repository]([INSERT_GITHUB_REPO_URL]).
+creating an issue in the [Anonymous Bitcoin repository](https://github.com/anonymousbitcoin/anon/issues).
 
 Behavior outside of these expectations may be reasonable in some
 situations but should be discussed in public in advance.

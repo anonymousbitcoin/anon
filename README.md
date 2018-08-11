@@ -34,7 +34,7 @@ sudo apt-get install \
 Build:
 ```{r, engine='bash'}
 # Checkout
-git clone [INSERT_GITHUB_REPO_URL]
+git clone https://github.com/anonymousbitcoin/anon.git
 cd anon
 # Build
 ./anonutil/build.sh -j$(nproc)
