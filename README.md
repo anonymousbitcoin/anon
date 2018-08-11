@@ -54,8 +54,17 @@ Add following lines to `anon.conf` and be sure to change the rpcpassword:
 rpcuser=anonrpc
 rpcpassword=set-a-password
 rpcallowip=127.0.0.1
+txindex=1
 #addnode=dnsseed.anon.org
 #addnode=dnsseed.anon.co
+addnode=50.116.31.254
+addnode=45.56.70.130
+addnode=69.164.196.203
+addnode=23.239.30.210
+addnode=45.79.6.196
+addnode=66.228.52.134
+addnode=72.14.185.163
+addnode=198.58.124.152
 ```
 
 
