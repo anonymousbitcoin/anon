@@ -17,9 +17,6 @@ Zk-snarks
 
 Equihash <144,5>
 
-2:1 Airdrop to ZCL holders & 1:1 Aidrop to BTC holders
-
-
 
 
 Build
