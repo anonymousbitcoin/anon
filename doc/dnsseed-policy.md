@@ -1,4 +1,3 @@
-# Copyright (c) 2018 ANON Core developers
 Expectations for DNS Seed operators
 ====================================
 

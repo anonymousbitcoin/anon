@@ -1,4 +1,3 @@
-#Copyright (c) 2017-2018 The ANON developers
 # Contributor Code of Conduct
 
 As contributors and maintainers of this project, and in the interest of

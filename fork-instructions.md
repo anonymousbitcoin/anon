@@ -1,5 +1,4 @@
-# Copyright (c) 2018 ANON Core developers
-# Instructions to set up a BitcoinPrivate full-node to Mine the Fork
+# Instructions to set up an ANON full-node to Mine the Fork
 Linux ONLY, 500GB+ recommended
 
 *You will not receive a mining reward if you choose to help mine the fork*

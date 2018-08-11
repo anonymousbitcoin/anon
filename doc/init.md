@@ -1,4 +1,3 @@
-# Copyright (c) 2018 ANON Core developers
 *** Warning: This document has not been updated for Zcash and may be inaccurate. ***
 
 Sample init scripts and service configuration for bitcoind
