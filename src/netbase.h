@@ -154,15 +154,9 @@ class CService : public CNetAddr
         std::vector<unsigned char> GetKey() const;
         std::string ToStringPort() const;
 
-        // DASH
-        // std::string ToString(bool fUseGetnameinfo = true) const;
-        // BTCP
         std::string ToString() const;
         // std::string ToStringPort() const;
 
-        // DASH
-        // std::string ToStringIPPort(bool fUseGetnameinfo = true) const;
-        // BTCP
         std::string ToStringIPPort() const;
 
         CService(const struct in6_addr& ipv6Addr, unsigned short port);
