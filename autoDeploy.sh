@@ -7,7 +7,7 @@ while [ 1 ]; do
 		echo ----------------
         	echo  Killing server
 		echo ----------------
-	        ./src/btcp-cli -testnet stop
+	        ./src/anon-cli -testnet stop
 		echo ----------------
 	        echo Anon repo is not up to date. Updating anon repo...
 		echo ----------------
@@ -15,19 +15,19 @@ while [ 1 ]; do
 		echo ----------------
 	        echo Building anon node
 		echo ----------------
-	        ./btcputil/build.sh -j$(nproc)
+	        ./anonutil/build.sh -j$(nproc)
 		echo ----------------
        		echo Fetching Params
 		echo ----------------
-        	./btcputil/fetch-params.sh
+        	./anonutil/fetch-params.sh
 		echo ----------------
 		echo deleting testnet folder
 		echo ----------------
-		rm -rf ../.btcprivate/testnet4
+		rm -rf ../.anon/testnet4
 		echo ----------------
-        	echo Running BTCP daemon
+        	echo Running ANON daemon
 		echo ----------------
-        	./src/btcpd -testnet -reindex
+        	./src/anond -testnet -reindex
 		echo ----------------
         	echo PROCESS FINISHED
 		echo ----------------

@@ -605,11 +605,7 @@ public:
 class CWallet : public CCryptoKeyStore, public CValidationInterface
 {
 private:
-    // BTCP
     bool SelectCoins(const CAmount& nTargetValue, std::set<std::pair<const CWalletTx*, unsigned int>>& setCoinsRet, CAmount& nValueRet, bool& fOnlyCoinbaseCoinsRet, bool& fNeedCoinbaseCoinsRet, const CCoinControl* coinControl = NULL, AvailableCoinsType nCoinType = ALL_COINS) const;
-    // DASH
-    // bool SelectCoins(const CAmount& nTargetValue, std::set<std::pair<const CWalletTx*, unsigned int>>& setCoinsRet, CAmount& nValueRet, const CCoinControl* coinControl = NULL, AvailableCoinsType nCoinType = ALL_COINS) const;
-
     CWalletDB *pwalletdbEncryption;
 
     //! the current wallet version: clients below this version are not able to load the wallet

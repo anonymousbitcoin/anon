@@ -15,7 +15,6 @@ src/zcash/CreateJoinSplit
 *zcashTest.pk
 *zcashTest.vk
 *zcash-gtest.dSYM
-*btcpd.dSYM
 *test_bitcoin.dSYM
 
 # autoreconf
@@ -122,13 +121,11 @@ contrib/debian/substvars
 
 *.gen
 
-**/btcp-cli.dSYM
 **/zcash-tx.dSYM
 **/zcash/CreateJoinSplit.dSYM
 **/zcash/GenerateParams.dSYM
 **/zcash-tx.dSYM
 **/zcash-gtest.dSYM
-**/btcpd.dSYM/Contents
 **/test_bitcoin.dSYM
 **/anon-cli
 **/anon-cli.dSYM

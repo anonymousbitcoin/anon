@@ -264,7 +264,6 @@ bool ProcessMessages(CNode* pfrom);
  * @param[in]   pto             The node which we are sending messages to.
  */
 
-// BTCP
 bool SendMessages(CNode* pto, bool fSendTrickle);
 
 /** Run an instance of the script checking thread */
