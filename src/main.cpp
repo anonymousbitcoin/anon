@@ -2259,10 +2259,9 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex) {
 };
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck, bool isZUTXO)
-{    LogPrintf("1:");
+{  
     const CChainParams& chainparams = Params();
     AssertLockHeld(cs_main);
-    LogPrintf("2:");
     bool fExpensiveChecks = true;
     if (fCheckpointsEnabled) {
         CBlockIndex *pindexLastCheckpoint = Checkpoints::GetLastCheckpoint(chainparams.Checkpoints());
@@ -2271,14 +2270,12 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             fExpensiveChecks = false;
         }
     }
-    LogPrintf("3:");
     auto verifier = libzcash::ProofVerifier::Strict();
     auto disabledVerifier = libzcash::ProofVerifier::Disabled();
-    LogPrintf("4:");
+
     // Check it again to verify JoinSplit proofs, and in case a previous version let a bad block in
     if (!CheckBlock(block, state, fExpensiveChecks ? verifier : disabledVerifier, !fJustCheck, !fJustCheck, isZUTXO))
         return false;
-    LogPrintf("5:");
     // verify that the view's current state corresponds to the previous block
     uint256 hashPrevBlock = pindex->pprev == NULL ? uint256() : pindex->pprev->GetBlockHash();
     assert(hashPrevBlock == view.GetBestBlock());
@@ -2742,13 +2739,10 @@ bool static ConnectTip(CValidationState &state, CBlockIndex *pindexNew, CBlock *
         CCoinsViewCache view(pcoinsTip);
         LogPrintf("pindexNew->nHeight: %d\n", pindexNew->nHeight);
         if(pindexNew->nHeight == 1){
-            LogPrintf("111!!111111\n");
             rv = ConnectBlock(*pblock, state, pindexNew, view, false);
         } else {
-            LogPrintf("2222222222\n");
             rv = ConnectBlock(*pblock, state, pindexNew, view, false, isForkBlock(pindexNew->nHeight));
         }
-        LogPrintf("Beofer bool:\n");
         GetMainSignals().BlockChecked(*pblock, state);
         if (!rv) {
             if (state.IsInvalid())

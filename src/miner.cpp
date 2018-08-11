@@ -228,7 +228,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     int tCounter = 0;
     //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
 
-    LogPrintf("Size of the block: %d \n", pblock->vtx.size());
     //START MINING Z-ADDRESSES
     if (nHeight >= zUtxoMiningStartBlock) {
         LogPrintf("ANON Miner: switching into z-fork mode\n");
