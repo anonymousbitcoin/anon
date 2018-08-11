@@ -1,3 +1,4 @@
+# Copyright (c) 2018 ANON Core developers
 #!/bin/bash
 ## Usage:
 ##  ./anonutil/build-debian-package.sh

@@ -1,3 +1,5 @@
+# Copyright (c) 2018 ANON Core developers
+# Copyright (c) 2018 Bitcoin Private Core developers
 #!/bin/bash
 export CC=gcc-5
 export CXX=g++-5

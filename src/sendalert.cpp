@@ -1,5 +1,6 @@
 // Copyright (c) 2016 The Zcash developers
 // Copyright (c) 2018 The Anonymous Bitcoin developers
+// Copyright (c) 2017-2018 The Bitcoin Private developers
 // Original code from: https://gist.github.com/laanwj/0e689cfa37b52bcbbb44
 
 /*
@@ -89,7 +90,7 @@ void ThreadSendAlert()
     //  4000 or higher will put the RPC into safe mode
     alert.nPriority     = 1500;
     alert.strComment    = "";
-    alert.strStatusBar  = "Your client is out of date and vulnerable to denial of service. Please update to the most recent version of Anonymous Bitcoin. More info at: https://[INSERT].org/";
+    alert.strStatusBar  = "Your client is out of date and vulnerable to denial of service. Please update to the most recent version of Anonymous Bitcoin. More info at: https://github.com/anonymousbitcoin/anon";
     alert.strRPCError   = alert.strStatusBar;
 
     // Set specific client version/versions here. If setSubVer is empty, no filtering on subver is done:

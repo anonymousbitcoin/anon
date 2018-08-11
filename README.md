@@ -17,9 +17,6 @@ Zk-snarks
 
 Equihash <144,5>
 
-2:1 Airdrop to ZCL holders & 1:1 Aidrop to BTC holders
-
-
 
 
 Build
@@ -37,7 +34,7 @@ sudo apt-get install \
 Build:
 ```{r, engine='bash'}
 # Checkout
-git clone [INSERT_GITHUB_REPO_URL]
+git clone https://github.com/anonymousbitcoin/anon.git
 cd anon
 # Build
 ./anonutil/build.sh -j$(nproc)

@@ -1,7 +1,8 @@
+// Copyright (c) 2018 ANON Core developers
+// Copyright (c) 2017-2018 The Bitcoin Private developers
 // Copyright (c) 2009-2014 The Bitcoin Core developers
 // Copyright (c) 2016-2017 The Zcash developers
 // Copyright (c) 2016-2017 The Zclassic developers
-// Copyright (c) 2017-2018 The Anonymous Bitcoin developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
