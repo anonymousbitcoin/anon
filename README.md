@@ -7,11 +7,17 @@ Anonymous Bitcoin is a dual-fork-merge of the Official Bitcoin and Zclassic Bloc
 
 
 **Key Features**
+----------------
 
 Masternodes
+
 Governance
+
 Zk-snarks
+
 Equihash <144,5>
+
+2:1 Airdrop to ZCL holders & 1:1 Aidrop to BTC holders
 
 
 
