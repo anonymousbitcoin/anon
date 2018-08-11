@@ -3,11 +3,21 @@ Anonymous Bitcoin
 
 **Anonymous Bitcoin v1.0.12-1**
 
-P2P Port: 7933
+Anonymous Bitcoin is a dual-fork-merge of the Official Bitcoin and Zclassic Blockchains. We have snapshotted both blockchains, and seeded the UTXO's into the ANON blockchain.
 
-RPC Port: 7932
 
-Anonymous Bitcoin is a fork of Zclassic, merging in a snapshotted UTXO set of Bitcoin.
+**Key Features**
+----------------
+
+Masternodes
+
+Governance
+
+Zk-snarks
+
+Equihash <144,5>
+
+
 
 Build
 -----------------
@@ -24,7 +34,7 @@ sudo apt-get install \
 Build:
 ```{r, engine='bash'}
 # Checkout
-git clone [INSERT_GITHUB_REPO_URL]
+git clone https://github.com/anonymousbitcoin/anon.git
 cd anon
 # Build
 ./anonutil/build.sh -j$(nproc)
@@ -44,14 +54,23 @@ Add following lines to `anon.conf` and be sure to change the rpcpassword:
 rpcuser=anonrpc
 rpcpassword=set-a-password
 rpcallowip=127.0.0.1
+txindex=1
 #addnode=dnsseed.anon.org
 #addnode=dnsseed.anon.co
+addnode=50.116.31.254
+addnode=45.56.70.130
+addnode=69.164.196.203
+addnode=23.239.30.210
+addnode=45.79.6.196
+addnode=66.228.52.134
+addnode=72.14.185.163
+addnode=198.58.124.152
 ```
 
 
 Run:
 ```
-./src/anond
+./src/anond -testnet
 ```
 
 ### Windows
@@ -139,7 +158,7 @@ Install:
 # fetch key
 ./anonutil/fetch-params.sh
 # Run
-./src/anond
+./src/anond -tesnet
 ```
 
 ### Additional notes
@@ -153,7 +172,7 @@ Build the latest version of ANON using the instructions below, then follow the [
 About
 --------------
 
-[Anonymous Bitcoin](http://zclassic.org/), like [Zclassic](https://zclassic.org/) and [Zcash](https://z.cash/), is an implementation of the "Zerocash" protocol.
+[Anonymous Bitcoin](https://www.anonymousbitcoin.io/), like [Zclassic](https://zclassic.org/) and [Zcash](https://z.cash/), is an implementation of the "Zerocash" protocol.
 Based on Zclassic's code, it intends to offer a far higher standard of privacy
 through a sophisticated zero-knowledge proving scheme that preserves
 confidentiality of transaction metadata. Technical details are available
@@ -182,21 +201,19 @@ is an automatic deprecation shutdown feature which will halt the node some
 time after this 16 week time period. The automatic feature is based on block
 height and can be explicitly disabled.
 
-Where do I begin?
------------------
-We have a guide for joining the main Anonymous Bitcoin network:
-https://github.com/zcash/zcash/wiki/1.0-User-Guide
 
 ### Need Help?
 
-* See documentation at the [Zcash Wiki](https://github.com/zcash/zcash/wiki) and the [Zclassic Wiki](https://github.com/z-classic/zclassic/wiki)
-  for help and more information.
+* Official Documentation will be released soon
+* Visit the Discord or Telegram servers for help and more information.
+     Discord: https://discord.gg/qtV6AY
+     Telgram: https://t.me/anonymousbitcoin
 
 ### Want to participate in development?
 
 * Code review is welcome!
-* If you want to get to know us join our Discord: https://discord.gg/9xezcaK
-* We have a brief guide for joining the Bitcoin private testnet [here](doc/testnet.md)
+* If you want to get to know us join our Discord: https://discord.gg/qtV6AY
+* We will be released a brief guide for joining the ANON testnet soon!
 
 
 Participation in the Anonymous Bitcoin project is subject to a

@@ -103,8 +103,6 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
         // TODO: setup a DNSSeed
-        //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.[INSERT].org"));
-        //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.[INSERT].co"));
 
         // guarantees the first 2 characters, when base58 encoded, are "An"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x05,0x82};
@@ -207,8 +205,6 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        //vSeeds.push_back(CDNSSeedData("[INSERT].org", "dnsseed.testnet.[INSERT].org"));
-        //vSeeds.push_back(CDNSSeedData("[INSERT].co", "dnsseed.testnet1.[INSERT].co"));
 
         // guarantees the first 2 characters, when base58 encoded, are "tA"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xCE};

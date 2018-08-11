@@ -132,11 +132,7 @@ enum
 
 uint256 SignatureHash(const CScript &scriptCode, const CTransaction& txTo, unsigned int nIn, int nHashType, const int forkid=FORKID_NONE);
 
-// DASH
 bool CheckSignatureEncoding_2(const std::vector<unsigned char> &vchSig, unsigned int flags, ScriptError* serror);
-// BTCP
-// bool static CheckSignatureEncoding(const valtype &vchSig, unsigned int flags, ScriptError* serror);
-
 
 class BaseSignatureChecker
 {

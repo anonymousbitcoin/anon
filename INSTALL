@@ -1,5 +1,8 @@
+Copyright (c) 2017-2018 The ANON developers
+Copyright (c) 2017-2018 The Bitcoin Private developers
+
 Building Anonymous Bitcoin
 
-See the Anonymous Bitcoin github wiki ([INSERT_GITHUB_REPO_URL]) for instructions on building anond,
+See the Anonymous Bitcoin github wiki ([https://github.com/anonymousbitcoin/anon]) for instructions on building anond,
 the intended-for-services, no-graphical-interface, reference
 implementation of Anonymous Bitcoin.

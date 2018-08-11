@@ -120,9 +120,7 @@ struct CNodeSignals
 {
     boost::signals2::signal<int ()> GetHeight;
     boost::signals2::signal<bool (CNode*), CombinerAll> ProcessMessages;
-    // DASH
     // boost::signals2::signal<bool (CNode*), CombinerAll> SendMessages;
-    // BTCP
     boost::signals2::signal<bool(CNode*, bool), CombinerAll> SendMessages;
     
     boost::signals2::signal<void (NodeId, const CNode*)> InitializeNode;
@@ -430,9 +428,6 @@ public:
 
     std::vector<unsigned char> vchKeyedNetGroup;
 
-    // DASH
-    // CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNameIn = "", bool fInboundIn = false, bool fNetworkNodeIn = false);
-    // BTCP
     CNode(SOCKET hSocketIn, const CAddress& addrIn, const std::string& addrNameIn = "", bool fInboundIn = false, bool fNetworkNodeIn = false);
     ~CNode();
 
@@ -531,9 +526,6 @@ public:
     {
         {
             LOCK(cs_inventory);
-            // DASH
-            // filterInventoryKnown.insert(inv.hash);
-            // BTCP
             setInventoryKnown.insert(inv);
         }
     }
@@ -542,13 +534,6 @@ public:
     {
         {
             LOCK(cs_inventory);
-            // DASH
-            // if (inv.type == MSG_TX && filterInventoryKnown.contains(inv.hash)) {
-            //     LogPrint("net", "PushInventory --  filtered inv: %s peer=%d\n", inv.ToString(), id);
-            //     return;
-            // }
-            // LogPrint("net", "PushInventory --  inv: %s peer=%d\n", inv.ToString(), id);
-            // BTCP
             if (!setInventoryKnown.count(inv))
                 vInventoryToSend.push_back(inv);
         }
@@ -791,21 +776,16 @@ public:
     static void ClearBanned(); // needed for unit testing
     static bool IsBanned(CNetAddr ip);
     static bool IsBanned(CSubNet subnet);
-    // BTCP
+
     static void Ban(const CNetAddr &ip, int64_t bantimeoffset = 0, bool sinceUnixEpoch = false);
     static void Ban(const CSubNet &subNet, int64_t bantimeoffset = 0, bool sinceUnixEpoch = false);
-    // DASH
-    // static void Ban(const CNetAddr& ip, const BanReason& banReason, int64_t bantimeoffset = 0, bool sinceUnixEpoch = false);
-    // static void Ban(const CSubNet& subNet, const BanReason& banReason, int64_t bantimeoffset = 0, bool sinceUnixEpoch = false);
 
     static bool Unban(const CNetAddr& ip);
     static bool Unban(const CSubNet& ip);
 
-    //  Imported from Dash
     static void GetBanned(banmap_t& banmap);
     static void SetBanned(const banmap_t& banmap);
 
-    // Imported from BTCP
     static void GetBanned(std::map<CSubNet, int64_t>& banmap);
 
     //!check is the banlist has unwritten changes

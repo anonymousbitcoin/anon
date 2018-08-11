@@ -80,7 +80,6 @@ bool CBasicKeyStore::AddWatchOnly(const CScript &dest)
 //     if (ExtractPubKey(dest, pubKey))
 //         mapWatchKeys[pubKey.GetID()] = pubKey;
 //     return true;
-    //BTCP
     LOCK(cs_KeyStore);
     setWatchOnly.insert(dest);
     return true;

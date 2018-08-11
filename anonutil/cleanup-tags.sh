@@ -1,3 +1,5 @@
+# Copyright (c) 2018 ANON Core developers
+# Copyright (c) 2018 Bitcoin Private Core developers
 #!/bin/bash
 #
 # Warning: This deletes tags on "origin", so point that at the right target!
