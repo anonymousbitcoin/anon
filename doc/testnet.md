@@ -25,3 +25,7 @@ powershell -Command ".anond.exe" -testnet -gen
 
 Run start-wallet.bat and the blockchain will begin to be synced. After it is synced it will begin mining blocks. If you don't wish to mine remov the -gen option from the batch file.
 Now that you have your node up you can use `anon-cli.exe` in cmd to make RPC calls to your node (i.e `anon-cli.exe -testnet getinfo`).
+
+#### Other Testnet Info
+p2p port: 33127
+rpc port: 3127
