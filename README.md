@@ -1,3 +1,6 @@
+# Project is currently experimental and in TESTNET phase
+
+
 Anonymous Bitcoin
 ----------------
 
@@ -168,6 +171,11 @@ If you plan to build for windows and linux at the same time, be sure to delete a
 ### Testnet
 
 Build the latest version of ANON using the instructions below, then follow the [testnet guide](doc/testnet.md)
+
+Please note the Tesnet is running on p2p port: 33127
+
+You should take the appropriate measures to open this port on your firewall to allow incoming/outgoing connections on this port. 
+
 
 About
 --------------
