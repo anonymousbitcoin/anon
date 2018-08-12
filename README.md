@@ -214,13 +214,13 @@ height and can be explicitly disabled.
 
 * Official Documentation will be released soon
 * Visit the Discord or Telegram servers for help and more information.
-     Discord: https://discord.gg/qtV6AY
+     Discord: https://discord.gg/ueQv8r
      Telgram: https://t.me/anonymousbitcoin
 
 ### Want to participate in development?
 
 * Code review is welcome!
-* If you want to get to know us join our Discord: https://discord.gg/qtV6AY
+* If you want to get to know us join our Discord: https://discord.gg/ueQv8r
 * We will be released a brief guide for joining the ANON testnet soon!
 
 
