@@ -673,9 +673,7 @@ CMasternode *CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight
 
     uint256 blockHash;
     if (!GetBlockHash(blockHash, nBlockHeight - 10)) {
-        // if (!GetBlockHash()) {
         LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment -- ERROR: GetBlockHash() failed at nBlockHeight %d\n", nBlockHeight - 10);
-        // LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment -- ERROR: GetBlockHash() failed at nBlockHeight %d\n", nBlockHeight - 101);
         return NULL;
     }
     // Look at 1/10 of the oldest nodes (by last payment), calculate their scores and pay the best one
@@ -884,7 +882,6 @@ CMasternode *CMasternodeMan::GetMasternodeByRank(int nRank, int nBlockHeight, in
 
     uint256 blockHash;
     if (!GetBlockHash(blockHash, nBlockHeight))
-    // if (!GetBlockHash())
     {
         LogPrintf("CMasternode::GetMasternodeByRank -- ERROR: GetBlockHash() failed at nBlockHeight %d\n", nBlockHeight);
         return NULL;
