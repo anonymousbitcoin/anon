@@ -63,8 +63,8 @@ public:
         nDefaultPort = 33130;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
-        const size_t N = 144, K = 5;
-        //const size_t N = 200, K = 9;
+        // const size_t N = 144, K = 5;
+        const size_t N = 200, K = 9;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         nEquihashN = N;
         nEquihashK = K;
@@ -239,7 +239,7 @@ public:
 
         nForkStartHeight = 7;
         nForkHeightRange = 1724;
-        zUtxoMiningStartBlock = 1675;
+        zUtxoMiningStartBlock = 8;
     }
 };
 static CTestNetParams testNetParams;
