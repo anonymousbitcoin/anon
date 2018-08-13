@@ -261,7 +261,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             char* transSize = new char[32];
             for (int i = 0; i < 32; i++) {
                 transSize[i] = 0;
-                // LogPrintf("Char: %d\n", transSize[i]);
             }
             //retrieve transaction size
             if (!if_utxo.read(transSize, 32)) {
@@ -276,18 +275,14 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
             for (int i = 0; i < 32; i++) {
                 if (transSize[i] == 48) {
-                    // LogPrintf("inside 0\n");
                     continue;
                 } else if (transSize[i] == 49) {
-                    // LogPrintf("inside 1\n");
                     size += pow(2, 32 - i);
                 } else
                     assert(0 && "Unknown character. String size must be in binary - 0 or 1.");
-                // LogPrintf("Char: %d\n", transSize[i]);
             }
             size = size / 2;
 
-            // LogPrintf("UTXO-SIZE: %d\n", size);
             if (size == 0) {
                 LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: End of UTXO file ? - Strtol failed\n",
                           nHeight, nForkHeight, forkHeightRange);
@@ -314,20 +309,13 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             std::stringstream ss;
             ss << std::hex << std::setfill('0');
             for (int i = 0; i < size; ++i) {
-                // {   LogPrintf("i: %d\n", i);
                 ss << std::setw(2) << (unsigned int)(unsigned char)(rawTransaction[i]);
             }
-            // LogPrintf("Size of the 1st transaction: %d\n", size);
             std::string rawTransactionHex = ss.str();
-            // LogPrintf("Transaction in hex: %s\n", rawTransactionHex);
 
             UniValue hexString = UniValue(rawTransactionHex);
-            // LogPrintf("%s", rawTransactionHex);
 
-            // LogPrintf("BEFORE DECODE\n");
             decoderawtransaction2(*txNew, hexString, false);
-            // LogPrintf("1\n");
-            // assert(0);
 
             CMutableTransaction* txM = new CMutableTransaction(*txNew);
 
@@ -336,13 +324,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             txM->vin.resize(1);
             //No input cuz coinbase
             txM->vin[0].prevout.SetNull();
-            //Just create
             txM->vout.resize(1);
             txM->vout[0].nValue = 0;
-            // txM->vin.clear();
-            // txM->vout.clear();
-            // *txNew->vout[0].scriptPubKey = CScript(pks, pks + pbsize);
-            // LogPrintf("2\n");
 
             unsigned int nTxSize = ::GetSerializeSize(*txM, SER_NETWORK, PROTOCOL_VERSION);
             if (nBlockSize + nTxSize >= nBlockMaxSize) {
@@ -369,7 +352,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             nBlockSigOps += nTxSigOps;
             ++nBlockTx;
             loopCounter++;
-            // LogPrintf("While loop counter: %d\n", loopCounter);
             delete txNew;
             delete txM;
             delete transSize;
@@ -418,7 +400,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
             //Needs ut64 for files? Part of .bin?
             uint64_t amount = bytes2uint64(coin);
-            // LogPrintf("AMOUNT: %ull\n", amount);
             //makes array into string
             unsigned char* pks = (unsigned char*)pubKeyScript.get();
 
@@ -496,10 +477,6 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
 
     // INSTEAD OF CREATING DUMMY TX, CREATE MUTABLE TX
     // Add dummy coinbase tx as first transaction
-
-    // pblock->vtx.push_back(CTransaction());
-    // pblocktemplate->vTxFees.push_back(-1);   // updated at end
-    // pblocktemplate->vTxSigOps.push_back(-1); // updated at end
 
     // Create coinbase tx
     CMutableTransaction txNew;
@@ -731,22 +708,8 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
         LogPrintf("CreateNewBlock -- nBlockHeight %d blockReward %lld txoutMasternode %s txNew %s",
                   nHeight, blockReward, pblock->txoutMasternode.ToString(), txNew.ToString());
 
-        // Create coinbase tx
-        // CMutableTransaction txNew;
-        // txNew.vin.resize(1);
-        // txNew.vin[0].prevout.SetNull();
-        // txNew.vout.resize(1);
-        // txNew.vout[0].scriptPubKey = scriptPubKeyIn;
-        // txNew.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-
-        // Add fees
-        // txNew.vout[0].nValue += nFees;
-        // txNew.vin[0].scriptSig = CScript() << nHeight << OP_0;
-
         // Update block coinbase
-        LogPrintf("Before pblock txNew");
         pblock->vtx[0] = txNew;
-        LogPrintf("After pblock txNew");
         pblocktemplate->vTxFees[0] = -nFees;
         // Randomise nonce
         arith_uint256 nonce = UintToArith256(GetRandHash());

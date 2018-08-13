@@ -112,8 +112,6 @@ bool CMasternode::UpdateFromNewBroadcast(CMasternodeBroadcast &mnb)
         return false;
 
     pubKeyMasternode = mnb.pubKeyMasternode;
-    LogPrintf("UpdateFromNewBroadcast --> A: %s\n", pubKeyMasternode.GetID().ToString());
-    LogPrintf("UpdateFromNewBroadcast --> B: %s\n", activeMasternode.pubKeyMasternode.GetID().ToString());
     sigTime = mnb.sigTime;
     vchSig = mnb.vchSig;
     nProtocolVersion = mnb.nProtocolVersion;
