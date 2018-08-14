@@ -3250,7 +3250,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
                 bool fCheckPOW, bool fCheckMerkleRoot, bool isZUTXO)
 {
     // These are checks that are independent of context.
-    // LogPrintf("isZUTXO inside checkblock: %d\n", isZUTXO);
     // Check that the header is valid (particularly PoW).  This is mostly
     // redundant with the call in AcceptBlockHeader.
     if (!CheckBlockHeader(block, state, fCheckPOW))
@@ -4184,19 +4183,16 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
 
     int nLoaded = 0;
     try {
-        LogPrintf("1\n");
         // This takes over fileIn and calls fclose() on it in the CBufferedFile destructor
         CBufferedFile blkdat(fileIn, 2*MAX_BLOCK_SIZE, MAX_BLOCK_SIZE+8, SER_DISK, CLIENT_VERSION);
         uint64_t nRewind = blkdat.GetPos();
         while (!blkdat.eof()) {
             boost::this_thread::interruption_point();
-            LogPrintf("2\n");
             blkdat.SetPos(nRewind);
             nRewind++; // start one byte further next time, in case of failure
             blkdat.SetLimit(); // remove former limit
             unsigned int nSize = 0;
             try {
-                LogPrintf("3\n");
                 // locate a header
                 unsigned char buf[MESSAGE_START_SIZE];
                 blkdat.FindByte(Params().MessageStart()[0]);
@@ -4213,7 +4209,6 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                 break;
             }
             try {
-                LogPrintf("4\n");
                 // read block
                 uint64_t nBlockPos = blkdat.GetPos();
                 if (dbp)
@@ -4223,7 +4218,6 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                 CBlock block;
                 blkdat >> block;
                 nRewind = blkdat.GetPos();
-                LogPrintf("5\n");
                 // detect out of order blocks, and store them for later
                 uint256 hash = block.GetHash();
                 if (hash != chainparams.GetConsensus().hashGenesisBlock && mapBlockIndex.find(block.hashPrevBlock) == mapBlockIndex.end()) {
@@ -4233,26 +4227,20 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                         mapBlocksUnknownParent.insert(std::make_pair(block.hashPrevBlock, *dbp));
                     continue;
                 }
-                LogPrintf("6\n");
                 // process in case the block isn't known yet
                 if (mapBlockIndex.count(hash) == 0 || (mapBlockIndex[hash]->nStatus & BLOCK_HAVE_DATA) == 0) {
                     CValidationState state;
-                    LogPrintf("6.1\n");
                     if (ProcessNewBlock(state, NULL, &block, true, dbp))
                         nLoaded++;
-                    LogPrintf("6.2\n");
                     if (state.IsError())
                         break;
-                    LogPrintf("6.3\n");
                 } else if (hash != chainparams.GetConsensus().hashGenesisBlock && mapBlockIndex[hash]->nHeight % 1000 == 0) {
                     LogPrintf("Block Import: already had block %s at height %d\n", hash.ToString(), mapBlockIndex[hash]->nHeight);
                 }
-                LogPrintf("7\n");
                 // Recursively process earlier encountered successors of this block
                 deque<uint256> queue;
                 queue.push_back(hash);
                 while (!queue.empty()) {
-                    LogPrintf("8\n");
                     uint256 head = queue.front();
                     queue.pop_front();
                     std::pair<std::multimap<uint256, CDiskBlockPos>::iterator, std::multimap<uint256, CDiskBlockPos>::iterator> range = mapBlocksUnknownParent.equal_range(head);
@@ -4273,7 +4261,6 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                         mapBlocksUnknownParent.erase(it);
                     }
                 }
-                LogPrintf("9\n");
             } catch (const std::exception& e) {
                 LogPrintf("%s: Deserialize or I/O error - %s\n", __func__, e.what());
             }
