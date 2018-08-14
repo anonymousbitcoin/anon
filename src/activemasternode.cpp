@@ -194,7 +194,6 @@ void CActiveMasternode::ManageStateInitial()
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: %s\n", GetStateString(), strNotCapableReason);
         return;
     }
-    LogPrintf("1");
     // Default to REMOTE
     eType = MASTERNODE_REMOTE;
 
@@ -227,7 +226,6 @@ void CActiveMasternode::ManageStateRemote()
     LogPrint("masternode", "CActiveMasternode::ManageStateRemote -- Start status = %s, type = %s, pinger enabled = %d, pubKeyMasternode.GetID() = %s\n", 
              GetStatus(), fPingerEnabled, GetTypeString(), pubKeyMasternode.GetID().ToString());
 
-    LogPrintf("pubkeyMasternode: %s\n", activeMasternode.pubKeyMasternode.GetID().ToString());
 
     mnodeman.CheckMasternode(activeMasternode.pubKeyMasternode);
     masternode_info_t infoMn = mnodeman.GetMasternodeInfo(pubKeyMasternode);
