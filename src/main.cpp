@@ -991,17 +991,14 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
             vJoinSplitNullifiers.insert(nf);
         }
     }
-    // LogPrintf("isZUTXO: %d\n", isZUTXO);
     if (!isZUTXO && tx.IsCoinBase())
     {
         // There should be no joinsplits in a coinbase transaction
         if (tx.vjoinsplit.size() > 0) {
-            LogPrintf("tx.vjoinsplit.size: %d\n", tx.vjoinsplit.size());
             return state.DoS(100, error("CheckTransaction(): coinbase has joinsplits"),
                              REJECT_INVALID, "bad-cb-has-joinsplits");
         }
         if ((tx.vin[0].scriptSig.size() < 2 || tx.vin[0].scriptSig.size() > 100)){
-            LogPrintf("Script size: %s\n", tx.vin[0].scriptSig.size());
             return state.DoS(100, error("CheckTransaction(): coinbase script size"),
                              REJECT_INVALID, "bad-cb-length");
         }
@@ -2039,7 +2036,6 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
                 outs->nVersion = outsBlock.nVersion;
             if (*outs != outsBlock) {
                 string strHex = EncodeHexTx(tx);
-                LogPrintf("Hex transaction: \n%s\n", strHex);
                 fClean = fClean && error("DisconnectBlock(): added transaction mismatch? database corrupted");
                 LogPrintf("Transaction mismatch?: id: %d: Amount: %d; ScriptPubKey: %s\n", i, tx.vout[0].nValue, tx.vout[0].scriptPubKey.ToString());
             }
@@ -2741,7 +2737,7 @@ bool static ConnectTip(CValidationState &state, CBlockIndex *pindexNew, CBlock *
         if(pindexNew->nHeight == 1){
             rv = ConnectBlock(*pblock, state, pindexNew, view, false);
         } else {
-            rv = ConnectBlock(*pblock, state, pindexNew, view, false, isForkBlockHeader(*pblock));
+            rv = ConnectBlock(*pblock, state, pindexNew, view, false, isForkBlock(pindexNew->nHeight));
         }
         GetMainSignals().BlockChecked(*pblock, state);
         if (!rv) {
@@ -3276,7 +3272,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
     // because we receive the wrong transactions for it.
 
     // Size limits
-    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE || (!isForkBlockHeader(block) && ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE )) 
+    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE || (!(chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1)) && ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE )) 
         return state.DoS(100, error("CheckBlock(): size limits failed"),
                          REJECT_INVALID, "bad-blk-length");
 
@@ -3286,7 +3282,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
                          REJECT_INVALID, "bad-cb-missing");
 
     //fork blocks might have up to fork pre-defined value coinbases and nothing else
-    if (isZUTXO || looksLikeForkBlockHeader(block)) {
+    if (looksLikeForkBlockHeader(block)) {
         if (block.vtx.size() > forkCBPerBlock)
             return state.DoS(100, error("CheckBlock(): fork block: too many txns %d > %d coinbase txns", block.vtx.size(), forkCBPerBlock),
                              REJECT_INVALID, "bad-fork-too-many-tx");
@@ -3319,7 +3315,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
     return true;
 }
 
-bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex * const pindexPrev, bool isZUTXO)
+bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex * const pindexPrev)
 {
     const CChainParams& chainParams = Params();
     const Consensus::Params& consensusParams = chainParams.GetConsensus();
@@ -3329,20 +3325,18 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
 
     assert(pindexPrev);
 
-    if(!isZUTXO) {
-        int nHeight = pindexPrev->nHeight+1;
+    int nHeight = pindexPrev->nHeight+1;
 
-        // because we bypass checks using the indicia in the header
-        // we reject any blocks that look like fork blocks but really
-        // are non-fork blocks
-        if(looksLikeForkBlockHeader(block) && !isForkBlock(nHeight))
-            return state.DoS(100, error("%s: non-fork block looks like fork block", __func__),
-                             REJECT_INVALID, "bad-fork-hashreserved");
+    // because we bypass checks using the indicia in the header
+    // we reject any blocks that look like fork blocks but really
+    // are non-fork blocks
+    if(looksLikeForkBlockHeader(block) && !isForkBlock(nHeight))
+        return state.DoS(100, error("%s: non-fork block looks like fork block", __func__),
+                         REJECT_INVALID, "bad-fork-hashreserved");
 
-        if(!looksLikeForkBlockHeader(block) && isForkBlock(nHeight))
-            return state.DoS(100, error("%s: fork block does not look like fork block", __func__),
-                             REJECT_INVALID, "bad-fork-hashreserved");
-    }
+    if(!looksLikeForkBlockHeader(block) && isForkBlock(nHeight))
+        return state.DoS(100, error("%s: fork block does not look like fork block", __func__),
+                         REJECT_INVALID, "bad-fork-hashreserved");
 
     // Check proof of work
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
@@ -3356,8 +3350,6 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
 
     if (fCheckpointsEnabled)
     {
-        int nHeight = pindexPrev->nHeight+1;
-
         // Don't accept any forks from the main chain prior to last checkpoint
         CBlockIndex* pcheckpoint = Checkpoints::GetLastCheckpoint(chainParams.Checkpoints());
         if (pcheckpoint && nHeight < pcheckpoint->nHeight)
@@ -3436,7 +3428,7 @@ bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBloc
             return state.DoS(100, error("%s: prev block invalid", __func__), REJECT_INVALID, "bad-prevblk");
     }
 
-    if (!ContextualCheckBlockHeader(block, state, pindexPrev, isForkBlockHeader(block)))
+    if (!ContextualCheckBlockHeader(block, state, pindexPrev))
         return false;
 
     if (pindex == NULL)
@@ -3630,10 +3622,8 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
 {
     // Preliminary checks
     auto verifier = libzcash::ProofVerifier::Disabled();
-    // LogPrintf("Is blocked forked?: %d\n" ,isForkBlock(chainActive.Tip()->nHeight + 1));
-    // LogPrintf("nHeight: %d\n" ,chainActive.Tip()->nHeight);
 
-    bool checked = CheckBlock(*pblock, state, verifier, true, true, isForkBlockHeader(*pblock));
+    bool checked = CheckBlock(*pblock, state, verifier, true, true, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
 
     {
         LOCK(cs_main);
@@ -3645,7 +3635,7 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
 
         // Store to disk
         CBlockIndex *pindex = NULL;
-        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp, isForkBlockHeader(*pblock));
+        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
         if (pindex && pfrom) {
             mapBlockSource[pindex->GetBlockHash()] = pfrom->GetId();
         }
@@ -3678,7 +3668,7 @@ bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex
     auto verifier = libzcash::ProofVerifier::Disabled();
 
     // NOTE: CheckBlockHeader is called by CheckBlock
-    if (!ContextualCheckBlockHeader(block, state, pindexPrev, isZUTXO))
+    if (!ContextualCheckBlockHeader(block, state, pindexPrev))
         return false;
 
     if (!CheckBlock(block, state, verifier, fCheckPOW, fCheckMerkleRoot, isZUTXO))
@@ -4034,8 +4024,7 @@ bool CVerifyDB::VerifyDB(CCoinsView *coinsview, int nCheckLevel, int nCheckDepth
         if (!ReadBlockFromDisk(block, pindex))
             return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         // check level 1: verify block validity
-
-        if (nCheckLevel >= 1 && !CheckBlock(block, state, verifier, true, true, isForkBlockHeader(block))){
+        if (nCheckLevel >= 1 && !CheckBlock(block, state, verifier, true, true, isForkBlock(pindex->nHeight))){
             return error("VerifyDB(): *** found bad block at %d, hash=%s\n", pindex->nHeight, pindex->GetBlockHash().ToString());
         }
         // check level 2: verify undo validity
@@ -4230,7 +4219,7 @@ bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp)
                 // process in case the block isn't known yet
                 if (mapBlockIndex.count(hash) == 0 || (mapBlockIndex[hash]->nStatus & BLOCK_HAVE_DATA) == 0) {
                     CValidationState state;
-                    if (ProcessNewBlock(state, NULL, &block, true, dbp))
+                    if(ProcessNewBlock(state, NULL, &block, true, dbp))
                         nLoaded++;
                     if (state.IsError())
                         break;
