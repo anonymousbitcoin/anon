@@ -191,7 +191,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     const CChainParams& chainparams = Params();
 
     const int nForkHeight = chainparams.ForkStartHeight();
-    const int zUtxoMiningStartBlock = chainparams.ZUtxoMiningStartBlock();
+    const int joinsplitStartBlock = chainparams.joinsplitStartBlock();
     const int nForkHeightRange = chainparams.ForkHeightRange();
     bool isUTXOFileLoadedProperly = false;
 
@@ -230,7 +230,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
 
     //START MINING Z-ADDRESSES
-    if (nHeight >= zUtxoMiningStartBlock) {
+    if (nHeight >= joinsplitStartBlock) {
         LogPrintf("ANON Miner: switching into z-fork mode\n");
         // Add dummy coinbase tx as first transaction
         //Needed for ZK blocks, nValue of ZKtx data returns negative value
@@ -250,7 +250,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         pblocktemplate->vTxSigOps.push_back(-1);
 
         int loopCounter = 0;
-    
+
         while (true) {
             //break if there are no more transactions in the file
             if (if_utxo.eof()) {
@@ -287,7 +287,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 // LogPrintf("Char: %d\n", transSize[i]);
             }
             size = size / 2;
-            
+
             if (size == 1) {
                 LogPrintf("CreateNewForkBlock(): [%u, %u of %u]: All transactions seem to be read properly\n",
                           nHeight, nForkHeight, forkHeightRange);
@@ -436,7 +436,14 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             txNew.vout[0].scriptPubKey = CScript(pks, pks + pbsize);
 
             //coin value
-            txNew.vout[0].nValue = amount;
+            if(nHeight >= zclassicUtxoStartBlock){
+                //double zclassic t-outputs (balance)
+                txNew.vout[0].nValue = amount * 2;
+            } else {
+                //but not bitcoin
+                txNew.vout[0].nValue = amount;
+            }
+
             if (nBlockTx == 0)
                 txNew.vin[0].scriptSig = CScript() << nHeight << CScriptNum(nBlockTx) << ToByteVector(hashPid) << OP_0;
             else
@@ -471,9 +478,9 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 break;
             }
         }
-    }   
+    }
         assert(nBlockTx > 2 && "Error: airdrop block shoudn't have 1 transaction! Perhaps, the utxo file corrupted?");
-        
+
         LogPrintf("CreateNewForkBlock(): [%u, %u of %u]: txns=%u size=%u amount=%u sigops=%u\n",
                   nHeight, nForkHeight, nForkHeightRange, nBlockTx, nBlockSize, nBlockTotalAmount, nBlockSigOps);
 
@@ -490,7 +497,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         LogPrintf("End of createforkblock - size of the block: %d \n", pblock->vtx.size());
         return pblocktemplate.release();
     }
-    
+
 CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
 {
     const CChainParams& chainparams = Params();

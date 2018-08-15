@@ -83,7 +83,7 @@ public:
 
     uint64_t ForkStartHeight() const { return nForkStartHeight; };
     uint64_t ForkHeightRange() const { return nForkHeightRange; };
-    uint64_t ZUtxoMiningStartBlock() const { return zUtxoMiningStartBlock; };
+    uint64_t joinsplitStartBlock() const { return joinsplitStartBlock; };
 protected:
     CChainParams() {}
 
@@ -114,7 +114,7 @@ protected:
 
     uint64_t nForkStartHeight;
     uint64_t nForkHeightRange;
-    uint64_t zUtxoMiningStartBlock;
+    uint64_t joinsplitStartBlock;
 };
 
 /**

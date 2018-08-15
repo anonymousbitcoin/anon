@@ -41,7 +41,7 @@
 
 #include <sstream>
 
-#include <boost/algorithm/string/replace.hpp>   
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/math/distributions/poisson.hpp>
@@ -1544,7 +1544,7 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 bool IsInitialBlockDownload(bool includeFork)
 {
     const CChainParams& chainParams = Params();
-    
+
     if (fImporting || fReindex)
         return true;
     LOCK(cs_main);
@@ -1757,6 +1757,8 @@ int GetSpendHeight(const CCoinsViewCache& inputs)
 namespace Consensus {
 bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, const Consensus::Params& consensusParams)
 {
+        int64_t nForkStartHeight = consensusParams.nForkStartHeight;
+        int64_t nForkHeightRange = consensusParams.nForkHeightRange;
         // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
         // for an attacker to attempt to split the network.
         if (!inputs.HaveInputs(tx))
@@ -1775,6 +1777,14 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
             assert(coins);
 
             if (coins->IsCoinBase()) {
+
+                //If coin burn height is reached, inputs mined during airdrop period is invalid and unspendable
+                //Logic to handle wallet display will be handled elsewhere
+                // if ((coins -> nHeight >= nForkStartHeight && coins -> nHeight <= (nForkStartHeight + nForkHeightRange) && (nSpendHeight > AIRDROP_BURN_HEIGHT))) {
+                //     return state.Invalid(
+                //         error("CheckInputs(): tried to spend burnt coins %d", nSpendHeight - coins->nHeight),
+                //         REJECT_INVALID, "bad-txns-bad-spend-of-burnt-coins");
+                // }
                 // Ensure that coinbases are matured
                 if (nSpendHeight - coins->nHeight < COINBASE_MATURITY) {
                     return state.Invalid(
@@ -2255,7 +2265,7 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex) {
 };
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck, bool isZUTXO)
-{  
+{
     const CChainParams& chainparams = Params();
     AssertLockHeld(cs_main);
     bool fExpensiveChecks = true;
@@ -3272,7 +3282,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
     // because we receive the wrong transactions for it.
 
     // Size limits
-    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE || (!(chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1)) && ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE )) 
+    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE || (!(chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1)) && ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE ))
         return state.DoS(100, error("CheckBlock(): size limits failed"),
                          REJECT_INVALID, "bad-blk-length");
 
@@ -4546,12 +4556,12 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
         return mapBlockIndex.count(inv.hash);
 
 
-    /* 
+    /*
         ANON Related Inventory Messages
 
         --
 
-        We shouldn't update the sync times for each of the messages when we already have it. 
+        We shouldn't update the sync times for each of the messages when we already have it.
         We're going to be asking many nodes upfront for the full inventory list, so we'll get duplicates of these.
         We want to only update the time on new hits, so that we can time out appropriately if needed.
     */
@@ -4566,7 +4576,7 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 
     case MSG_MASTERNODE_PAYMENT_VOTE:
         return mnpayments.mapMasternodePaymentVotes.count(inv.hash);
-// 
+//
     case MSG_MASTERNODE_PAYMENT_BLOCK: {
         BlockMap::iterator mi = mapBlockIndex.find(inv.hash);
         return mi != mapBlockIndex.end() && mnpayments.mapMasternodeBlocks.find(mi->second->nHeight) != mnpayments.mapMasternodeBlocks.end();
