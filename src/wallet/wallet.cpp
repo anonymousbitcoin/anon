@@ -3862,9 +3862,7 @@ void CWallet::GetFilteredNotes(std::vector<CNotePlaintextEntry> & outEntries, st
             }
 
             // skip note which has been spent
-            // LogPrintf("Nullifer: %s\n" , (*nd.nullifier).ToString());
             if (ignoreSpent && nd.nullifier && IsSpent(*nd.nullifier)) {
-                // LogPrintf("This nullifer is spent\n\n");
                 continue;
             }
     
