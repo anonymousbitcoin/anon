@@ -728,7 +728,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
             block = block->pprev;
 
         obj.push_back(Pair("pruneheight",        block->nHeight));
-    }
+    }   
     return obj;
 }
 

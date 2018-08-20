@@ -976,6 +976,15 @@ UniValue getblocksubsidy(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
 
     CAmount nReward = GetBlockSubsidy(nHeight, Params().GetConsensus());
+    // CAmount total = 0;
+    // for(int i = 1; i <= nHeight; i++){
+    //     // LogPrintf("Block: %d", i);
+    //     CAmount result = GetBlockSubsidy(i, Params().GetConsensus());
+    //     total += result / 100000;
+    //     // LogPrintf("\tSubsidy: %d\n", result);
+    // }
+    //  LogPrintf("GRAND TOTAL: %d\n", total / 1000);
+
     CAmount nFoundersReward = 0;
     if ((nHeight > 0) && (nHeight <= Params().GetConsensus().GetLastFoundersRewardBlockHeight())) {
         nFoundersReward = nReward/5;
