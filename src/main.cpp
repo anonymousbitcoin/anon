@@ -1450,6 +1450,13 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex)
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
     CAmount nSubsidy = 50 * COIN;
+    const CChainParams& chainparams = Params();
+    //subsidy should be 0 before and during airdrop
+    if(nHeight <= chainparams.ForkStartHeight() + chainparams.ForkHeightRange()){
+        return 0;
+    }
+    //reset height as if airdrop blocks didn't exist
+    nHeight -= chainparams.ForkStartHeight() + chainparams.ForkHeightRange();
 
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
@@ -1466,20 +1473,15 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
     assert(nHeight > consensusParams.SubsidySlowStartShift());
 
-    int halvingInterval = consensusParams.nSubsidyHalvingInterval;
-    if(isForkEnabled(nHeight)) {
-        halvingInterval >>= 2;
-    }
+    int halvingInterval = consensusParams.nSubsidyHalvingInterval ;
 
     int halvings = (nHeight - consensusParams.SubsidySlowStartShift()) / halvingInterval;
-    if(isForkEnabled(nHeight))
-        halvings += 2;
 
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 64)
         return 0;
 
-    // Subsidy is cut in half every 105,000 blocks which will occur approximately every 2 years.
+    // Subsidy is cut in half every 134,000 blocks which will occur approximately every 2.5 years.
     nSubsidy >>= halvings;
     return nSubsidy;
 }
@@ -1780,11 +1782,11 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 
                 //If coin burn height is reached, inputs mined during airdrop period is invalid and unspendable
                 //Logic to handle wallet display will be handled elsewhere
-                // if ((coins -> nHeight >= nForkStartHeight && coins -> nHeight <= (nForkStartHeight + nForkHeightRange) && (nSpendHeight > AIRDROP_BURN_HEIGHT))) {
-                //     return state.Invalid(
-                //         error("CheckInputs(): tried to spend burnt coins %d", nSpendHeight - coins->nHeight),
-                //         REJECT_INVALID, "bad-txns-bad-spend-of-burnt-coins");
-                // }
+                if ((coins -> nHeight > nForkStartHeight && coins -> nHeight <= (nForkStartHeight + nForkHeightRange) && (nSpendHeight > AIRDROP_BURN_HEIGHT))) {
+                    return state.Invalid(
+                        error("CheckInputs(): tried to spend burnt coins %d", nSpendHeight - coins->nHeight),
+                        REJECT_INVALID, "bad-txns-bad-spend-of-burnt-coins");
+                }
                 // Ensure that coinbases are matured
                 if (nSpendHeight - coins->nHeight < COINBASE_MATURITY) {
                     return state.Invalid(

@@ -1735,7 +1735,6 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 
     if (fMasterNode) {
-        LogPrintf("MASTERNODE:\n");
 
         if (!GetArg("-masternodeaddr", "").empty()) {
             // Hot masternode (either local or remote) should get its address in

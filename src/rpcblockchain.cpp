@@ -728,7 +728,10 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
             block = block->pprev;
 
         obj.push_back(Pair("pruneheight",        block->nHeight));
-    }
+    }   
+    uint256 powLimit = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    arith_uint256 bnPowLimit = UintToArith256(powLimit);
+    LogPrintf("bnPowLimit: %d\n", bnPowLimit.GetCompact());
     return obj;
 }
 

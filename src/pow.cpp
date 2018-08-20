@@ -21,6 +21,7 @@
 #include "librustzcash.h"
 #endif // ENABLE_RUST
 
+
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     int nHeight = pindexLast->nHeight + 1;
@@ -97,6 +98,135 @@ unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
 
     return bnNew.GetCompact();
 }
+
+
+
+// unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
+// {
+//     int nHeight = pindexLast->nHeight + 1;
+
+//     unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
+
+//     // Genesis block ???
+//     if (pindexLast == NULL)
+//         return nProofOfWorkLimit;
+
+//     // right at fork
+//     else if(isForkBlock(nHeight))
+//         return nProofOfWorkLimit;
+
+//     int64_t DifficultyAdjustmentInterval =  params.nPowAveragingWindow;
+
+//       if (nHeight % DifficultyAdjustmentInterval != 0)      
+//     {
+//         LogPrintf("Inside nHeight % DifficultyAdjustmentInterval != 0\n");
+//         if (params.fPowAllowMinDifficultyBlocks)
+//         {
+//             // Special difficulty rule for testnet:
+//             // If the new block's timestamp is more than 2* 10 minutes
+//             // then allow mining of a min-difficulty block.
+//             if (pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing*2)
+//                 return nProofOfWorkLimit;
+//             else
+//             {
+//                 // Return the last non-special-min-difficulty-rules-block
+//                 const CBlockIndex* pindex = pindexLast;
+//                 while (pindex->pprev && pindex->nHeight % DifficultyAdjustmentInterval != 0 && pindex->nBits == nProofOfWorkLimit)
+//                     pindex = pindex->pprev;
+//                 return pindex->nBits;
+//             }
+//         }
+//         return pindexLast->nBits;
+//     }
+
+//     // Go back by what we want to be 14 days worth of blocks
+//     int nHeightFirst = pindexLast->nHeight - (DifficultyAdjustmentInterval-1);
+//     assert(nHeightFirst >= 0);
+//     const CBlockIndex* pindexFirst = pindexLast->GetAncestor(nHeightFirst);
+//     assert(pindexFirst);
+//     LogPrintf("Before return CalculateNextWorkRequired\n");
+//     return CalculateNextWorkRequired(pindexLast, pindexFirst->GetBlockTime(), params);
+//     //////////////////////////////////////////////////////////
+
+// }
+
+// unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nFirstBlockTime, const Consensus::Params& params)
+// {   
+//     //for regtest
+//     if (params.fPowNoRetargeting)
+//         return pindexLast->nBits;
+
+//     // Limit adjustment step
+//     LogPrintf("nFirstBlockTime: %d \n", nFirstBlockTime);
+//     LogPrintf("pindexLast->GetBlockTime(): %d \n", pindexLast->GetBlockTime());
+//     int64_t nActualTimespan = pindexLast->GetBlockTime() - nFirstBlockTime;
+//     LogPrintf("nActualTimespan: %d \n", nActualTimespan);
+//     LogPrintf("params.nPowTargetTimespan/4: %d \n", params.nPowTargetTimespan/4);
+//     LogPrintf("params.nPowTargetTimespan*4: %d \n", params.nPowTargetTimespan*4);
+//     if (nActualTimespan < params.nPowTargetTimespan/4){
+//         LogPrintf("1\n");
+//         nActualTimespan = params.nPowTargetTimespan/4;
+//     }
+//     if (nActualTimespan > params.nPowTargetTimespan*4){
+//         LogPrintf("2\n");
+//         nActualTimespan = params.nPowTargetTimespan*4;
+//     }
+
+//     // Retarget
+//     LogPrintf("powLimit: %s\n", params.powLimit.ToString());
+//     LogPrintf("nPowTargetTimespan: %d\n", params.nPowTargetTimespan);
+//     const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
+//     arith_uint256 bnNew;
+//     bnNew.SetCompact(pindexLast->nBits);
+//     LogPrintf("bnNew after initialization with bits of last block: %d\n", bnNew.GetCompact());
+//     LogPrintf("Actual timespan over the last 2016 blocks: %d\n", nActualTimespan);
+//     // bnNew *= nActualTimespan;
+//     bnNew /= 4;
+//     LogPrintf("bnNew after multiplication with actual timespan: %s\n", bnNew.ToString());
+//     // bnNew /= params.nPowTargetTimespan;
+//     LogPrintf("bnNew after division by target timespan: %s\n", bnNew.ToString());
+
+//     if (bnNew > bnPowLimit) {
+//         bnNew = bnPowLimit;
+//         LogPrintf("Went inside if(bnNew > bnPowLimit)\n");
+//         }
+//     LogPrintf("bnNew: %s\n", bnNew.ToString());
+//     LogPrintf("3\n");
+//     return bnNew.GetCompact();
+// }
+
+// unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
+//                                        int64_t nLastBlockTime, int64_t nFirstBlockTime,
+//                                        const Consensus::Params& params, const arith_uint256 bnPowLimit, bool isFork)
+// {
+//     // Limit adjustment step
+//     // Use medians to prevent time-warp attacks
+//     int64_t nActualTimespan = nLastBlockTime - nFirstBlockTime;
+//     LogPrint("pow", "  nActualTimespan = %d  before dampening\n", nActualTimespan);
+//     nActualTimespan = params.AveragingWindowTimespan(isFork) + (nActualTimespan - params.AveragingWindowTimespan(isFork))/4;
+//     LogPrint("pow", "  nActualTimespan = %d  before bounds\n", nActualTimespan);
+
+//     if (nActualTimespan < params.MinActualTimespan(isFork))
+//         nActualTimespan = params.MinActualTimespan(isFork);
+//     if (nActualTimespan > params.MaxActualTimespan(isFork))
+//         nActualTimespan = params.MaxActualTimespan(isFork);
+
+//     // Retarget
+//     arith_uint256 bnNew {bnAvg};
+//     bnNew /= params.AveragingWindowTimespan(isFork);
+//     bnNew *= nActualTimespan;
+
+//     if (bnNew > bnPowLimit)
+//         bnNew = bnPowLimit;
+
+//     /// debug print
+//     LogPrint("pow", "GetNextWorkRequired RETARGET\n");
+//     LogPrint("pow", "params.AveragingWindowTimespan() = %d    nActualTimespan = %d\n", params.AveragingWindowTimespan(), nActualTimespan);
+//     LogPrint("pow", "Current average: %08x  %s\n", bnAvg.GetCompact(), bnAvg.ToString());
+//     LogPrint("pow", "After:  %08x  %s\n", bnNew.GetCompact(), bnNew.ToString());
+
+//     return bnNew.GetCompact();
+// }
 
 bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& params)
 {

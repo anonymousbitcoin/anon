@@ -16,10 +16,18 @@ class CChainParams;
 class uint256;
 class arith_uint256;
 
+
+//BTCP
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params&);
 unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
                                        int64_t nLastBlockTime, int64_t nFirstBlockTime,
                                        const Consensus::Params&, const arith_uint256, bool isFork = false);
+
+// unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params&);
+// unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nFirstBlockTime, const Consensus::Params& params);
+// unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
+//                                        int64_t nLastBlockTime, int64_t nFirstBlockTime,
+//                                        const Consensus::Params&, const arith_uint256, bool isFork = false);
 
 /** Check whether the Equihash solution in a block header is valid */
 bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams&);
