@@ -26,6 +26,12 @@ Build
 -----------------
 ### Linux
 
+Update System:
+```{r, engine='bash'}
+sudo apt-get update
+sudo apt-get upgrade
+```
+
 Get dependencies:
 ```{r, engine='bash'}
 sudo apt-get install \
