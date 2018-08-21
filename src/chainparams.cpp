@@ -204,12 +204,9 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("anon1", "50.116.31.254"));
-        vSeeds.push_back(CDNSSeedData("anon2", "45.56.70.130"));
-        vSeeds.push_back(CDNSSeedData("anon3", "69.164.196.203"));
-        vSeeds.push_back(CDNSSeedData("anon4", "23.239.30.210"));
-        vSeeds.push_back(CDNSSeedData("anon5", "45.79.6.196"));
-        vSeeds.push_back(CDNSSeedData("anon6", "66.228.52.134"));
+        vSeeds.push_back(CDNSSeedData("anon1-testnet", "198.58.103.84"));
+        vSeeds.push_back(CDNSSeedData("anon2-testnet", "50.116.27.226"));
+        vSeeds.push_back(CDNSSeedData("anon3-testnet", "198.58.97.186"));
 
         // guarantees the first 2 characters, when base58 encoded, are "tA"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xCE};
