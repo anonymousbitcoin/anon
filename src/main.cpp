@@ -41,7 +41,7 @@
 
 #include <sstream>
 
-#include <boost/algorithm/string/replace.hpp>   
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/math/distributions/poisson.hpp>
@@ -1546,7 +1546,7 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 bool IsInitialBlockDownload(bool includeFork)
 {
     const CChainParams& chainParams = Params();
-    
+
     if (fImporting || fReindex)
         return true;
     LOCK(cs_main);
@@ -1759,6 +1759,8 @@ int GetSpendHeight(const CCoinsViewCache& inputs)
 namespace Consensus {
 bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, const Consensus::Params& consensusParams)
 {
+        int64_t nForkStartHeight = consensusParams.nForkStartHeight;
+        int64_t nForkHeightRange = consensusParams.nForkHeightRange;
         // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
         // for an attacker to attempt to split the network.
         if (!inputs.HaveInputs(tx))
@@ -1777,6 +1779,14 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
             assert(coins);
 
             if (coins->IsCoinBase()) {
+
+                //If coin burn height is reached, inputs mined during airdrop period is invalid and unspendable
+                //Logic to handle wallet display will be handled elsewhere
+                if ((coins -> nHeight > nForkStartHeight && coins -> nHeight <= (nForkStartHeight + nForkHeightRange) && (nSpendHeight > AIRDROP_BURN_HEIGHT))) {
+                    return state.Invalid(
+                        error("CheckInputs(): tried to spend burnt coins %d", nSpendHeight - coins->nHeight),
+                        REJECT_INVALID, "bad-txns-bad-spend-of-burnt-coins");
+                }
                 // Ensure that coinbases are matured
                 if (nSpendHeight - coins->nHeight < COINBASE_MATURITY) {
                     return state.Invalid(
@@ -2257,7 +2267,7 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex) {
 };
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck, bool isZUTXO)
-{  
+{
     const CChainParams& chainparams = Params();
     AssertLockHeld(cs_main);
     bool fExpensiveChecks = true;
@@ -3284,7 +3294,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
                          REJECT_INVALID, "bad-cb-missing");
 
     //fork blocks might have up to fork pre-defined value coinbases and nothing else
-    if (isZUTXO || looksLikeForkBlockHeader(block)) {
+    if (looksLikeForkBlockHeader(block)) {
         if (block.vtx.size() > forkCBPerBlock)
             return state.DoS(100, error("CheckBlock(): fork block: too many txns %d > %d coinbase txns", block.vtx.size(), forkCBPerBlock),
                              REJECT_INVALID, "bad-fork-too-many-tx");
@@ -3317,7 +3327,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
     return true;
 }
 
-bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex * const pindexPrev, bool isZUTXO)
+bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& state, CBlockIndex * const pindexPrev)
 {
     const CChainParams& chainParams = Params();
     const Consensus::Params& consensusParams = chainParams.GetConsensus();
@@ -3327,20 +3337,19 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
 
     assert(pindexPrev);
 
-    if(!isZUTXO) {
-        int nHeight = pindexPrev->nHeight+1;
+    int nHeight = pindexPrev->nHeight+1;
 
-        // because we bypass checks using the indicia in the header
-        // we reject any blocks that look like fork blocks but really
-        // are non-fork blocks
-        if(looksLikeForkBlockHeader(block) && !isForkBlock(nHeight))
-            return state.DoS(100, error("%s: non-fork block looks like fork block", __func__),
-                            REJECT_INVALID, "bad-fork-hashreserved");
+    // because we bypass checks using the indicia in the header
+    // we reject any blocks that look like fork blocks but really
+    // are non-fork blocks
+    if(looksLikeForkBlockHeader(block) && !isForkBlock(nHeight))
+        return state.DoS(100, error("%s: non-fork block looks like fork block", __func__),
+                        REJECT_INVALID, "bad-fork-hashreserved");
 
-        if(!looksLikeForkBlockHeader(block) && isForkBlock(nHeight))
-            return state.DoS(100, error("%s: fork block does not look like fork block", __func__),
-                            REJECT_INVALID, "bad-fork-hashreserved");
-    }
+    if(!looksLikeForkBlockHeader(block) && isForkBlock(nHeight))
+        return state.DoS(100, error("%s: fork block does not look like fork block", __func__),
+                        REJECT_INVALID, "bad-fork-hashreserved");
+    
     // Check proof of work
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
         return state.DoS(100, error("%s: incorrect proof of work", __func__),
@@ -3353,8 +3362,6 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
 
     if (fCheckpointsEnabled)
     {
-        int nHeight = pindexPrev->nHeight+1;
-
         // Don't accept any forks from the main chain prior to last checkpoint
         CBlockIndex* pcheckpoint = Checkpoints::GetLastCheckpoint(chainParams.Checkpoints());
         if (pcheckpoint && nHeight < pcheckpoint->nHeight)
@@ -3433,7 +3440,7 @@ bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBloc
             return state.DoS(100, error("%s: prev block invalid", __func__), REJECT_INVALID, "bad-prevblk");
     }
 
-    if (!ContextualCheckBlockHeader(block, state, pindexPrev, isForkBlockHeader(block)))
+    if (!ContextualCheckBlockHeader(block, state, pindexPrev))
         return false;
 
     if (pindex == NULL)
@@ -3628,7 +3635,7 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
     // Preliminary checks
     auto verifier = libzcash::ProofVerifier::Disabled();
 
-    bool checked = CheckBlock(*pblock, state, verifier, true, true, isForkBlockHeader(*pblock));
+    bool checked = CheckBlock(*pblock, state, verifier, true, true, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
 
     {
         LOCK(cs_main);
@@ -3640,7 +3647,7 @@ bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool
 
         // Store to disk
         CBlockIndex *pindex = NULL;
-        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp, isForkBlockHeader(*pblock));
+        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
         if (pindex && pfrom) {
             mapBlockSource[pindex->GetBlockHash()] = pfrom->GetId();
         }
@@ -3673,7 +3680,7 @@ bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex
     auto verifier = libzcash::ProofVerifier::Disabled();
 
     // NOTE: CheckBlockHeader is called by CheckBlock
-    if (!ContextualCheckBlockHeader(block, state, pindexPrev, isZUTXO))
+    if (!ContextualCheckBlockHeader(block, state, pindexPrev))
         return false;
 
     if (!CheckBlock(block, state, verifier, fCheckPOW, fCheckMerkleRoot, isZUTXO))
@@ -4551,12 +4558,12 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
         return mapBlockIndex.count(inv.hash);
 
 
-    /* 
+    /*
         ANON Related Inventory Messages
 
         --
 
-        We shouldn't update the sync times for each of the messages when we already have it. 
+        We shouldn't update the sync times for each of the messages when we already have it.
         We're going to be asking many nodes upfront for the full inventory list, so we'll get duplicates of these.
         We want to only update the time on new hits, so that we can time out appropriately if needed.
     */
@@ -4571,7 +4578,7 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 
     case MSG_MASTERNODE_PAYMENT_VOTE:
         return mnpayments.mapMasternodePaymentVotes.count(inv.hash);
-// 
+//
     case MSG_MASTERNODE_PAYMENT_BLOCK: {
         BlockMap::iterator mi = mapBlockIndex.find(inv.hash);
         return mi != mapBlockIndex.end() && mnpayments.mapMasternodeBlocks.find(mi->second->nHeight) != mnpayments.mapMasternodeBlocks.end();
