@@ -107,6 +107,8 @@ BITCOIN_CORE_H = \
   asyncrpcqueue.h \
   base58.h \
   bloom.h \
+  cachemap.h \
+  cachemultimap.h \
   chain.h \
   chainparams.h \
   chainparamsbase.h \
