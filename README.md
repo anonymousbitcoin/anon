@@ -40,7 +40,7 @@ Build:
 git clone https://github.com/anonymousbitcoin/anon.git
 cd anon
 # Build
-./anonutil/build.sh -j$(nproc)
+./anonutil/build.sh 
 # Fetch Zcash ceremony keys
 ./anonutil/fetch-params.sh
 ```
@@ -127,7 +127,7 @@ Note that in WSL, the Anon source code must be somewhere in the default mount fi
 
 ```{r, engine='bash'}
 PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
-./anonutil/build-win.sh -j$(nproc)
+./anonutil/build-win.sh
 ```
 
 5. Installation
