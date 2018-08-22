@@ -174,22 +174,28 @@ void ConnectMetricsScreen()
 int printStats(bool mining)
 {
     // Number of lines that are always displayed
-    int lines = 4;
+    int lines = 5;
 
     int height;
+    int bestHeader;
+    float downloadPercent;
     size_t connections;
     int64_t netsolps;
-    {
+    {   
+        bestHeader = (pindexBestHeader ? pindexBestHeader->nHeight : -1);
         LOCK2(cs_main, cs_vNodes);
         height = chainActive.Height();
+        downloadPercent = ((float)height/(float)bestHeader) * 100.00;
         connections = vNodes.size();
         netsolps = GetNetworkHashPS(120, -1);
     }
     auto localsolps = GetLocalSolPS();
-
-    std::cout << "           " << _("Block height") << " | " << height << std::endl;
+    
+    std::cout << "           " << _("Block height") << " | " << height << " ("<< std::fixed << std::setprecision(2) << downloadPercent << "\%)" <<std::endl;
+    std::cout << "            " << _("Best header") << " | " << bestHeader << std::endl;
     std::cout << "            " << _("Connections") << " | " << connections << std::endl;
     std::cout << "  " << _("Network solution rate") << " | " << netsolps << " Sol/s" << std::endl;
+    
     if (mining && miningTimer.running()) {
         std::cout << "    " << _("Local solution rate") << " | " << strprintf("%.4f Sol/s", localsolps) << std::endl;
         lines++;

@@ -1448,8 +1448,15 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex)
 }
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
-{
+{   
     CAmount nSubsidy = 50 * COIN;
+    const CChainParams& chainparams = Params();
+    //subsidy should be 0 before and during airdrop
+    if(nHeight <= chainparams.ForkStartHeight() + chainparams.ForkHeightRange()){
+        return 0;
+    }
+    //reset height as if airdrop blocks didn't exist
+    nHeight -= chainparams.ForkStartHeight() + chainparams.ForkHeightRange();
 
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
@@ -1466,20 +1473,15 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
     assert(nHeight > consensusParams.SubsidySlowStartShift());
 
-    int halvingInterval = consensusParams.nSubsidyHalvingInterval;
-    if(isForkEnabled(nHeight)) {
-        halvingInterval >>= 2;
-    }
+    int halvingInterval = consensusParams.nSubsidyHalvingInterval ;
 
     int halvings = (nHeight - consensusParams.SubsidySlowStartShift()) / halvingInterval;
-    if(isForkEnabled(nHeight))
-        halvings += 2;
 
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 64)
         return 0;
 
-    // Subsidy is cut in half every 105,000 blocks which will occur approximately every 2 years.
+    // Subsidy is cut in half every 134,000 blocks which will occur approximately every 2.5 years.
     nSubsidy >>= halvings;
     return nSubsidy;
 }
@@ -2738,7 +2740,7 @@ bool static ConnectTip(CValidationState &state, CBlockIndex *pindexNew, CBlock *
             rv = ConnectBlock(*pblock, state, pindexNew, view, false);
         } else {
             rv = ConnectBlock(*pblock, state, pindexNew, view, false, isForkBlockHeader(*pblock));
-        }
+            }
         GetMainSignals().BlockChecked(*pblock, state);
         if (!rv) {
             if (state.IsInvalid())
@@ -3272,7 +3274,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state,
     // because we receive the wrong transactions for it.
 
     // Size limits
-    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE || (!isForkBlockHeader(block) && ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE )) 
+    if (block.vtx.empty() || block.vtx.size() > MAX_BLOCK_SIZE || (!isForkBlockHeader(block) && ::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE ))
         return state.DoS(100, error("CheckBlock(): size limits failed"),
                          REJECT_INVALID, "bad-blk-length");
 
@@ -3333,13 +3335,12 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         // are non-fork blocks
         if(looksLikeForkBlockHeader(block) && !isForkBlock(nHeight))
             return state.DoS(100, error("%s: non-fork block looks like fork block", __func__),
-                             REJECT_INVALID, "bad-fork-hashreserved");
+                            REJECT_INVALID, "bad-fork-hashreserved");
 
         if(!looksLikeForkBlockHeader(block) && isForkBlock(nHeight))
             return state.DoS(100, error("%s: fork block does not look like fork block", __func__),
-                             REJECT_INVALID, "bad-fork-hashreserved");
+                            REJECT_INVALID, "bad-fork-hashreserved");
     }
-
     // Check proof of work
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
         return state.DoS(100, error("%s: incorrect proof of work", __func__),
@@ -4028,7 +4029,6 @@ bool CVerifyDB::VerifyDB(CCoinsView *coinsview, int nCheckLevel, int nCheckDepth
         if (!ReadBlockFromDisk(block, pindex))
             return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         // check level 1: verify block validity
-
         if (nCheckLevel >= 1 && !CheckBlock(block, state, verifier, true, true, isForkBlockHeader(block))){
             return error("VerifyDB(): *** found bad block at %d, hash=%s\n", pindex->nHeight, pindex->GetBlockHash().ToString());
         }
