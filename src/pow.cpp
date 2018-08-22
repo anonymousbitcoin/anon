@@ -21,7 +21,6 @@
 #include "librustzcash.h"
 #endif // ENABLE_RUST
 
-
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     int nHeight = pindexLast->nHeight + 1;
@@ -39,7 +38,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         return nProofOfWorkLimit;
 
     // right at fork
-    else if(isForkBlock(nHeight))
+    else if(isForkBlock(nHeight) && !isForkBlock(nHeight - params.nPowAveragingWindow))
         return nProofOfWorkLimit;
 
     // right post fork

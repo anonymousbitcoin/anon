@@ -34,19 +34,20 @@ public:
         consensus.fCoinbaseMustBeProtected = true;
 
         //TODO To be decided
-        consensus.nSubsidySlowStartInterval = 1;
-        consensus.nSubsidyHalvingInterval = 134000;
+        // consensus.nSubsidySlowStartInterval = 2;
+        consensus.nSubsidyHalvingInterval = 105000;
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
         consensus.prePowLimit = uint256S("0007ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowAveragingWindow = 17; //diffuculty adjusts every 2 weeks
-        assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
+        consensus.nPowAveragingWindow = 2016; //diffuculty adjusts every 2 weeks
+        // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 10 * 60; // time between blocks (sec)
         consensus.fPowAllowMinDifficultyBlocks = false;
+
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
@@ -63,7 +64,7 @@ public:
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
         const size_t N = 144, K = 5;
-        // const size_t N = 200, K = 9;
+        //const size_t N = 200, K = 9;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         nEquihashN = N;
         nEquihashK = K;
@@ -170,14 +171,14 @@ public:
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
-        consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 
         consensus.prePowLimit = consensus.powLimit;
-        assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
-        consensus.fPowAllowMinDifficultyBlocks = false;
+        // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
+        consensus.fPowAllowMinDifficultyBlocks = true;
 
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
-        consensus.nMinerConfirmationWindow = 17; // nPowTargetTimespan / nPowTargetSpacing
+        consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -190,23 +191,26 @@ public:
         pchMessageStart[3] = 0x38;
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
-        nDefaultPort = 33129;
+        nDefaultPort = 33127;
         nPruneAfterHeight = 1000;
 
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis.nTime = 1534431068;
+        genesis.nTime = 1531350314;
         genesis.nBits = 0x2007ffff;
-        genesis.nNonce = uint256S("0x0000000000000000000000000000000000000000000000000000000000000008");
-        genesis.nSolution = ParseHex("0018f32d1b2232ff3adf1122bcc5702594042f8d23391595140ced5a817ea7c6fc3741b7af1ac31e21d32138ec934ca9635557305610cfb739ad99e38fc11b428faf67bc2e712ddabe356513fd58bea1507ef48306e5d192a7d691f13cc1e190016c4a8ceaf60c39c02cfdc37fee8f6dbcbdd8f32031541f5af783590e9f12988e061620b2f977ae843d13d665e12a26966a9c23d1baf1425ebd29b124b2d44f174e14dbabd9184405f15452920c9c278cf7315e57e02bd10d9df2833c0769403dd6b09ee9deff3a0949f62466ca30b67bf50e3115d2da5e205145ab242a12594eeb0488bfc62e126cab537c0b91193b9fe1cc4f4b9b69292d1d717d25677d42472a65b95ddef7e59170c39a01c598988938e7cabe543959afd3d27500986927718fe2db92c82d4c1388421a64cf4601e4f998bcfa621e8c9d4dca52479c9ef09fc65348f7e62eed33b605af59f5f50c00a2e0aca66ea725af60d47227c26f36cdbfda2390250c319d926437eb717fa626734e7d2356fa1ae4820e0e29bd49fc28b5edbe343479f06bf569f87481461c8a05530807dd9862ea64176a3ac7ee6dfc7aa77d01b18f1a2ccd4e806ca0b0d99364684880ae15495607005066e8b034a1c5d31463bcac1d322fbbfb54f61d6dbc6ff00af58ccb78347096b448e97be11cea4f5a39ee7d48707cd7aee07796cdc2791f400b1f161500d03476ff3e79a9f9f0417efc24954966b53d5d600dbfd528eb4bd1286cd529fcbb5d5bdbdb37dfed6603de990b1ad33363eb67386fe37a8aef34d81c7f87582efe9456f710a7e04516e59b37b532e8a8f7ef520d7666e1ea609fad2cffe6dc58c146726d291e260312290ea6b8b1faf1f871e86626deff2292df3a0a7d12ca1719f74af1faebe063bfbcd15cb1d871f1d42433d15c8aef1bd515905e67155dd0f78e2cffb2bd3f00840c2b9f2cd485bbfab1362b3b033391331ce2fc2fae0194e1df47d7c6ca84f63b2d2c5e206858114f087a3add8edf9b3b25a47263ebc4d9e89da1948bb8272cbed8c4cd2939b257b52ad85bbcb2c3423a8498016029220652ce03ccf8f62a4565c5a37244bcb1cd2743a7181f1acd0f1203e390b3ae2ec95709930ef60c15bc75604ddc18c88692b4352c2e8e5aed7685312c59c6525d70d661d63ab2dbb1c8e6f1111ef56b6606c98f7dea308ffbf66db311e4633f59a59b3d1961263d45a326658581bd20460fe03fa62599d4fe3779198f924fa6e0a69bf39022642e7dd560ed487fd14a1d26f3965e5ef99cff22a416b4a812cdbc1979a7d90b437b9030368b5bb6b9422912adb7f1d6f03685f01bb18a423c387133fec9c26114174ce946dc3b2541261492f95fced30153d7e59d81f50cb5953e6e2b804e9ef71bc9947fdde2fc38d4e154fda2b01e3ab97603bb6257e085f98cd28cb08ac06fae4e5391564ebf071c61f9c1a21d892c84e10e0947a8a0510bf8a9ee0719ad7a46df973b5bc570d73d3d242d01649f00ef1c6015daa4216abf5fc1d4d844cf3cad4841b3a1e60a89438baf523aaedc711497ddb5d5fba55a1e692b21f863d4ae0e55c2d33e83db54c6822509283344460bd509228f18af2710e1a23652a969098f34700dc00df44274495b0312db0a524f4034d355d6fa96687a0cf3ccead268e325c60bd1fcea65739dbf013229fc2e0bedecf1913db8d5b5b2f371701c6932a915980320e932e9219e2ec39719763a74d0e73daa569bbf534c242d0b2c9a593da21aaae57beb2e170eb05e950217e06f84020ed1768bea55028bc6473d4d15b64f01269affefbacf2bc8ecfba3fc5ed64a4262385e33322707ca9abb10bf62f79c9417c1e06bb9ce8b34468b2961d2fbb95e1521f2aa442574f3b5d58073901559");
+        genesis.nNonce = uint256S("0x0000000000000000000000000000000000000000000000000000000000000003");
+        genesis.nSolution = ParseHex("0152b04ab791857d06182362176679efc7937ed3c4116a8ce3bf1d66750c50336048cc842f72591e94181a3eab9020b4dc01e16942cfe2c4e079847b75ad6e269617e2f5d2a12547d8c621d0cbce9e02605a0a3403f9527b798255794efcd2b36ae707fe62dbde55ff04c961ec1b498fe2d374a47d0646fe95cdf3ba85ef0ff740be0e143a476b36b374f4765031799c3b086914acadb84a51b9cbe7a3a42af03df83d481075f54502b34777ba430bb97253c0af8ba1f0114180706f762b7ec9f7cd9d2aa7f5f2f3cb2ac31f17072f789a3742819e40d8e4ab357dfbd50873d02c0599c9d5706f591423e97e9f391b11b72a24fc5d1f2b2f6499bd8f108f876996c7011385b7015983d7262b28f89b2a5b1f38b6e88dc9297b55b7448216787c19bead0f79ec17f5aae4e9d4454ed398c17ffbacb03ce4f6753fbe452cfd174f556b38eed7b4bcdfb0238990cbf4b377038cc88db3d3ab2eb397c77859646472459d971c331671bad3572892df89c552d5541b73c2267d3ccc520ff08d3a63ccf846955e03898e4dccef56d41ae4aa251e19a8221e0cadad4e83942cfdd74a3be1bcc6b70778758b5d93cdfd4e0a808781ffe4883b446b522c1232af94c2e4273fce08a34231ff7ab9fecafe3adf0a88173189975b7cd9fb03693342929ec28dff0cf668da3f51bba8f4b19b6426b686f9e6fe10b8f58bfa12d115edd3a6df539f7851f02c9379ec7d5759fb0519a04a82495b9cb7294d68439355b3f32d49ffa8fc175561620811bf89a6f1131ec16af141e04fb788202d722c589297bbaf751f847d51c7aa66626f15cc0715d7efc138575771c5ed07d9a37838ee13b03380f2237b5f606115c8ed6eb7837f4af0a38962edf78387182bbe0664d107097666b78c42c6a296e04539d6d44d9cd4a628726445b9a2b532594d22269fc91cb19e0249ad8dd01d12876c517246c3655fa57c0bf869140cfc754e4c84234af466435879a6934cdb6c324d5e026a2e67c9b44a73baca64d189f308e676147c7f19166da2e4db9622aac0d8a4077a73b6a736867f59df08fcb0511e0343851fc38415a8ab7e130d6ffa255d6fb944bed45fca0f86cc28db84e883bef7d3dfc3f7170484f96037dc9bf53c63a0ce7f3113499e9cb816241ad3ff16184cf3d810a2d2602ddf62102d7c05cb0abd89f5746465e1c523a76ff83c330e9a24b74d72290681918e99d03cf6f474736e6ada39d4833c604113087517dc6ad4ad6c3855ce47cc28168f1b7748fb1dcf0ee1e5c9df850c8c867b0c45bbf6468396a681116807f45311f5fcdd67327cdfde4815b3659853805b3836d0b95cfc5d407d08729ec66e727c109fda5c1824242eb0a5a4ab8c2fd4bd39b813f3765c9cdab526294c228ebb9323ebba472da0c3135abe3937d70f02a7b4b414cf64b2a0cd70b4e5d8879503dd7692501af91e3773ec6a25a77aa1cfa36ff701782c97a4140546003ff10f787910bfb19d9b17a9c20258fd11c9203c517b460f708efc0c33f659d5c02e111ebb16990a5e73e5ec635e8d8e8574a361574b8e331bdb8a7a0c849152e30f09535f510550c4514621f563d4c00f14796f483e1360a3f170e1bab9d495e973ddcf46d03169a6b57efa3897e8bf24426de755f97792bf7003045a2e0cb3ecf613cfc191df0344421b75cbbc407e0a75e1dfe9bb8b4de147ac9167794437976b7da26608898148120c5363439111d2fb2df8e8d4e50d196b1642d5ffdbe83c5f796891d7a7f8d9e16f9479b175076a535c39640fa1a07fb5b0377629862fdd92fba7090fb905020a8a20804012da9d6a998918a60e4e9b0859f96966119decab0000f30ef22a4216b6bc58f01e43dc2f3a0e211de07d6302f5724bb24c0a5c2050");
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x01064a94d893deab5198592c9a950be8fdbb9ca7e9d512803a4872e176e116fb"));
+        assert(consensus.hashGenesisBlock == uint256S("0x064c5de072fb7106f34f1a0d2f1ef11aecdb2f140ab6dbbf24d93a5124402e6f"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("anon1-testnet", "198.58.103.84"));
-        vSeeds.push_back(CDNSSeedData("anon2-testnet", "50.116.27.226"));
-        vSeeds.push_back(CDNSSeedData("anon3-testnet", "198.58.97.186"));
+        vSeeds.push_back(CDNSSeedData("anon1", "50.116.31.254"));
+        vSeeds.push_back(CDNSSeedData("anon2", "45.56.70.130"));
+        vSeeds.push_back(CDNSSeedData("anon3", "69.164.196.203"));
+        vSeeds.push_back(CDNSSeedData("anon4", "23.239.30.210"));
+        vSeeds.push_back(CDNSSeedData("anon5", "45.79.6.196"));
+        vSeeds.push_back(CDNSSeedData("anon6", "66.228.52.134"));
 
         // guarantees the first 2 characters, when base58 encoded, are "tA"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xCE};
@@ -239,9 +243,9 @@ public:
             0
         };
 
-        nForkStartHeight = 0;
-        nForkHeightRange = 0;
-        zUtxoMiningStartBlock = 0;
+        nForkStartHeight = 7;
+        nForkHeightRange = 1724;
+        zUtxoMiningStartBlock = 1675;
     }
 };
 static CTestNetParams testNetParams;
