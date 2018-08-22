@@ -8,6 +8,9 @@ Anonymous Bitcoin
 
 Anonymous Bitcoin is a dual-fork-merge of the Official Bitcoin and Zclassic Blockchains. We have snapshotted both blockchains, and seeded the UTXO's into the ANON blockchain.
 
+Development Status
+-----------------
+[![Build Status](https://travis-ci.com/ByeBugDevelopment/anon-backup.svg?token=WBBgtRXJbdCRsjxqqhJy&branch=master)](https://travis-ci.com/ByeBugDevelopment/anon-backup)
 
 **Key Features**
 ----------------
@@ -19,8 +22,6 @@ Governance
 Zk-snarks
 
 Equihash <144,5>
-
-
 
 Build
 -----------------
@@ -122,7 +123,7 @@ Note that in WSL, the Anon source code must be somewhere in the default mount fi
 
 ```{r, engine='bash'}
 PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
-./anonutil/build-win.sh -j$(nproc)
+./anonutil/build-win.sh
 ```
 
 5. Installation
