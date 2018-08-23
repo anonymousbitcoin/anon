@@ -2151,7 +2151,7 @@ void PartitionCheck(bool (*initialDownloadCheck)(), CCriticalSection& cs, const 
 VersionBitsCache versionbitscache;
 
 int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
+{   
     LOCK(cs_main);
     int32_t nVersion = VERSIONBITS_TOP_BITS;
 
