@@ -23,6 +23,7 @@
 #include "validationinterface.h"
 #include "masternodeman.h"
 #include "masternode-sync.h"
+#include "masternode-payments.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #endif
