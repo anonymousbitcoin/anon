@@ -21,9 +21,10 @@
 #include "rpcserver.h"
 #include "util.h"
 #include "validationinterface.h"
-#include "masternodeman.cpp"
-#ifdef ENABLE_WALLET
+#include "masternodeman.h"
 #include "masternode-sync.h"
+#include "masternode-payments.h"
+#ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #endif
 
@@ -510,6 +511,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
             "  \"masternode_payments_started\" :  true|false, (boolean) true, if masternode payments started\n"
             "  \"masternode_payments_enforced\" : true|false, (boolean) true, if masternode payments are enforced\n"
             "\nExamples:\n"
+            "}\n"
             + HelpExampleCli("getblocktemplate", "")
             + HelpExampleRpc("getblocktemplate", "")
          );
