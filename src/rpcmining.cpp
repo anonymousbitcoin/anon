@@ -21,8 +21,10 @@
 #include "rpcserver.h"
 #include "util.h"
 #include "validationinterface.h"
+#include "masternodeman.cpp"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
+#include "masternode-sync.h"
 #endif
 
 #include <stdint.h>
@@ -502,8 +504,14 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
             "  \"curtime\" : ttt,                  (numeric) current timestamp in seconds since epoch (Jan 1 1970 GMT)\n"
             "  \"bits\" : \"xxx\",                 (string) compressed target of next block\n"
             "  \"height\" : n                      (numeric) The height of the next block\n"
+            "  \"masternode\" : {                  (json object) required masternode payee that must be included in the next block\n"
+            "      \"payee\" : \"xxxx\",             (string) payee address\n"
+            "      \"script\" : \"xxxx\",            (string) payee scriptPubKey\n"
+            "      \"amount\": n                   (numeric) required amount to pay\n"
+            "  },\n"
+            "  \"masternode_payments_started\" :  true|false, (boolean) true, if masternode payments started\n"
+            "  \"masternode_payments_enforced\" : true|false, (boolean) true, if masternode payments are enforced\n"
             "}\n"
-
             "\nExamples:\n"
             + HelpExampleCli("getblocktemplate", "")
             + HelpExampleRpc("getblocktemplate", "")
@@ -803,10 +811,17 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("curtime", pblock->GetBlockTime()));
     result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
-    result.push_back(Pair("payee_amount", (int64_t)(pindexPrev->nHeight+1))); //change to specific amt of block reward
-    result.push_back(Pair("payee", (int64_t)(pindexPrev->nHeight+1))); //change to MN Payment address
-    result.push_back(Pair("masternode_payments", (int64_t)(pindexPrev->nHeight+1))); //change to winner address?
-    
+    UniValue masternodeObj(UniValue::VOBJ);
+    if(pblock->txoutMasternode != CTxOut()) {
+        CTxDestination address1;
+        ExtractDestination(pblock->txoutMasternode.scriptPubKey, address1);
+        CBitcoinAddress address2(address1);
+        masternodeObj.push_back(Pair("payee", address2.ToString().c_str()));
+        masternodeObj.push_back(Pair("script", HexStr(pblock->txoutMasternode.scriptPubKey.begin(), pblock->txoutMasternode.scriptPubKey.end())));
+        masternodeObj.push_back(Pair("amount", pblock->txoutMasternode.nValue));
+    }
+    result.push_back(Pair("masternode", masternodeObj));
+    result.push_back(Pair("masternode_payments_started", pindexPrev->nHeight + 1 > Params().GetConsensus().nMasternodePaymentsStartBlock));
     return result;
 }
 
@@ -960,13 +975,13 @@ UniValue getblocksubsidy(const UniValue& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "getblocksubsidy height\n"
-            "\nReturns block subsidy reward, taking into account the mining slow start and the founders reward, of block at index provided.\n"
+            "\nReturns block subsidy reward, taking into account the mining slow start and the masternode reward, of block at index provided.\n"
             "\nArguments:\n"
             "1. height         (numeric, optional) The block height.  If not provided, defaults to the current height of the chain.\n"
             "\nResult:\n"
             "{\n"
             "  \"miner\" : x.xxx           (numeric) The mining reward amount in ANON.\n"
-            "  \"founders\" : x.xxx        (numeric) The founders reward amount in ANON - None.\n"
+            "  \"masternode\" : x.xxx        (numeric) The masternode reward amount in ANON - None.\n"
             "}\n"
             "\nExamples:\n"
             + HelpExampleCli("getblocksubsidy", "1000")
@@ -988,13 +1003,15 @@ UniValue getblocksubsidy(const UniValue& params, bool fHelp)
     // }
     //  LogPrintf("GRAND TOTAL: %d\n", total / 1000);
 
-    CAmount nFoundersReward = 0;
-    if ((nHeight > 0) && (nHeight <= Params().GetConsensus().GetLastFoundersRewardBlockHeight())) {
-        nFoundersReward = nReward/5;
-        nReward -= nFoundersReward;
-    }
+    // CAmount nFoundersReward = 0;
+    // if ((nHeight > 0) && (nHeight <= Params().GetConsensus().GetLastFoundersRewardBlockHeight())) {
+    //     nFoundersReward = nReward/5;
+    //     nReward -= nFoundersReward;
+    // }
+    // if (nHeight > 0) 
+    //     masternodeReward = GetMasternodePayment(nHeight, nReward);
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("miner", ValueFromAmount(nReward)));
-    result.push_back(Pair("founders", ValueFromAmount(nFoundersReward)));
+    // result.push_back(Pair("masternode", ValueFromAmount(masternodeReward)));
     return result;
 }
