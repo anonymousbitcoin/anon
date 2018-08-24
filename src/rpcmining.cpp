@@ -803,7 +803,10 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("curtime", pblock->GetBlockTime()));
     result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
-
+    result.push_back(Pair("payee_amount", (int64_t)(pindexPrev->nHeight+1))); //change to populate correct values
+    result.push_back(Pair("payee", (int64_t)(pindexPrev->nHeight+1))); //change to populate correct values
+    result.push_back(Pair("masternode_payments", (int64_t)(pindexPrev->nHeight+1))); //change to populate correct values
+    
     return result;
 }
 
