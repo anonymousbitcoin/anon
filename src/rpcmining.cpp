@@ -21,7 +21,7 @@
 #include "rpcserver.h"
 #include "util.h"
 #include "validationinterface.h"
-#include "masternodeman.cpp"
+#include "masternodeman.h"
 #include "masternode-sync.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
