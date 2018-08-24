@@ -703,7 +703,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
 
         // NOTE: unlike in bitcoin, we need to pass PREVIOUS block height here
         CAmount blockReward = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
-
+        
         // Compute regular coinbase transaction.
         txNew.vout[0].nValue = blockReward;
         txNew.vin[0].scriptSig = CScript() << nHeight << OP_0;

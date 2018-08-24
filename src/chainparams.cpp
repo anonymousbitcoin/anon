@@ -155,7 +155,7 @@ public:
         nForkStartHeight = 20;
         nForkHeightRange = 11671;
         nZtransparentStartBlock = 5152;
-        nZshieldedStartBlock = 5265;
+        nZshieldedStartBlock = 5275;
 
     }
 };
