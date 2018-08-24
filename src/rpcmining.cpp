@@ -22,9 +22,9 @@
 #include "util.h"
 #include "validationinterface.h"
 #include "masternodeman.cpp"
+#include "masternode-sync.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
-#include "masternode-sync.h"
 #endif
 
 #include <stdint.h>
