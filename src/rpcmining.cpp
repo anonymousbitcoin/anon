@@ -21,10 +21,11 @@
 #include "rpcserver.h"
 #include "util.h"
 #include "validationinterface.h"
-#include "masternodeman.cpp"
+#include "masternodeman.h"
+#include "masternode-sync.h"
+#include "masternode-payments.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
-#include "masternode-sync.h"
 #endif
 
 #include <stdint.h>
@@ -503,14 +504,11 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
             "  \"sizelimit\" : n,                  (numeric) limit of block size\n"
             "  \"curtime\" : ttt,                  (numeric) current timestamp in seconds since epoch (Jan 1 1970 GMT)\n"
             "  \"bits\" : \"xxx\",                 (string) compressed target of next block\n"
-            "  \"height\" : n                      (numeric) The height of the next block\n"
-            "  \"masternode\" : {                  (json object) required masternode payee that must be included in the next block\n"
-            "      \"payee\" : \"xxxx\",             (string) payee address\n"
-            "      \"script\" : \"xxxx\",            (string) payee scriptPubKey\n"
-            "      \"amount\": n                   (numeric) required amount to pay\n"
-            "  },\n"
-            "  \"masternode_payments_started\" :  true|false, (boolean) true, if masternode payments started\n"
-            "  \"masternode_payments_enforced\" : true|false, (boolean) true, if masternode payments are enforced\n"
+            "  \"height\" : n,                      (numeric) The height of the next block\n"
+            "  \"payee\" : \"xxxx\",             (string) payee address\n"
+            "  \"script\" : \"xxxx\",            (string) payee scriptPubKey\n"
+            "  \"amount\": n,                    (numeric) required amount to pay\n"
+            "  \"masternode_payments true|false, (boolean) true, if masternode payments are expected for this block\n"
             "}\n"
             "\nExamples:\n"
             + HelpExampleCli("getblocktemplate", "")
@@ -811,17 +809,33 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("curtime", pblock->GetBlockTime()));
     result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
-    UniValue masternodeObj(UniValue::VOBJ);
+
     if(pblock->txoutMasternode != CTxOut()) {
         CTxDestination address1;
         ExtractDestination(pblock->txoutMasternode.scriptPubKey, address1);
         CBitcoinAddress address2(address1);
-        masternodeObj.push_back(Pair("payee", address2.ToString().c_str()));
-        masternodeObj.push_back(Pair("script", HexStr(pblock->txoutMasternode.scriptPubKey.begin(), pblock->txoutMasternode.scriptPubKey.end())));
-        masternodeObj.push_back(Pair("amount", pblock->txoutMasternode.nValue));
+        result.push_back(Pair("payee", address2.ToString().c_str()));
+        result.push_back(Pair("script", HexStr(pblock->txoutMasternode.scriptPubKey.begin(), pblock->txoutMasternode.scriptPubKey.end())));
+        result.push_back(Pair("payee_amount", pblock->txoutMasternode.nValue));
     }
-    result.push_back(Pair("masternode", masternodeObj));
-    result.push_back(Pair("masternode_payments_started", pindexPrev->nHeight + 1 > Params().GetConsensus().nMasternodePaymentsStartBlock));
+    
+    CScript payee;
+    bool isWinner = false;
+    if(mnpayments.GetBlockPayee((int64_t)(pindexPrev->nHeight+1), payee)) {
+        isWinner = true;
+    } else {
+        // no masternode detected...
+        int nCount = 0;
+        CMasternode *winningNode = mnodeman.GetNextMasternodeInQueueForPayment((int64_t)(pindexPrev->nHeight+1), true, nCount);
+        if (!winningNode)
+        {
+            // ...and we can't calculate it on our own
+            LogPrintf("CMasternodePayments::FillBlockPayee -- Failed to detect masternode to pay\n");
+        } else {
+        isWinner = true;
+        }
+      }
+    result.push_back(Pair("masternode_payments", isWinner));
     return result;
 }
 
@@ -1008,7 +1022,7 @@ UniValue getblocksubsidy(const UniValue& params, bool fHelp)
     //     nFoundersReward = nReward/5;
     //     nReward -= nFoundersReward;
     // }
-    // if (nHeight > 0) 
+    // if (nHeight > 0)
     //     masternodeReward = GetMasternodePayment(nHeight, nReward);
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("miner", ValueFromAmount(nReward)));
