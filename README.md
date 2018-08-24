@@ -166,6 +166,9 @@ Install:
 
 If you plan to build for windows and linux at the same time, be sure to delete all the built files for whatever you build first. An easy way to do this is by taking the binaries out of the repo, delete all files except the .git folder and then do a git hard reset.
 
+mainnet p2p port: 33130
+mainnet rpc port: 3130
+
 ### Testnet
 
 Build the latest version of ANON using the instructions below, then follow the [testnet guide](doc/testnet.md)
