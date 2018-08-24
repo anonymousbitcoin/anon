@@ -23,8 +23,8 @@
 #include "validationinterface.h"
 #include "masternodeman.cpp"
 #ifdef ENABLE_WALLET
-#include "wallet/wallet.h"
 #include "masternode-sync.h"
+#include "wallet/wallet.h"
 #endif
 
 #include <stdint.h>
@@ -831,8 +831,9 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
         {
             // ...and we can't calculate it on our own
             LogPrintf("CMasternodePayments::FillBlockPayee -- Failed to detect masternode to pay\n");
-        }
+        } else {
         isWinner = true;
+        }
     }
     result.push_back(Pair("masternode_payments", isWinner));
     return result;
