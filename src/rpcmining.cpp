@@ -817,9 +817,24 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
         result.push_back(Pair("script", HexStr(pblock->txoutMasternode.scriptPubKey.begin(), pblock->txoutMasternode.scriptPubKey.end())));
         result.push_back(Pair("payee_amount", pblock->txoutMasternode.nValue));
     }
-    // result.push_back(Pair("masternode", masternodeObj));
     //fixing this boolean:
     //result.push_back(Pair("masternode_payments", pindexPrev->nHeight + 1 > Params().GetConsensus().nMasternodePaymentsStartBlock));
+    CScript payee;
+    bool isWinner = false;
+    if(mnpayments.GetBlockPayee((int64_t)(pindexPrev->nHeight+1), payee)) {
+        isWinner = true;
+    } else {
+        // no masternode detected...
+        int nCount = 0;
+        CMasternode *winningNode = mnodeman.GetNextMasternodeInQueueForPayment((int64_t)(pindexPrev->nHeight+1), true, nCount);
+        if (!winningNode)
+        {
+            // ...and we can't calculate it on our own
+            LogPrintf("CMasternodePayments::FillBlockPayee -- Failed to detect masternode to pay\n");
+        }
+        isWinner = true;
+    }
+    result.push_back(Pair("masternode_payments", isWinner));
     return result;
 }
 
