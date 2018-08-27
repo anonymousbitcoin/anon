@@ -20,7 +20,9 @@ while [ 1 ]; do
 		./anonutil/fetch-params.sh
 		echo Running ANON daemon
 		./src/anond -testnet -reindex -daemon
+		sleep 10
+		echo Starting Masternodes
+		./src/anon-cli -testnet masternode start-all
 	fi
 	sleep 300
-
 done
