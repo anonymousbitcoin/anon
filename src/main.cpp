@@ -1489,7 +1489,8 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 //ANON
 CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 {
-    CAmount ret = blockValue*0.35; // Masternode should get payed only 35% of the block reward
+    // Masternode should get paid only 35% of the block reward, and Masternode should NOT take any of the miners fee
+    CAmount ret = 0.35 * GetBlockSubsidy(nHeight, Params().GetConsensus());
     int nMNPIBlock = Params().GetConsensus().nMasternodePaymentsIncreaseBlock;
     int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
 
