@@ -22,4 +22,5 @@ while [ 1 ]; do
 		./src/anond -testnet -reindex -daemon
 	fi
 	sleep 300
+
 done

@@ -14,6 +14,7 @@ while [ 1 ]; do
 		git pull origin master
 		sleep 5
 		echo Rebuilding anon node
+		sleep 5
 		./anonutil/build-mac.sh 
 		echo Fetching Params
 		sleep 5
@@ -21,5 +22,5 @@ while [ 1 ]; do
 		echo Running ANON daemon
 		./src/anond -testnet -reindex -daemon
 	fi
-	sleep 300
+	sleep 600
 done
