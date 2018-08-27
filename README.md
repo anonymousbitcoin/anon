@@ -173,7 +173,7 @@ Included in the repo is a bash script that will ensure your node is always up to
 To start the script, run 
 
 ```{r, engine='bash'} 
-sh nodeHealthChecker_<system>.sh
+bash testnetNodeHealthChecker_<system>.sh
 ``` 
 
 where `<system>` is either Mac or Linux. This script can remain running and will constantly check for updates.
@@ -181,7 +181,7 @@ where `<system>` is either Mac or Linux. This script can remain running and will
 To run this script in the background, redirect the output by adding `&> /dev/null` to the end of the command. It should look like this: 
 
 ```{r, engine='bash'} 
-sh testnetNodeHealthChecker_linux.sh &> /dev/null
+bash testnetNodeHealthChecker_linux.sh &> /dev/null
 ``` 
 
 Please note, this script will not behave correctly if:
