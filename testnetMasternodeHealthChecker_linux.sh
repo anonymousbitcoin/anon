@@ -1,5 +1,7 @@
 #!/bin/bash
-
+git fetch --all
+sleep 5
+status=$(git status)
 while [ 1 ]; do
 	git fetch --all
 	sleep 5
@@ -24,10 +26,11 @@ while [ 1 ]; do
 		echo Starting Masternodes
 
         assetid=$(./src/anon-cli -testnet mnsync status | grep "AssetID" | cut -c 14-16) 
-        assetname=$(./src/anon-cli -testnet mnsync status | grep "AssetName")
+        
 
         while [ $assetid != "999" ]; do
             assetid=$(./src/anon-cli -testnet mnsync status | grep "AssetID" | cut -c 14-16)
+            assetname=$(./src/anon-cli -testnet mnsync status | grep "AssetName")
             echo -n MNSYNC in progress
             echo -n . 
             sleep 1
@@ -61,5 +64,5 @@ while [ 1 ]; do
 
         ./src/anon-cli -testnet masternode start-all
 	fi
-	sleep 300
+	sleep 10
 done
