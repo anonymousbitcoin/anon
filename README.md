@@ -190,6 +190,7 @@ Please note, this script will not behave correctly if:
       - You have unstaged commits.
       - You have not followed the documentation correctly and built ANON in different unspecified directories.
       - You do not have ssh-keygen's set up for your git hub.
+      - You ran the incorrect script (Linux or Mac)
 
 Ensure you can `pull` and `fetch` without the username and password prompt.
 
