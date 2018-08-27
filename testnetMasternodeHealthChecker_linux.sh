@@ -6,7 +6,7 @@ while [ 1 ]; do
 	git fetch --all
 	sleep 5
 	status=$(git status)
-	if [[ $status != *"up-to-date"* ]]; then
+	if [[ $status == *"up-to-date"* ]]; then
 		echo Anon up-to-date
 	else
 		echo Stopping ANON Node
