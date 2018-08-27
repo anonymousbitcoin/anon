@@ -166,6 +166,45 @@ Install:
 
 If you plan to build for windows and linux at the same time, be sure to delete all the built files for whatever you build first. An easy way to do this is by taking the binaries out of the repo, delete all files except the .git folder and then do a git hard reset.
 
+### Node Health Checker [TESTNET]
+
+Included in the repo is a bash script that will ensure your node is always up to date with the latest changes on `master` branch. The script automatically checks your `git status` every 5 minutes and will pull and automatically build the latest changes for you automatically.
+
+To start the script, run 
+
+```{r, engine='bash'} 
+sh nodeHealthChecker_<system>.sh
+``` 
+
+where `<system>` is either Mac or Linux. This script can remain running and will constantly check for updates.
+
+To run this script in the background, redirect the output by adding `&> /dev/null` to the end of the command. It should look like this: 
+
+```{r, engine='bash'} 
+sh testnetNodeHealthChecker_linux.sh &> /dev/null
+``` 
+
+Please note, this script will not behave correctly if:
+
+      - You are on the wrong branch.
+      - You have unstaged commits.
+      - You have not followed the documentation correctly and built ANON in different unspecified directories.
+      - You do not have ssh-keygen's set up for your git hub.
+
+Ensure you can `pull` and `fetch` without the username and password prompt.
+
+**To stop the script** check the running processes with:
+
+```{r, engine='bash'} 
+ps | grep testnetNodeHealthChecker
+``` 
+
+Copy the `pid` and enter the following to stop the Health Checker:
+
+```{r, engine='bash'} 
+kill <pid_number>
+``` 
+
 ### Testnet
 
 Build the latest version of ANON using the instructions below, then follow the [testnet guide](doc/testnet.md)
