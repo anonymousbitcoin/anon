@@ -5,7 +5,7 @@ while [ 1 ]; do
 	sleep 5
 	status=$(git status)
 	if [[ $status = *"up-to-date"* ]]; then
-		# echo Anon up-to-date
+	    echo Anon up-to-date
 	else
 		echo Stopping ANON Node
 		./src/anon-cli -testnet stop
@@ -23,7 +23,6 @@ while [ 1 ]; do
 		./src/anond -testnet -reindex -daemon
 		sleep 10
 		echo Starting Masternodes
-        clear
 
         assetid=$(./src/anon-cli -testnet mnsync status | grep "AssetID" | cut -c 14-16) 
         assetname=$(./src/anon-cli -testnet mnsync status | grep "AssetName")
@@ -55,7 +54,6 @@ while [ 1 ]; do
             echo $assetname 
 
             sleep 5	
-            clear
         done
 
         echo Masternode has successfully started with asset id: $assetid.
