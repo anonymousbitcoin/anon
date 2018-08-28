@@ -193,7 +193,7 @@ public:
         pchMessageStart[3] = 0x38;
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
-        nDefaultPort = 33160;
+        nDefaultPort = 33129;
         nPruneAfterHeight = 1000;
 
 
@@ -207,19 +207,16 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("anon1", "50.116.31.254"));
-        vSeeds.push_back(CDNSSeedData("anon2", "45.56.70.130"));
-        vSeeds.push_back(CDNSSeedData("anon3", "69.164.196.203"));
-        vSeeds.push_back(CDNSSeedData("anon4", "23.239.30.210"));
-        vSeeds.push_back(CDNSSeedData("anon5", "45.79.6.196"));
-        vSeeds.push_back(CDNSSeedData("anon6", "66.228.52.134"));
+        vSeeds.push_back(CDNSSeedData("anon1-testnet", "198.58.103.84"));
+        vSeeds.push_back(CDNSSeedData("anon2-testnet", "50.116.27.226"));
+        vSeeds.push_back(CDNSSeedData("anon3-testnet", "198.58.97.186"));
 
         // guarantees the first 2 characters, when base58 encoded, are "tA"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xCE};
         // guarantees the first 2 characters, when base58 encoded, are "t2"
         base58Prefixes[SCRIPT_ADDRESS]     = {0x1C,0xBA};
         // the first character, when base58 encoded, is "9" or "c" (as in Bitcoin)
-        base58Prefixes[SECRET_KEY]         = {0x80};
+        base58Prefixes[SECRET_KEY]         = {0xEF};
         // do not rely on these BIP32 prefixes; they are not specified and may change
         base58Prefixes[EXT_PUBLIC_KEY]     = {0x04,0x35,0x87,0xCF};
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x35,0x83,0x94};

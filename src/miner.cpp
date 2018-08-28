@@ -899,7 +899,7 @@ void static BitcoinMiner()
                         LOCK(cs_vNodes);
                         fvNodesEmpty = vNodes.empty();
                     }
-                    if (!fvNodesEmpty && (fForkMiner || !IsInitialBlockDownload(true)))
+                    if (!fvNodesEmpty && (fForkMiner || !IsInitialBlockDownload(true)) && masternodeSync.IsSynced())
                         break;
                     MilliSleep(1000);
                 } while (true);

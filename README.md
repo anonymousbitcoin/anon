@@ -8,6 +8,9 @@ Anonymous Bitcoin
 
 Anonymous Bitcoin is a dual-fork-merge of the Official Bitcoin and Zclassic Blockchains. We have snapshotted both blockchains, and seeded the UTXO's into the ANON blockchain.
 
+Development Status
+-----------------
+[![Build Status](https://travis-ci.com/ByeBugDevelopment/anon-backup.svg?token=WBBgtRXJbdCRsjxqqhJy&branch=master)](https://travis-ci.com/ByeBugDevelopment/anon-backup)
 
 **Key Features**
 ----------------
@@ -20,11 +23,15 @@ Zk-snarks
 
 Equihash <144,5>
 
-
-
 Build
 -----------------
 ### Linux
+
+Update System:
+```{r, engine='bash'}
+sudo apt-get update
+sudo apt-get upgrade
+```
 
 Get dependencies:
 ```{r, engine='bash'}
@@ -41,6 +48,7 @@ git clone https://github.com/anonymousbitcoin/anon.git
 cd anon
 # Build
 ./anonutil/build.sh -j$(nproc)
+# if this fails. run the same command, instead without the '-j$(nproc)'
 # Fetch Zcash ceremony keys
 ./anonutil/fetch-params.sh
 ```
@@ -58,18 +66,6 @@ rpcuser=anonrpc
 rpcpassword=set-a-password
 rpcallowip=127.0.0.1
 txindex=1
-#addnode=dnsseed.anon.org
-#addnode=dnsseed.anon.co
-addnode=50.116.31.254
-addnode=45.56.70.130
-addnode=69.164.196.203
-addnode=23.239.30.210
-addnode=45.79.6.196
-addnode=66.228.52.134
-addnode=72.14.185.163
-addnode=198.58.124.152
-addnode=85.214.117.160
-addnode=85.214.206.237
 ```
 
 
@@ -127,7 +123,7 @@ Note that in WSL, the Anon source code must be somewhere in the default mount fi
 
 ```{r, engine='bash'}
 PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
-./anonutil/build-win.sh -j$(nproc)
+./anonutil/build-win.sh
 ```
 
 5. Installation
@@ -169,6 +165,51 @@ Install:
 ### Additional notes
 
 If you plan to build for windows and linux at the same time, be sure to delete all the built files for whatever you build first. An easy way to do this is by taking the binaries out of the repo, delete all files except the .git folder and then do a git hard reset.
+
+### Node Health Checker [TESTNET] CURRENTLY IN DEVELOPMENT
+
+Included in the repo is a bash script that will ensure your node is always up to date with the latest changes on `master` branch. The script automatically checks your `git status` every 5 minutes and will pull and automatically build the latest changes for you automatically.
+
+To start the script, run the following for a normal network node:
+
+```{r, engine='bash'} 
+bash nodeUpdaterTestnet.sh
+``` 
+Or the following script for a masternode: 
+
+```{r, engine='bash'} 
+bash MNUpdaterTestnet.sh
+``` 
+
+ This script can remain running and will constantly check for updates.
+
+To run this script in the background, redirect the output by adding `&> /dev/null` to the end of the command. It should look like this: 
+
+```{r, engine='bash'} 
+bash nodeUpdaterTestnet.sh &> /dev/null
+``` 
+
+Please note, this script will not behave correctly if:
+
+      - You are on the wrong branch.
+      - You have unstaged commits.
+      - You have not followed the documentation correctly and built ANON in different unspecified directories.
+      - You do not have ssh-keygen's set up for your git hub.
+      - You ran the incorrect script (Linux or Mac)
+
+Ensure you can `pull` and `fetch` without having to enter your username and password prompt.
+
+**To stop the script** check the running processes with:
+
+```{r, engine='bash'} 
+ps | grep nodeUpdaterTestnet.sh
+``` 
+
+Copy the `pid` and enter the following to stop the Health Checker:
+
+```{r, engine='bash'} 
+kill <pid_number>
+``` 
 
 ### Testnet
 
