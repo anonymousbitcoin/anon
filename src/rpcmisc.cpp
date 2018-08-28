@@ -11,6 +11,7 @@
 #include "netbase.h"
 #include "rpcserver.h"
 #include "timedata.h"
+#include "txmempool.h"
 #include "util.h"
 #ifdef ENABLE_WALLET
 #include "masternode-sync.h"
