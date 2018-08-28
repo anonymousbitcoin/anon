@@ -170,18 +170,23 @@ If you plan to build for windows and linux at the same time, be sure to delete a
 
 Included in the repo is a bash script that will ensure your node is always up to date with the latest changes on `master` branch. The script automatically checks your `git status` every 5 minutes and will pull and automatically build the latest changes for you automatically.
 
-To start the script, run the following:
+To start the script, run the following for a normal network node:
 
 ```{r, engine='bash'} 
-bash testnetMasternodeHealthChecker_<system>.sh
+bash nodeUpdaterTestnet.sh
+``` 
+Or the following script for a masternode: 
+
+```{r, engine='bash'} 
+bash MNUpdaterTestnet.sh
 ``` 
 
-where `<system>` is either Mac or Linux. This script can remain running and will constantly check for updates.
+ This script can remain running and will constantly check for updates.
 
 To run this script in the background, redirect the output by adding `&> /dev/null` to the end of the command. It should look like this: 
 
 ```{r, engine='bash'} 
-bash testnetMasternodeHealthChecker_linux.sh &> /dev/null
+bash nodeUpdaterTestnet.sh &> /dev/null
 ``` 
 
 Please note, this script will not behave correctly if:
@@ -197,7 +202,7 @@ Ensure you can `pull` and `fetch` without having to enter your username and pass
 **To stop the script** check the running processes with:
 
 ```{r, engine='bash'} 
-ps | grep testnetMasternodeHealthChecker
+ps | grep nodeUpdaterTestnet.sh
 ``` 
 
 Copy the `pid` and enter the following to stop the Health Checker:
