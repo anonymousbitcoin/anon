@@ -21,8 +21,8 @@ while [ 1 ]; do
 		echo Running ANON daemon
 		./src/anond -testnet -reindex -daemon
 		sleep 10
-		echo Starting Masternodes
-
+		echo Resetting mnsync   
+        ./src/anon-cli -testnet mnsync reset
         assetid=$(./src/anon-cli -testnet mnsync status | grep "AssetID" | cut -c 14-16) 
         
 
