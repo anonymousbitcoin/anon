@@ -170,7 +170,7 @@ If you plan to build for windows and linux at the same time, be sure to delete a
 
 Included in the repo is a bash script that will ensure your node is always up to date with the latest changes on `master` branch. The script automatically checks your `git status` every 5 minutes and will pull and automatically build the latest changes for you automatically.
 
-To start the script, run 
+To start the script, run the following:
 
 ```{r, engine='bash'} 
 bash testnetNodeHealthChecker_<system>.sh
