@@ -1,12 +1,10 @@
 #!/bin/bash
-git fetch --all
-sleep 5
-status=$(git status)
+
 while [ 1 ]; do
-	git fetch --all
+	git fetch origin
 	sleep 5
 	status=$(git status)
-	if [[ $status == *"up to date"* ]]; then
+	if [[ $status == *"up to date"* ] || [ $status == *"up-to-date"* ]]; then
 		echo Anon up-to-date
 	else
 		echo Stopping ANON Node
@@ -30,29 +28,28 @@ while [ 1 ]; do
 
         while [ $assetid != "999" ]; do
             assetid=$(./src/anon-cli -testnet mnsync status | grep "AssetID" | cut -c 14-16)
-            assetname=$(./src/anon-cli -testnet mnsync status | grep "AssetName")
             echo -n MNSYNC in progress
             echo -n . 
             sleep 1
             echo -n .
             sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo .
-                sleep 1
-
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo .
+            sleep 1
+            assetname=$(./src/anon-cli -testnet mnsync status | grep "AssetName")
             echo $assetname 
             sleep 5	
         done

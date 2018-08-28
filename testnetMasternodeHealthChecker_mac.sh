@@ -34,22 +34,22 @@ while [ 1 ]; do
             sleep 1
             echo -n .
             sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo -n .
-                sleep 1
-                echo .
-                sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo -n .
+            sleep 1
+            echo .
+            sleep 1
 
             echo $assetname 
             sleep 5	
