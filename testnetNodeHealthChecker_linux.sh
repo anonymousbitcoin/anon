@@ -1,10 +1,10 @@
 #!/bin/bash
 
 while [ 1 ]; do
-	git fetch --all
+	git fetch origin
 	sleep 5
 	status=$(git status)
-	if [[ $status = *"up-to-date"* ]]; then
+	if [[ $status = *"up to date"* ]]; then
 		# echo Anon up-to-date
 	else
 		echo Stopping ANON Node
@@ -14,7 +14,7 @@ while [ 1 ]; do
 		git pull origin master
 		sleep 5
 		echo Rebuilding anon node
-		./anonutil/build.sh -j$(nproc)
+		./anonutil/build.sh
 		echo Fetching Params
 		sleep 5
 		./anonutil/fetch-params.sh
