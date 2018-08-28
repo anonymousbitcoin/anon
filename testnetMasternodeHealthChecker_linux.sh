@@ -11,7 +11,7 @@ while [ 1 ]; do
 		./src/anon-cli -testnet stop
 		sleep 5
 		echo Anon repo is not up to date. Updating anon repo...
-		git pull origin feature/node_health_checker
+		git pull origin master
 		sleep 5
 		echo Rebuilding anon node
 		./anonutil/build.sh -j$(nproc)
