@@ -4,7 +4,7 @@ while [ 1 ]; do
 	git fetch --all
 	sleep 5
 	status=$(git status)
-	if [[ $status = *"up-to-date"* ]]; then
+	if [[ $status == *"up-to-date"* ]]; then
 		# echo Anon up-to-date
 	else
 		echo Stopping ANON Node
@@ -21,6 +21,9 @@ while [ 1 ]; do
 		./anonutil/fetch-params.sh
 		echo Running ANON daemon
 		./src/anond -testnet -reindex -daemon
+		sleep 10
+		echo Starting Masternodes
+		./src/anon-cli -testnet masternode start-all
 	fi
 	sleep 600
 done
