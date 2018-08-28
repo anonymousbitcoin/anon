@@ -4,7 +4,7 @@ while [ 1 ]; do
 	git fetch --all
 	sleep 5
 	status=$(git status)
-	if [[ $status == *"up-to-date"* ]]; then
+	if [[ $status == *"up-to-date"* ]] || [[ $status == *"up to date"* ]]; then
 	    echo Anon up-to-date
 	else
 		echo Stopping ANON Node
@@ -15,23 +15,23 @@ while [ 1 ]; do
 		sleep 5
 		echo Rebuilding anon node
 		sleep 5
-		./anonutil/build-mac.sh 
+		make -j ${nproc}
 		echo Fetching Params
 		sleep 5
 		./anonutil/fetch-params.sh
 		echo Running ANON daemon
 		./src/anond -testnet -reindex -daemon
 		sleep 10
-		echo Resetting mnsync   
+		echo Resetting mnsync
         ./src/anon-cli -testnet mnsync reset
 
-        assetid=$(./src/anon-cli -testnet mnsync status | grep "AssetID" | cut -c 14-16) 
+        assetid=$(./src/anon-cli -testnet mnsync status | grep "AssetID" | cut -c 14-16)
         assetname=$(./src/anon-cli -testnet mnsync status | grep "AssetName")
 
         while [ $assetid != "999" ]; do
             assetid=$(./src/anon-cli -testnet mnsync status | grep "AssetID" | cut -c 14-16)
             echo -n MNSYNC in progress
-            echo -n . 
+            echo -n .
             sleep 1
             echo -n .
             sleep 1
@@ -52,8 +52,8 @@ while [ 1 ]; do
             echo .
             sleep 1
 
-            echo $assetname 
-            sleep 5	
+            echo $assetname
+            sleep 5
         done
 
         echo Masternode has successfully started with asset id: $assetid.
@@ -63,5 +63,5 @@ while [ 1 ]; do
 
         ./src/anon-cli -testnet masternode start-all
 	fi
-	sleep 600
+	sleep 30
 done

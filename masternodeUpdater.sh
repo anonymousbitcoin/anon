@@ -4,7 +4,7 @@ while [ 1 ]; do
 	git fetch origin
 	sleep 5
 	status=$(git status)
-	if [[ $status = *"up to date"* ]]; then
+	if [[ $status = *"up to date"* ]] || [[ $status = *"up-to-date"* ]]; then
 		# echo Anon up-to-date
 	else
 		echo Stopping ANON Node
@@ -14,13 +14,14 @@ while [ 1 ]; do
 		git pull origin master
 		sleep 5
 		echo Rebuilding anon node
-		./anonutil/build.sh
+		make -j ${nproc}
 		echo Fetching Params
 		sleep 5
 		./anonutil/fetch-params.sh
 		echo Running ANON daemon
 		./src/anond -testnet -reindex -daemon
+		./src/anon-cli -testnet mnsync reset
 	fi
-	sleep 300
+	sleep 30
 
 done
