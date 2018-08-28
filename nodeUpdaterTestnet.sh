@@ -1,7 +1,7 @@
 #!/bin/bash
 
 while [ 1 ]; do
-	git fetch origin
+	git fetch --all
 	sleep 5
 	status=$(git status)
 	if [[ $status = *"up to date"* ]] || [[ $status = *"up-to-date"* ]]; then

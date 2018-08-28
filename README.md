@@ -166,7 +166,7 @@ Install:
 
 If you plan to build for windows and linux at the same time, be sure to delete all the built files for whatever you build first. An easy way to do this is by taking the binaries out of the repo, delete all files except the .git folder and then do a git hard reset.
 
-### Node Health Checker [TESTNET]
+### Node Health Checker [TESTNET] CURRENTLY IN DEVELOPMENT
 
 Included in the repo is a bash script that will ensure your node is always up to date with the latest changes on `master` branch. The script automatically checks your `git status` every 5 minutes and will pull and automatically build the latest changes for you automatically.
 
