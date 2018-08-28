@@ -305,19 +305,19 @@ void CMasternodeSync::ProcessTick()
             /*
                 Resync if we lost all masternodes from sleep/wake or failed to sync originally
             */
-            //    TEMPORARILY DISABLING THIS FUNCTIONALITY
-            // if (nMnCount == 0)
-            // {
-            //     LogPrintf("CMasternodeSync::ProcessTick -- WARNING: not enough data, restarting sync\n");
-            //     Reset();
-            // }
-            // else
-            // {
+           
+            if (nMnCount == 0)
+            {
+                LogPrintf("CMasternodeSync::ProcessTick -- WARNING: not enough data, restarting sync\n");
+                Reset();
+            }
+            else
+            {
                 std::vector<CNode *> vNodesCopy = CopyNodeVector();
                 governance.RequestGovernanceObjectVotes(vNodesCopy);
                 ReleaseNodeVector(vNodesCopy);
                 return;
-            // }
+            }
         }
 
         //try syncing again
