@@ -192,7 +192,7 @@ Please note, this script will not behave correctly if:
       - You do not have ssh-keygen's set up for your git hub.
       - You ran the incorrect script (Linux or Mac)
 
-Ensure you can `pull` and `fetch` without the username and password prompt.
+Ensure you can `pull` and `fetch` without having to enter your username and password prompt.
 
 **To stop the script** check the running processes with:
 
