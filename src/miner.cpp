@@ -18,6 +18,7 @@
 #include "crypto/equihash.h"
 #endif
 #include "hash.h"
+#include "crypto/sha256.h"
 #include "main.h"
 #include "metrics.h"
 #include "net.h"
@@ -229,9 +230,10 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
 
     int tCounter = 0;
     //while utxo files exists, and the number of tx in the block is less than set man (where is forkCBPerBlock)
-
+    CSHA256 hasher;
     //START MINING Z-ADDRESSES
     if (nHeight >= zShieldedStartBlock) {
+        
         LogPrintf("ANON Miner: switching into z-fork mode\n");
         // Add dummy coinbase tx as first transaction
         //Needed for ZK blocks, nValue of ZKtx data returns negative value
@@ -251,7 +253,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
         pblocktemplate->vTxSigOps.push_back(-1);
 
         int loopCounter = 0;
-    
+
         while (true) {
             //break if there are no more transactions in the file
             if (if_utxo.eof()) {
@@ -270,9 +272,8 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                           nHeight, nForkHeight, forkHeightRange);
                 break;
             }
-
+            
             //convert binary size to int size
-            // int size = stol(transSize, NULL, 2);
             int size = 0;
 
             for (int i = 0; i < 32; i++) {
@@ -290,8 +291,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 break;
             }
 
-            //load transaction (binary)
-            // LogPrintf("Size is: %d\n", size);
             char* rawTransaction = new char[size];
             for (int i = 0; i < size; i++) {
                 rawTransaction[i] = 0;
@@ -300,6 +299,32 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: UTXO file corrupted? - Coudn't read the transaction\n", nHeight, nForkHeight, forkHeightRange);
                 break;
             }
+            
+            hasher.Reset();
+            const unsigned char *unsignedTransSize = reinterpret_cast<unsigned char*>(transSize);
+            const unsigned char *unsignedRawTransaction = reinterpret_cast<unsigned char*>(rawTransaction);
+            hasher.Write(unsignedTransSize, 32);
+            hasher.Write(unsignedRawTransaction, size);
+            uint256 txhash;
+            hasher.Finalize(txhash.begin());
+
+            //read checksum sha256 hash from the file
+            char* checksum = new char[32];
+            if (!if_utxo.read(checksum, 32)) {
+                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Couldn't read the transaction checksum.\n", nHeight, nForkHeight, forkHeightRange);
+                break;
+            }
+            //converting binary raw checksum to hex-string string checksum  10111011111010 => 2EFA
+            std::stringstream cc;
+            cc << std::hex << std::setfill('0');
+            for (int i = 0; i < 32; ++i) {
+                cc << std::setw(2) << (unsigned int)(unsigned char)(checksum[i]);
+            }
+            std::string checksumString = cc.str();
+            uint256 transChecksum = uint256S(checksumString);
+
+            //quit if checksums doesn't match
+            assert(txhash == transChecksum && "Joinsplit checksum doesn't match");
 
             //converting binary raw transaction to hex-string raw transaction  10111011111010 => 2EFA
             std::stringstream ss;
@@ -352,6 +377,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             delete txM;
             delete transSize;
             delete rawTransaction;
+            delete checksum;
             tCounter++;
         }
         // assert(isUTXOFileLoadedProperly && "Error: not all airdrop transaction were loaded into the block");
@@ -394,6 +420,36 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
                 break;
             }
             ////////////////////////////////////////////////////////////////////////
+
+            hasher.Reset();
+   
+            unsigned char* script = (unsigned char*)pubKeyScript.get();
+            const unsigned char *utxoSize = reinterpret_cast<unsigned char*>(pubkeysize);
+            const unsigned char *unsignedCoin = reinterpret_cast<unsigned char*>(coin);
+
+            hasher.Write(unsignedCoin, 8);
+            hasher.Write(utxoSize, 8);
+            hasher.Write(script, pbsize);
+            uint256 utxoHash;
+            hasher.Finalize(utxoHash.begin());
+            
+            //read checksum sha256 hash from the file
+            char* checksum = new char[32];
+            if (!if_utxo.read(checksum, 32)) {
+                LogPrintf("ERROR: CreateNewForkBlock(): [%u, %u of %u]: Couldn't read the transaction checksum.\n", nHeight, nForkHeight, forkHeightRange);
+                break;
+            }
+            //converting binary raw checksum to hex-string string checksum  10111011111010 => 2EFA
+            std::stringstream cc;
+            cc << std::hex << std::setfill('0');
+            for (int i = 0; i < 32; ++i) {
+                cc << std::setw(2) << (unsigned int)(unsigned char)(checksum[i]);
+            }
+            std::string checksumString = cc.str();
+            uint256 transChecksum = uint256S(checksumString);
+
+            //quit if checksums doesn't match
+            assert(utxoHash == transChecksum && "Utxo checksum doesn't match");
 
             //Needs ut64 for files? Part of .bin?
             uint64_t amount = bytes2uint64(coin);
@@ -445,6 +501,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             nBlockSigOps += nTxSigOps;
             nBlockTotalAmount += amount;
             ++nBlockTx;
+            delete checksum;
 
             if (!if_utxo.read(&term, 1) || term != '\n') {
                 LogPrintf("ERROR:  CreateNewForkBlock(): [%u, %u of %u]: invalid record separator\n",
