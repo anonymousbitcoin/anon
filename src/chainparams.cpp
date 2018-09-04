@@ -54,16 +54,16 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
-        pchMessageStart[0] = 0x83;
-        pchMessageStart[1] = 0xd8;
-        pchMessageStart[2] = 0x47;
-        pchMessageStart[3] = 0xa7;
+        pchMessageStart[0] = 0x99;
+        pchMessageStart[1] = 0xaa;
+        pchMessageStart[2] = 0x44;
+        pchMessageStart[3] = 0xcc;
         vAlertPubKey = ParseHex("04f2cd746e629ffd320a81287474c98c2ad15d15b0a210b0144edcd8f3e1301c6311fd751fa34ba17d88090374cfec7cd9aaca55a5a0c4456511acc01b922005de");
-        nDefaultPort = 33333;
+        nDefaultPort = 33337;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
-        // const size_t N = 144, K = 5;
-        const size_t N = 200, K = 9;
+        const size_t N = 144, K = 5;
+        //const size_t N = 200, K = 9;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
         nEquihashN = N;
         nEquihashK = K;
@@ -152,10 +152,10 @@ public:
                             //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
-        nForkStartHeight = 20;
-        nForkHeightRange = 11671;
-        nZtransparentStartBlock = 5152;
-        nZshieldedStartBlock = 5275;
+        nForkStartHeight = 3;
+        nForkHeightRange = 16635;
+        nZtransparentStartBlock = 9862 + nForkStartHeight;
+        nZshieldedStartBlock = 10096 + nForkStartHeight;
 
     }
 };
