@@ -510,7 +510,7 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
             }
         }
     }   
-        assert(nBlockTx > 1 && "Error: airdrop block shoudn't have 1 transaction! Perhaps, the utxo file corrupted?");
+        assert(nBlockTx > 0 && "Error: airdrop block shoudn't have 1 transaction! Perhaps, the utxo file corrupted?");
         
         LogPrintf("CreateNewForkBlock(): [%u, %u of %u]: txns=%u size=%u amount=%u sigops=%u\n",
                   nHeight, nForkHeight, nForkHeightRange, nBlockTx, nBlockSize, nBlockTotalAmount, nBlockSigOps);
