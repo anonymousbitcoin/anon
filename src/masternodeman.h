@@ -326,7 +326,7 @@ class CMasternodeMan
     void ProcessMessage(CNode *pfrom, std::string &strCommand, CDataStream &vRecv);
 
     void DoFullVerificationStep();
-    // void CheckSameAddr();
+    void CheckSameAddr();
     bool SendVerifyRequest(const CAddress &addr, const std::vector<CMasternode *> &vSortedByAddr);
     void SendVerifyReply(CNode *pnode, CMasternodeVerification &mnv);
     void ProcessVerifyReply(CNode *pnode, CMasternodeVerification &mnv);
