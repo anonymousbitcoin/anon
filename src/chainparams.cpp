@@ -54,6 +54,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
+        consensus.nForkStartHeight = 3;
+        consensus.nForkHeightRange = 16635;
+
         pchMessageStart[0] = 0x99;
         pchMessageStart[1] = 0xaa;
         pchMessageStart[2] = 0x44;

@@ -2247,11 +2247,11 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                 //     found = IsDenominatedAmount(pcoin->vout[i].nValue);
                 // }
                 // #2 Condition
-                // IF NODE IS MASTERNODE AND OUTPUTS DO NOT EQUAL EXACTLY 1000 COIN
+                // IF NODE IS MASTERNODE AND OUTPUTS DO NOT EQUAL EXACTLY 500 COIN
                 if (nCoinType == ONLY_NOT1000IFMN) {
                     found = !(fMasterNode && pcoin->vout[i].nValue == 500 * COIN);}
                 // #3 Condition
-                // IF NODE IS MASTERNODE AND OUTPUTS DO NOT EQUAL EXACTLY 1000 COIN
+                // IF NODE IS MASTERNODE AND OUTPUTS DO NOT EQUAL EXACTLY 500 COIN
                 else if (nCoinType == ONLY_NONDENOMINATED_NOT1000IFMN) {
                     // #3.1 Condition
                     // if (IsCollateralAmount(pcoin->vout[i].nValue)) {
@@ -2264,7 +2264,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                     }
                 }
                 // #4 Condition
-                // WHEN WE ARE LOOKING FOR OUTPUTS THAT EQUAL EXACTLY 100 COIN
+                // WHEN WE ARE LOOKING FOR OUTPUTS THAT EQUAL EXACTLY 500 COIN
                 if (nCoinType == ONLY_1000) {
                     found = pcoin->vout[i].nValue == 500 * COIN;
                 }
