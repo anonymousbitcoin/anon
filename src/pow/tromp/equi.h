@@ -4,7 +4,7 @@
 #include "sodium.h"
 #ifdef __APPLE__
 #include "pow/tromp/osx_barrier.h"
-#define htole32(x) OSSwapHostToLittleInt32(x)
+// #define htole32(x) OSSwapHostToLittleInt32(x)
 #endif
 #include "compat/endian.h"
 
