@@ -1056,13 +1056,8 @@ void static BitcoinMiner()
                     eq.bfull = eq.hfull = 0;
                     eq.showbsizes(0);
                     for (u32 r = 1; r < WK; r++) {
-<<<<<<< HEAD
-                        (r & 1) ? eq.digitodd(r, 0) : eq.digiteven(r, 0);
-                        eq.xfull = eq.bfull = eq.hfull = 0;
-=======
                         (r&1) ? eq.digitodd(r, 0) : eq.digiteven(r, 0);
                         eq.bfull = eq.hfull = 0;
->>>>>>> 0bdd503a7e... updated Tromp's equihash solver to his latest version
                         eq.showbsizes(r);
                     }
                     eq.digitK(0);
