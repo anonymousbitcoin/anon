@@ -1723,7 +1723,7 @@ int GetSpendHeight(const CCoinsViewCache& inputs)
 namespace Consensus
 {
 bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, const Consensus::Params& consensusParams)
-{   
+{
     // const CChainParams& chainparams = Params();
     int nForkStartHeight = consensusParams.nForkStartHeight;
     int nForkHeightRange = consensusParams.nForkHeightRange;
@@ -2152,7 +2152,7 @@ void PartitionCheck(bool (*initialDownloadCheck)(), CCriticalSection& cs, const 
 VersionBitsCache versionbitscache;
 
 int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{   
+{
     LOCK(cs_main);
     int32_t nVersion = VERSIONBITS_TOP_BITS;
 
@@ -3474,9 +3474,15 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
     }
 
     int nHeight = pindex->nHeight;
-    if (fExpensiveChecks && isForkBlock(nHeight)) {
-        //if block is in forking region validate it agains file records
-        if (!isZUTXO && !forkUtxoPath.empty()) {
+
+    auto consensusParams = Params().GetConsensus();
+    const int zShieldedStartBlock = chainparams.ZshieldedStartBlock();
+    const int zTransparentStartBlock = chainparams.ZtransparentStartBlock();
+    if (fExpensiveChecks && isForkBlock(nHeight) && nHeight < zShieldedStartBlock ) {
+        CSHA256 hasher;
+        //if block is in forking region validate it against file records
+        if (!forkUtxoPath.empty()) {
+        LogPrintf("AcceptBlock(): Starting to validate forking range against file records\n" );
             std::string utxo_file_path = GetUTXOFileName(nHeight);
             std::ifstream if_utxo(utxo_file_path, std::ios::binary | std::ios::in);
             if (!if_utxo.is_open()) {
@@ -3498,6 +3504,9 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
                     }
                     uint64_t amount = bytes2uint64(coin);
 
+                    if(nHeight >= zTransparentStartBlock){
+                       amount = amount * 2;
+                   }
                     char pubkeysize[8] = {};
                     if (!if_utxo.read(pubkeysize, 8)) {
                         LogPrintf("AcceptBlock(): FORK Block - UTXO file corrupted? - Not more data (PubKeyScript size)\n");
@@ -3515,6 +3524,38 @@ bool AcceptBlock(CBlock& block, CValidationState& state, CBlockIndex** ppindex, 
                     }
                     unsigned char* pks = (unsigned char*)pubKeyScript.get();
                     CScript script = CScript(pks, pks + pbsize);
+
+                    ///////////////////////CHECKSUM//////////////////////////////////
+                    hasher.Reset();
+
+                    unsigned char* script2 = (unsigned char*)pubKeyScript.get();
+                    const unsigned char* utxoSize = reinterpret_cast<unsigned char*>(pubkeysize);
+                    const unsigned char* unsignedCoin = reinterpret_cast<unsigned char*>(coin);
+
+                    hasher.Write(unsignedCoin, 8);
+                    hasher.Write(utxoSize, 8);
+                    hasher.Write(script2, pbsize);
+                    uint256 utxoHash;
+                    hasher.Finalize(utxoHash.begin());
+
+                    //read checksum sha256 hash from the file
+                    char* checksum = new char[32];
+                    if (!if_utxo.read(checksum, 32)) {
+                        LogPrintf("ERROR: CreateNewForkBlock(): [%u]: Couldn't read the transaction checksum.\n", nHeight);
+                        break;
+                    }
+                    //converting binary raw checksum to hex-string string checksum  10111011111010 => 2EFA
+                    std::stringstream cc;
+                    cc << std::hex << std::setfill('0');
+                    for (int i = 0; i < 32; ++i) {
+                        cc << std::setw(2) << (unsigned int)(unsigned char)(checksum[i]);
+                    }
+                    std::string checksumString = cc.str();
+                    uint256 transChecksum = uint256S(checksumString);
+
+                    //quit if checksums doesn't match
+                    assert(utxoHash == transChecksum && "Utxo checksum doesn't match");
+                    ///////////////////////CHECKSUM END//////////////////////////////////
 
                     txFromFile.push_back(make_pair(amount, script));
 
