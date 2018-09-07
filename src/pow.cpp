@@ -25,6 +25,7 @@
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     int nHeight = pindexLast->nHeight + 1;
+    const CChainParams& chainParams = Params();
 
     arith_uint256 proofOfWorkLimit;
     if(!isForkEnabled(nHeight))
@@ -37,6 +38,13 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     // Genesis block
     if (pindexLast == NULL)
         return nProofOfWorkLimit;
+
+    // Reset the difficulty after the algo fork
+    if (pindexLast->nHeight > chainParams.eh_epoch_1_end() - 1
+        && pindexLast->nHeight < chainParams.eh_epoch_1_end() + params.nPowAveragingWindow) {
+        LogPrint("pow", "Reset the difficulty for the eh_epoch_2 algo change: %d\n", nProofOfWorkLimit);
+        return nProofOfWorkLimit;
+    }
 
     // right at fork
     else if(isForkBlock(nHeight))
@@ -106,14 +114,17 @@ bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& param
 
     size_t nSolSize = pblock->nSolution.size();
     switch (nSolSize){
+        case 1344: n=200; k=9; break;
         case 100:  n=144; k=5; break;
         case 68:   n=96;  k=5; break;
         case 36:   n=48;  k=5; break;
         default: return error("CheckEquihashSolution: Unsupported solution size of %d", nSolSize);
     }
 
-    if (params.NetworkIDString() == "main")
-        n = 144; k = 5;
+    LogPrint("pow", "selected n,k DOGECOIN: %d, %d \n", n,k);
+
+    // if (params.NetworkIDString() == "main")
+    //     n = 144; k = 5;
     
     // Hash state
     crypto_generichash_blake2b_state state;

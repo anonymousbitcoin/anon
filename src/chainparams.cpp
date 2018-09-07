@@ -65,11 +65,11 @@ public:
         nDefaultPort = 33337;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
-        const size_t N = 144, K = 5;
+        // const size_t N = 200, K = 5;
 
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        nEquihashN = N;
-        nEquihashK = K;
+        // BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
+        // nEquihashN = N;
+        // nEquihashK = K;
 
         /**
          * Build the genesis block. Note that the output of its generation
@@ -193,6 +193,12 @@ public:
         pchMessageStart[1] = 0x74;
         pchMessageStart[2] = 0x8d;
         pchMessageStart[3] = 0x38;
+        
+        eh_epoch_1 = eh200_9;
+        eh_epoch_2 = eh144_5;
+        eh_epoch_1_endblock = 5;
+        eh_epoch_2_startblock = 10;
+
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
         nDefaultPort = 33129;
@@ -209,9 +215,9 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("anon1-testnet", "198.58.103.84"));
-        vSeeds.push_back(CDNSSeedData("anon2-testnet", "50.116.27.226"));
-        vSeeds.push_back(CDNSSeedData("anon3-testnet", "198.58.97.186"));
+        // vSeeds.push_back(CDNSSeedData("anon1-testnet", "198.58.103.84"));
+        // vSeeds.push_back(CDNSSeedData("anon2-testnet", "50.116.27.226"));
+        // vSeeds.push_back(CDNSSeedData("anon3-testnet", "198.58.97.186"));
 
         // guarantees the first 2 characters, when base58 encoded, are "tA"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xCE};
@@ -362,6 +368,19 @@ bool SelectParamsFromCommandLine()
     return true;
 }
 
-
-
-
+int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, const CChainParams& params){
+    //if in overlap period, there will be two valid solutions, else 1.
+    //The upcoming version of EH is preferred so will always be first element
+    //returns number of elements in list
+    if(blockheight>=params.eh_epoch_2_start() && blockheight>params.eh_epoch_1_end()){
+        ehparams[0]=params.eh_epoch_2_params();
+        return 1;
+    }
+    if(blockheight<params.eh_epoch_2_start()){
+        ehparams[0]=params.eh_epoch_1_params();
+        return 1;
+    }
+    ehparams[0]=params.eh_epoch_2_params();
+    ehparams[1]=params.eh_epoch_1_params();
+    return 2;
+}
