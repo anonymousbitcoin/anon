@@ -979,6 +979,14 @@ void static BitcoinMiner()
 
             bool isNextBlockFork = isForkBlock(pindexPrev->nHeight + 1);
 
+            // Get equihash parameters for the next block to be mined.
+            EHparameters ehparams[MAX_EH_PARAM_LIST_LEN]; //allocate on-stack space for parameters list
+            validEHparameterList(ehparams,nHeight+1,chainparams);
+
+            unsigned int n = ehparams[0].n;
+            unsigned int k = ehparams[0].k;
+            LogPrint("pow", "Using Equihash solver \"%s\" with n = %u, k = %u\n", solver, n, k);
+
             if (isNextBlockFork) {
                 if (!bForkModeStarted) {
                     LogPrintf("ANON Miner: switching into fork mode\n");
@@ -1007,13 +1015,7 @@ void static BitcoinMiner()
                 }
                 CBlockIndex* pindexPrev = chainActive[nHeight];
                 
-                // Get equihash parameters for the next block to be mined.
-                EHparameters ehparams[MAX_EH_PARAM_LIST_LEN]; //allocate on-stack space for parameters list
-                validEHparameterList(ehparams,nHeight+1,chainparams);
-
-                unsigned int n = ehparams[0].n;
-                unsigned int k = ehparams[0].k;
-                LogPrint("pow", "Using Equihash solver \"%s\" with n = %u, k = %u\n", solver, n, k);
+                
 
                 LogPrintf("Running ANON Miner with %u fork transactions in block (%u bytes) and N = %d, K = %d\n",
                           pblock->vtx.size(),

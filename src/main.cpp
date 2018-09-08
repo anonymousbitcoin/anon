@@ -3314,7 +3314,8 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     size_t nSolSize = block.nSolution.size();
 
     EHparameters ehparams[MAX_EH_PARAM_LIST_LEN]; //allocate on-stack space for parameters list
-    int listlength=validEHparameterList(ehparams,nHeight,chainParams);
+    int listlength = validEHparameterList(ehparams,nHeight,chainParams);
+    
     int solutionInvalid=1;
         for(int i=0; i<listlength; i++){
         LogPrint("pow", "ContextCheckBlockHeader index %d n:%d k:%d Solsize: %d \n",i, ehparams[i].n, ehparams[i].k , ehparams[i].nSolSize);
@@ -3324,7 +3325,12 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
 
     //Block will be validated prior to mining, and will have a zero length equihash solution. These need to be let through. Checkequihashsolution will catch them.
     if(!nSolSize)
-        solutionInvalid=0;    
+        solutionInvalid=0;
+    
+    if(solutionInvalid){
+        return state.DoS(100,error("ContextualCheckBlockHeader: Equihash solution size %d for block %d does not match a valid length",nSolSize, nHeight),
+           REJECT_INVALID,"bad-equihash-solution-size");
+    }
 
     // because we bypass checks using the indicia in the header
     // we reject any blocks that look like fork blocks but really
