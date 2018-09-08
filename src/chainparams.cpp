@@ -57,12 +57,12 @@ public:
         consensus.nForkStartHeight = 3;
         consensus.nForkHeightRange = 16635;
 
-        pchMessageStart[0] = 0x99;
-        pchMessageStart[1] = 0xaa;
-        pchMessageStart[2] = 0x44;
-        pchMessageStart[3] = 0xcc;
+        pchMessageStart[0] = 0x83;
+        pchMessageStart[1] = 0xD8;
+        pchMessageStart[2] = 0x47;
+        pchMessageStart[3] = 0xA7;
         vAlertPubKey = ParseHex("04f2cd746e629ffd320a81287474c98c2ad15d15b0a210b0144edcd8f3e1301c6311fd751fa34ba17d88090374cfec7cd9aaca55a5a0c4456511acc01b922005de");
-        nDefaultPort = 33337;
+        nDefaultPort = 33130;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
         const size_t N = 144, K = 5;
