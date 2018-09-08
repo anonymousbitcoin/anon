@@ -226,7 +226,6 @@ Please refer to the [RPC commands guide](TODO)
 
 * Code review is welcome!
 * If you want to get to know us join our Discord: https://discord.gg/hjeBaBx
-* We will be released a brief guide for joining the ANON testnet soon!
 
 
 Participation in the Anonymous Bitcoin project is subject to a
