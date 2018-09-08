@@ -204,6 +204,8 @@ Install:
 
 If you plan to build for windows and linux at the same time, be sure to delete all the built files for whatever you build first. An easy way to do this is by taking the binaries out of the repo, delete all files except the .git folder and then do a git hard reset.
 
+When modifying your `anon.conf` file, refer to the [following guide](contrib/debian/examples/anon.conf) for aditional parameters.
+
 ## Usage
 
 After installing the full node, you can access the cli in the `/src/` directory with the following command:
