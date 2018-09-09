@@ -231,7 +231,6 @@ To set up a masternode, refer to the [following guide](/doc/masternode_setup.md)
 
 * Code review is welcome!
 * If you want to get to know us join our Discord: https://discord.gg/hjeBaBx
-* We will be released a brief guide for joining the ANON testnet soon!
 
 
 Participation in the Anonymous Bitcoin project is subject to a
