@@ -121,7 +121,7 @@ bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& param
         default: return error("CheckEquihashSolution: Unsupported solution size of %d", nSolSize);
     }
 
-    LogPrint("pow", "selected n,k ANONCOIN: %d, %d \n", n,k);
+    // LogPrint("pow", "selected n,k ANONCOIN: %d, %d \n", n,k);
     
     // Hash state
     crypto_generichash_blake2b_state state;
