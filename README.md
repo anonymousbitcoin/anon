@@ -19,6 +19,7 @@ Anonymous Bitcoin is a dual-fork-merge of the Official Bitcoin and Zclassic Bloc
 	- [Windows](#windows)
 	- [Mac](#mac)
 - [Usage](#usage)
+- [Masternodes](#masternodes)
 - [Contact](#contact)
 - [Contribute](#contribute)
 - [License](#license)
@@ -215,6 +216,10 @@ After installing the full node, you can access the cli in the `/src/` directory 
 ```
 
 Please refer to the [RPC commands guide](TODO)
+
+## Masternodes
+
+To set up a masternode, refer to the [following guide](/doc/masternode_setup.md).
 
 ## Contact
 
