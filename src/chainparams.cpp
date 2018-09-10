@@ -32,23 +32,21 @@ public:
         strNetworkID = "main";
         strCurrencyUnits = "ANON";
         consensus.fCoinbaseMustBeProtected = true;
-
-        //TODO To be decided
         consensus.nSubsidySlowStartInterval = 1;
-        consensus.nSubsidyHalvingInterval = 134000;
+        consensus.nSubsidyHalvingInterval = 134000; 
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
         consensus.prePowLimit = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.powLimit = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowAveragingWindow = 17; //diffuculty adjusts every 2 weeks
+        consensus.nPowAveragingWindow = 17; //difficulty adjusts every block
         // assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 10 * 60; // time between blocks (sec)
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
-        consensus.nMinerConfirmationWindow = 17; // nPowTargetTimespan / nPowTargetSpacing
+        consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -65,6 +63,7 @@ public:
         nDefaultPort = 33130;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
+
 
         /**
          * Build the genesis block. Note that the output of its generation
@@ -99,6 +98,9 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
         // TODO: setup a DNSSeed
+        vSeeds.push_back(CDNSSeedData("anon1-mainnet", "198.58.103.84"));
+        vSeeds.push_back(CDNSSeedData("anon2-mainnet", "50.116.27.226"));
+        vSeeds.push_back(CDNSSeedData("anon3-mainnet", "198.58.97.186"));
 
         // guarantees the first 2 characters, when base58 encoded, are "An"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x05,0x82};
@@ -119,7 +121,7 @@ public:
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
-        fMiningRequiresPeers = false;
+        fMiningRequiresPeers = true;
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
@@ -143,6 +145,11 @@ public:
         nZtransparentStartBlock = 9862 + nForkStartHeight;
         nZshieldedStartBlock = 10096 + nForkStartHeight;
 
+        eh_epoch_1 = eh200_9;
+        eh_epoch_2 = eh144_5;
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
+ 
     }
 };
 static CMainParams mainParams;
@@ -163,25 +170,24 @@ public:
 
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
-        consensus.fPowAllowMinDifficultyBlocks = false;
+        consensus.fPowAllowMinDifficultyBlocks = true;
 
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
-        consensus.nMinerConfirmationWindow = 17; // nPowTargetTimespan / nPowTargetSpacing
+        consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
-
-        pchMessageStart[0] = 0x7a;
-        pchMessageStart[1] = 0x74;
-        pchMessageStart[2] = 0x8d;
-        pchMessageStart[3] = 0x38;
+        pchMessageStart[0] = 0xa3;
+        pchMessageStart[1] = 0x45;
+        pchMessageStart[2] = 0xf3;
+        pchMessageStart[3] = 0x69;
         
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_1_endblock = 5;
-        eh_epoch_2_startblock = 10;
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange;
 
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
@@ -199,9 +205,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        // vSeeds.push_back(CDNSSeedData("anon1-testnet", "198.58.103.84"));
-        // vSeeds.push_back(CDNSSeedData("anon2-testnet", "50.116.27.226"));
-        // vSeeds.push_back(CDNSSeedData("anon3-testnet", "198.58.97.186"));
+
 
         // guarantees the first 2 characters, when base58 encoded, are "tA"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xCE};
@@ -219,7 +223,7 @@ public:
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
 
-        fMiningRequiresPeers = false;
+        fMiningRequiresPeers = true;
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
