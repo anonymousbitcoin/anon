@@ -1464,19 +1464,8 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 {
     // Masternode should get paid only 35% of the block reward, and Masternode should NOT take any of the miners fee
     CAmount ret = 0.35 * GetBlockSubsidy(nHeight, Params().GetConsensus());
-    int nMNPIBlock = Params().GetConsensus().nMasternodePaymentsIncreaseBlock;
-    int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
-
-    // mainnet:
-    // if(nHeight > nMNPIBlock)                  ret += blockValue / 20; // 158000 - 25.0% - 2014-10-24
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 1)) ret += blockValue / 20; // 175280 - 30.0% - 2014-11-25
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 2)) ret += blockValue / 20; // 192560 - 35.0% - 2014-12-26
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 3)) ret += blockValue / 40; // 209840 - 37.5% - 2015-01-26
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 4)) ret += blockValue / 40; // 227120 - 40.0% - 2015-02-27
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 5)) ret += blockValue / 40; // 244400 - 42.5% - 2015-03-30
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 6)) ret += blockValue / 40; // 261680 - 45.0% - 2015-05-01
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 7)) ret += blockValue / 40; // 278960 - 47.5% - 2015-06-01
-    // if(nHeight > nMNPIBlock+(nMNPIPeriod* 9)) ret += blockValue / 40; // 313520 - 50.0% - 2015-08-03
+    // int nMNPIBlock = Params().GetConsensus().nMasternodePaymentsIncreaseBlock;
+    // int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
 
     return ret;
 }
@@ -1724,7 +1713,6 @@ namespace Consensus
 {
 bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, const Consensus::Params& consensusParams)
 {
-    // const CChainParams& chainparams = Params();
     int nForkStartHeight = consensusParams.nForkStartHeight;
     int nForkHeightRange = consensusParams.nForkHeightRange;
     // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
@@ -3662,12 +3650,12 @@ static bool IsSuperMajority(int minVersion, const CBlockIndex* pstart, unsigned 
 }
 
 
-bool ProcessNewBlock(CValidationState& state, CNode* pfrom, CBlock* pblock, bool fForceProcessing, CDiskBlockPos* dbp)
+bool ProcessNewBlock(CValidationState &state, CNode* pfrom, CBlock* pblock, bool fForceProcessing, CDiskBlockPos *dbp)
 {
     // Preliminary checks
     auto verifier = libzcash::ProofVerifier::Disabled();
 
-    bool checked = CheckBlock(*pblock, state, verifier, true, true, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
+    bool checked = CheckBlock(*pblock, state, verifier, true, true, isForkBlockHeader(*pblock));
 
     {
         LOCK(cs_main);
@@ -3678,8 +3666,8 @@ bool ProcessNewBlock(CValidationState& state, CNode* pfrom, CBlock* pblock, bool
         }
 
         // Store to disk
-        CBlockIndex* pindex = NULL;
-        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp, chainActive.Height() == -1 ? false : isForkBlock(chainActive.Tip()->nHeight + 1));
+        CBlockIndex *pindex = NULL;
+        bool ret = AcceptBlock(*pblock, state, &pindex, fRequested, dbp, isForkBlockHeader(*pblock));
         if (pindex && pfrom) {
             mapBlockSource[pindex->GetBlockHash()] = pfrom->GetId();
         }
