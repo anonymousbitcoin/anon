@@ -215,7 +215,7 @@ After installing the full node, you can access the cli in the `/src/` directory 
 ./src/anon-cli help
 ```
 
-Please refer to the [RPC commands guide](TODO)
+The `help` command will pull up all of the avaliable RPC commands that can be executed through the terminal.
 
 ## Masternodes
 
