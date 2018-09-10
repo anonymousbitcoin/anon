@@ -190,12 +190,12 @@ public:
 
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis.nTime = 1532704413;
+        genesis.nTime = 1536537600;
         genesis.nBits = 0x2007ffff;
-        genesis.nNonce = uint256S("0x0000000000000000000000000000000000000000000000000000000000000694");
-        genesis.nSolution = ParseHex("00405e6159d18c3534879797c5af4d84eb81c1937d6cdebf6b507f9eee5b21d75cf17d507df6acb0a77e76da7b8ccbf0a80e07ae333024a5989ccbd31e6be38aea6dd56701d9a6c9399ecd08a2cbbaa3fa50718a782cd023f84c9a7b7e4a2d92cdb6c950");
+        genesis.nNonce = uint256S("0x000000000000000000000000000000000000000000000000000000000000000d");
+        genesis.nSolution = ParseHex("00dd8d3ec1f1f3a07e3baf9a4106a790c880a96a92a76066a4046e9b1e3a995d383e7bf55593cfd9db6e4dcb06029d8db0030b22ce0627265c6d775fc2013409ef9441e7d54275b6bc67e92170c671d31b634a5559a41486bb28a79236e7c9038bf60c66");
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x04cb00a7d6b71b20dd9e28673c5726bddc1eaafca27403509c86ed2750470d7d"));
+        assert(consensus.hashGenesisBlock == uint256S("0x0411c719ec9d99ce6188074ab174f499d38a8bb009eecec0602e8edd0e55dcfa"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
