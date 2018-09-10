@@ -17,8 +17,8 @@ class CMasternodeBlockPayees;
 
 // static const int MNPAYMENTS_SIGNATURES_REQUIRED = 6;
 // static const int MNPAYMENTS_SIGNATURES_TOTAL = 10;
-static const int MNPAYMENTS_SIGNATURES_REQUIRED = 3;
-static const int MNPAYMENTS_SIGNATURES_TOTAL = 5;
+static const int MNPAYMENTS_SIGNATURES_REQUIRED = 4;
+static const int MNPAYMENTS_SIGNATURES_TOTAL = 8;
 
 //! minimum peer version that can receive and send masternode payment messages,
 //  vote for masternode and be elected as a payment winner

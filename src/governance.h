@@ -23,8 +23,8 @@ class CGovernanceVote;
 
 extern CGovernanceManager governance;
 
-static const int nGovernanceMinQuorum = 1;
-static const int nGovernanceFilterElements = 5;
+static const int nGovernanceMinQuorum = 10;
+static const int nGovernanceFilterElements = 20000;
 
 typedef std::pair<CGovernanceObject, int64_t> object_time_pair_t;
 
