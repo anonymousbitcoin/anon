@@ -123,9 +123,9 @@ Now you can refer back to the [Initial node setup](#1-initial-node-setup) to ins
 
 5.	Put the server IP address ( your vultr ip or other vps/vm ip) followed by the port 33130 <br />
 
-6.	Put the private key generated in step 1.4 <br />
+6.	Put the private key generated in step 2.1 <br />
 
-7.	Put the transaction hash and output id from step 1.7 <br />
+7.	Put the transaction hash and output id from step 2.5 <br />
 
 Example below
 
@@ -145,11 +145,27 @@ MN01 124.842.07.0:6250 119cCx5YeA519YkTzun4EptdexAo3RvQXaPdkP 838328ce57cc8b168d
 
 9. Restart the node<br>
 
-10. Start your masternode by changing into the anon folder and entering `./src/anon-cli masternode start-all`
+## 6. VPS Config File
 
-11. Verify the masternode is running on the VPS by running `./anon-cli masternode status`  ENTER
+1. On your vps machine, navigate to your `/.anon/` folder where your `anon.conf` is stored.
 
-12. The out put should state "Masternode successfully started"
+2. Open the file and add the following lines:
+
+```
+masternode=1
+masternodeprivkey=[txhashfrom 2.5]
+externalip=this.nodes.ip.address
+```
+
+3. Save the file and restart your node.
+
+## 7. Final Steps
+
+1. Start your masternode by changing into the anon folder and entering `./src/anon-cli masternode start-all`
+
+1. Verify the masternode is running on the VPS by running `./anon-cli masternode status`  ENTER
+
+2. The out put should state "Masternode successfully started"
 
 <br>
 If you followed these steps correctly your ANON masternode should be running right now!<br>
@@ -157,10 +173,10 @@ If the masternode has not started, restart the mnsync by issuing the command: `.
 
 After some time the rewards will be distributed in your wallet.
 
-# 6. Troubleshooting?
+# 8. Troubleshooting?
 Take a look at our FAQ pages [TODO]
 
-# 7. Security
+# 9. Security
 
 ## Wallet
 
