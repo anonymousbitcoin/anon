@@ -195,7 +195,6 @@ CBlockTemplate* CreateNewForkBlock(bool& bFileNotFound, const int nHeight)
     const int zShieldedStartBlock = chainparams.ZshieldedStartBlock();
     const int nForkHeightRange = chainparams.ForkHeightRange();
     const int zTransparentStartBlock = chainparams.ZtransparentStartBlock();
-    bool isUTXOFileLoadedProperly = false;
 
     assert(nForkHeight >= 0);
     //Here is the UTXO directory, which file we will read from
