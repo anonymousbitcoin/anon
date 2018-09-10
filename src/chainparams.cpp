@@ -90,18 +90,16 @@ public:
         genesis.hashPrevBlock.SetNull();
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 4;
-        genesis.nTime    = 1535569200;
+        genesis.nTime    = 1536537600;
         genesis.nBits    = 0x2007ffff;
-        // genesis.nBits    = 0x1d00ffff;
 
-        genesis.nNonce   = uint256S("0x0000000000000000000000000000000000000000000000000000000000000002");
-        genesis.nSolution = ParseHex("1bf2334afa7a0c33f9313c79a3917b4b41d55557d4c50651a32827172a97b49c28bbd51ffd75e002d5a4551df9864d1694141d595be0c9cd0a0f943cbee495372d1d1b5a2e9208b9b87ef72d82001dc8e125ee563b6ceaa60f7c34261e3a6d4c6357d0fa");
+        genesis.nNonce   = uint256S("0x0000000000000000000000000000000000000000000000000000000000000046");
+        genesis.nSolution = ParseHex("01d27e3621af0d698439e61ad0eef7d61ebe392ab7ab430b484337b3ace0fe1ce0781f1485a6f1301d7f047fc8e2f1f50ef9041b4b6b5631a202c23986ff94e0cd56ca258d8e9a6b70b70e21dc5319733dca7346b37cd8f594b6db26db11754b89a31936");
 
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        assert(consensus.hashGenesisBlock == uint256S("0x0787e2d00aeafe8ed1d02b29f59407454378d7e9548ad9236a2303f08e474404"));
+        assert(consensus.hashGenesisBlock == uint256S("0x053a237d7ad7106e341a403286604df55bfe6f301fc9fff03a06f81c8c565b34"));
         assert(genesis.hashMerkleRoot == uint256S("0xe50058ee0a974a2e8562fe45782bc1a104af045df1b3d5c0de4aea2e972d1d59"));
-        // assert(genesis.hashMerkleRoot == uint256S("0x19612bcf00ea7611d315d7f43554fa983c6e8c30cba17e52c679e0e80abf7d42"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
