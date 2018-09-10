@@ -924,13 +924,18 @@ void static BitcoinMiner()
 
     // Each thread has its own counter
     unsigned int nExtraNonce = 0;
-
-    unsigned int n = chainparams.EquihashN();
-    unsigned int k = chainparams.EquihashK();
+    // Get the height of current tip
+    int nHeight = chainActive.Height();
+    if (nHeight == -1) {
+        LogPrintf("Error in Anon Miner: chainActive.Height() returned -1\n");
+        return;
+    }
 
     std::string solver = GetArg("-equihashsolver", "default");
     assert(solver == "tromp" || solver == "default");
-    LogPrint("pow", "Using Equihash solver \"%s\" with n = %u, k = %u\n", solver, n, k);
+    CBlockIndex* pindexPrev = chainActive[nHeight];
+
+
 
     std::mutex m_cs;
     bool cancelSolver = false;
@@ -974,6 +979,14 @@ void static BitcoinMiner()
 
             bool isNextBlockFork = isForkBlock(pindexPrev->nHeight + 1);
 
+            // Get equihash parameters for the next block to be mined.
+            EHparameters ehparams[MAX_EH_PARAM_LIST_LEN]; //allocate on-stack space for parameters list
+            validEHparameterList(ehparams,nHeight+1,chainparams);
+
+            unsigned int n = ehparams[0].n;
+            unsigned int k = ehparams[0].k;
+            LogPrint("pow", "Using Equihash solver \"%s\" with n = %u, k = %u\n", solver, n, k);
+
             if (isNextBlockFork) {
                 if (!bForkModeStarted) {
                     LogPrintf("ANON Miner: switching into fork mode\n");
@@ -993,6 +1006,16 @@ void static BitcoinMiner()
                 }
                 pblock = &pblocktemplate->block;
                 pblock->hashMerkleRoot = pblock->BuildMerkleTree();
+
+                // Get the height of current tip
+                int nHeight = chainActive.Height();
+                if (nHeight == -1) {
+                    LogPrintf("Error in BitcoinZ Miner: chainActive.Height() returned -1\n");
+                    return;
+                }
+                CBlockIndex* pindexPrev = chainActive[nHeight];
+                
+                
 
                 LogPrintf("Running ANON Miner with %u fork transactions in block (%u bytes) and N = %d, K = %d\n",
                           pblock->vtx.size(),

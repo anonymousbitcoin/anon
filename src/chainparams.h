@@ -24,6 +24,19 @@ struct SeedSpec6 {
     uint16_t port;
 };
 
+struct EHparameters {
+    unsigned char n;
+    unsigned char k;
+    unsigned short int nSolSize;
+};
+
+//EH sol size = (pow(2, k) * ((n/(k+1))+1)) / 8;
+static const EHparameters eh200_9 = {200,9,1344};
+static const EHparameters eh144_5 = {144,5,100};
+static const EHparameters eh96_5 = {96,5,68};
+static const EHparameters eh48_5 = {48,5,36};
+static const unsigned int MAX_EH_PARAM_LIST_LEN = 2;
+
 
 /**
  * CChainParams defines various tweakable parameters of a given instance of the
@@ -65,6 +78,10 @@ public:
     unsigned int EquihashN() const { return nEquihashN; }
     unsigned int EquihashK() const { return nEquihashK; }
 
+    EHparameters eh_epoch_1_params() const { return eh_epoch_1; }
+    EHparameters eh_epoch_2_params() const { return eh_epoch_2; }
+    unsigned long eh_epoch_1_end() const { return eh_epoch_1_endblock; }
+    unsigned long eh_epoch_2_start() const { return eh_epoch_2_startblock; }
 
     std::string CurrencyUnits() const { return strCurrencyUnits; }
     /** Make miner stop after a block is found. In RPC, don't return until nGenProcLimit blocks are generated */
@@ -96,6 +113,11 @@ protected:
     int nDefaultPort = 0;
     long nMaxTipAge = 0;
     uint64_t nPruneAfterHeight = 0;
+
+    EHparameters eh_epoch_1 = eh200_9;
+    EHparameters eh_epoch_2 = eh144_5;
+    unsigned long eh_epoch_1_endblock = 5;
+    unsigned long eh_epoch_2_startblock = 10;
 
     unsigned int nEquihashN = 0;
     unsigned int nEquihashK = 0;
@@ -137,5 +159,7 @@ void SelectParams(CBaseChainParams::Network network);
  * Returns false if an invalid combination is given.
  */
 bool SelectParamsFromCommandLine();
+
+int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, const CChainParams& params);
 
 #endif // BITCOIN_CHAINPARAMS_H

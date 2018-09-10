@@ -25,6 +25,7 @@
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     int nHeight = pindexLast->nHeight + 1;
+    const CChainParams& chainParams = Params();
 
     arith_uint256 proofOfWorkLimit;
     if(!isForkEnabled(nHeight))
@@ -106,14 +107,14 @@ bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& param
 
     size_t nSolSize = pblock->nSolution.size();
     switch (nSolSize){
+        case 1344: n=200; k=9; break;
         case 100:  n=144; k=5; break;
         case 68:   n=96;  k=5; break;
         case 36:   n=48;  k=5; break;
         default: return error("CheckEquihashSolution: Unsupported solution size of %d", nSolSize);
     }
 
-    if (params.NetworkIDString() == "main")
-        n = 144; k = 5;
+    // LogPrint("pow", "selected n,k ANONCOIN: %d, %d \n", n,k);
     
     // Hash state
     crypto_generichash_blake2b_state state;

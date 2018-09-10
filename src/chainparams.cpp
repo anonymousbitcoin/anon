@@ -65,11 +65,6 @@ public:
         nDefaultPort = 33130;
         nMaxTipAge = 24 * 60 * 60;
         nPruneAfterHeight = 100000;
-        const size_t N = 144, K = 5;
-
-        BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
-        nEquihashN = N;
-        nEquihashK = K;
 
         /**
          * Build the genesis block. Note that the output of its generation
@@ -135,15 +130,6 @@ public:
             {
                 {      0, consensus.hashGenesisBlock }
                 // {  30000, uint256S("0x000000005c2ad200c3c7c8e627f67b306659efca1268c9bb014335fdadc0c392") },
-                // { 160000, uint256S("0x000000065093005a1a46ee95d6d66c2b07008220ca64dd3b3a93bbd1945480c0") },
-                // { 272992, uint256S("0x0102a4e1353149c9221ebd7c45b3170ea4b8a7d1cf4075b3bc50c440fb9ebdd6") },
-                // { 273992, uint256S("0x000822e42b2128a296b704c273a4c3f0e707b06305d2be521cf7577ef67e476a") },
-                // { 274992, uint256S("0x03e91186991b31044179b82e88ee06c2205e3304a525d130070153fde4aaf414") },
-                // { 275992, uint256S("0x02bc3f08cec58ac79b35a29161b43cd301696e6e6421d704314d08a35b2169db") },
-                // { 276992, uint256S("0x0046665bbb64b609935ed0fd184d6c42657dc5c36b16ed1e59ecc2fcb0508d32") },
-                // { 277992, uint256S("0x0111d3ffc37fb3474ed2a6e3e9bfc53ee0d7cc0413a732f19d59061700f6b842") },
-                // { 278458, uint256S("0x0747cecedfd30754323c5afdaef547d5e90fd50485370ebf12dd33bbac61faaa") },
-                // { 279500, uint256S("0x0000000082ece76130c82337903b14a2109fab2dcd2d153fcdbf48a0054a694b") },
             },
             0,     // * UNIX timestamp of last checkpoint block
             0,       // * total number of transactions between genesis and last checkpoint
@@ -191,6 +177,12 @@ public:
         pchMessageStart[1] = 0x74;
         pchMessageStart[2] = 0x8d;
         pchMessageStart[3] = 0x38;
+        
+        eh_epoch_1 = eh200_9;
+        eh_epoch_2 = eh144_5;
+        eh_epoch_1_endblock = 5;
+        eh_epoch_2_startblock = 10;
+
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
         nDefaultPort = 33129;
@@ -207,9 +199,9 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("anon1-testnet", "198.58.103.84"));
-        vSeeds.push_back(CDNSSeedData("anon2-testnet", "50.116.27.226"));
-        vSeeds.push_back(CDNSSeedData("anon3-testnet", "198.58.97.186"));
+        // vSeeds.push_back(CDNSSeedData("anon1-testnet", "198.58.103.84"));
+        // vSeeds.push_back(CDNSSeedData("anon2-testnet", "50.116.27.226"));
+        // vSeeds.push_back(CDNSSeedData("anon3-testnet", "198.58.97.186"));
 
         // guarantees the first 2 characters, when base58 encoded, are "tA"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xCE};
@@ -360,6 +352,19 @@ bool SelectParamsFromCommandLine()
     return true;
 }
 
-
-
-
+int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, const CChainParams& params){
+    //if in overlap period, there will be two valid solutions, else 1.
+    //The upcoming version of EH is preferred so will always be first element
+    //returns number of elements in list
+    if(blockheight>=params.eh_epoch_2_start() && blockheight>params.eh_epoch_1_end()){
+        ehparams[0]=params.eh_epoch_2_params();
+        return 1;
+    }
+    if(blockheight<params.eh_epoch_2_start()){
+        ehparams[0]=params.eh_epoch_1_params();
+        return 1;
+    }
+    ehparams[0]=params.eh_epoch_2_params();
+    ehparams[1]=params.eh_epoch_1_params();
+    return 2;
+}
