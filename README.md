@@ -8,7 +8,7 @@
 
 **Anonymous Bitcoin v1.0.12-1**
 
-Anonymous Bitcoin is a dual-fork-merge of the Official Bitcoin and Zclassic Blockchains with the implementation of masternodes. We have snapshotted both blockchains, and seeded the UTXO's into the ANON blockchain.
+ANON is an implementation of the zerocash protocol, bootstrapped with a merge of the Official Bitcoin and Zclassic UTXO sets via a snapshot and airdrop, and with the additional implementation of masternodes.
 
 ## Table of Contents
 
