@@ -11,14 +11,16 @@ Let's get started!
 -	[Get a VPS](#3-get-a-vps)
 -	[Configure your masternode](#4-configure-your-masternode)
 -	[Masternode Config file](#5-masternode-config-file)
--	[Troubleshooting](#6-troubleshooting)
--	[Security](#7-security)
--	[Questions](#8-questions)
+- [VPS Config File](#6-vps-config-file)
+- [Final Steps](#7-final-steps)
+-	[Troubleshooting](#8-troubleshooting)
+-	[Security](#9-security)
+-	[Questions](#10-questions)
 
 
 ## 1. Initial node setup
 
-1.	Download the [latest version of ANON]([TODO]).
+1.	Download the [latest version of ANON](https://github.com/anonymousbitcoin/anon).
 
 2.	Navigate to the green button 'clone or download' 
 
@@ -173,12 +175,12 @@ If the masternode has not started, restart the mnsync by issuing the command: `.
 
 After some time the rewards will be distributed in your wallet.
 
-# 8. Troubleshooting?
+## 8. Troubleshooting?
 Take a look at our FAQ pages [TODO]
 
-# 9. Security
+## 9. Security
 
-## Wallet
+### Wallet
 
 Encrypt your wallet! This prevents other people ( who have access to your computer or get access to your wallet.dat file ) to get in your wallet. Don't lose that password. If you lose it the wallet is locked forever and nobobdy will be able to recover your funds.
 
@@ -189,6 +191,6 @@ Backup your wallet! The beauty of digital files is that you can back them up and
 For the more advanced user I advise making your VPS more secure from all kinds of attacks. We don't want other people stealing our masternode right?
 Please look at this guide http://patheyman.com/masternode-secure/ for more info.
 
-# 8. Questions?
+## 10. Questions?
 
 If you have a problem or a question you can find us in the #support channel on our Discord.
