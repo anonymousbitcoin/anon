@@ -53,7 +53,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
         consensus.nForkStartHeight = 2;
-        consensus.nForkHeightRange = 2;
+        consensus.nForkHeightRange = 3;
 
         pchMessageStart[0] = 0x83;
         pchMessageStart[1] = 0xD8;
@@ -121,7 +121,7 @@ public:
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
-        fMiningRequiresPeers = true;
+        fMiningRequiresPeers = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
@@ -141,9 +141,9 @@ public:
         };
 
         nForkStartHeight = 2;
-        nForkHeightRange = 2;
-        nZtransparentStartBlock = 1 + nForkStartHeight;
-        nZshieldedStartBlock = 2 + nForkStartHeight;
+        nForkHeightRange = 3;
+        nZtransparentStartBlock = 2 + nForkStartHeight;
+        nZshieldedStartBlock = 3 + nForkStartHeight;
 
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
