@@ -155,7 +155,7 @@ MN01 124.842.07.0:6250 119cCx5YeA519YkTzun4EptdexAo3RvQXaPdkP 838328ce57cc8b168d
 
 ```
 masternode=1
-masternodeprivkey=[txhashfrom 2.5]
+masternodeprivkey=[masternode genkey from 2.1]
 externalip=this.nodes.ip.address
 ```
 
