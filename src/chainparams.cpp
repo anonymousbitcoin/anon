@@ -52,8 +52,8 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
-        consensus.nForkStartHeight = 3;
-        consensus.nForkHeightRange = 16635;
+        consensus.nForkStartHeight = 2;
+        consensus.nForkHeightRange = 2;
 
         pchMessageStart[0] = 0x83;
         pchMessageStart[1] = 0xD8;
@@ -140,10 +140,10 @@ public:
                             //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
-        nForkStartHeight = 3;
-        nForkHeightRange = 16635;
-        nZtransparentStartBlock = 9862 + nForkStartHeight;
-        nZshieldedStartBlock = 10096 + nForkStartHeight;
+        nForkStartHeight = 2;
+        nForkHeightRange = 2;
+        nZtransparentStartBlock = 1 + nForkStartHeight;
+        nZshieldedStartBlock = 2 + nForkStartHeight;
 
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
