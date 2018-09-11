@@ -53,7 +53,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
         consensus.nForkStartHeight = 3;
-        consensus.nForkHeightRange = 16635;
+        consensus.nForkHeightRange = 16737;
 
         pchMessageStart[0] = 0x83;
         pchMessageStart[1] = 0xD8;
@@ -141,9 +141,9 @@ public:
         };
 
         nForkStartHeight = 3;
-        nForkHeightRange = 16635;
-        nZtransparentStartBlock = 9862 + nForkStartHeight;
-        nZshieldedStartBlock = 10096 + nForkStartHeight;
+        nForkHeightRange = 16737;
+        nZtransparentStartBlock = 9893 + nForkStartHeight;
+        nZshieldedStartBlock = 10132 + nForkStartHeight;
 
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
