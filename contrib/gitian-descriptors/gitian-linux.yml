@@ -3,7 +3,7 @@ name: "zcash-1.0.12-1"
 enable_cache: true
 distro: "debian"
 suites:
-- "jessie"
+- "trusty"
 architectures:
 - "amd64"
 packages:
