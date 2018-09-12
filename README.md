@@ -102,7 +102,7 @@ txindex=1
 
 Run:
 ```{r, engine='bash'}
-./src/anond -testnet
+./src/anond
 ```
 
 ### Windows
