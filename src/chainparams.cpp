@@ -97,10 +97,19 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        // TODO: setup a DNSSeed
-        vSeeds.push_back(CDNSSeedData("anon1-mainnet", "198.58.103.84"));
-        vSeeds.push_back(CDNSSeedData("anon2-mainnet", "50.116.27.226"));
-        vSeeds.push_back(CDNSSeedData("anon3-mainnet", "198.58.97.186"));
+        vSeeds.push_back(CDNSSeedData("anon1-mainnet", "139.162.88.43"));
+        vSeeds.push_back(CDNSSeedData("anon2-mainnet", "139.162.96.172"));
+        vSeeds.push_back(CDNSSeedData("anon3-mainnet", "172.104.185.21"));
+        vSeeds.push_back(CDNSSeedData("anon4-mainnet", "172.104.175.135"));
+        vSeeds.push_back(CDNSSeedData("anon5-mainnet", "139.162.180.228"));
+        vSeeds.push_back(CDNSSeedData("anon6-mainnet", "139.162.184.130"));
+        vSeeds.push_back(CDNSSeedData("anon7-mainnet", "72.14.184.145"));
+        vSeeds.push_back(CDNSSeedData("anon8-mainnet", "198.58.96.134"));
+        vSeeds.push_back(CDNSSeedData("anon9-mainnet", "149.202.74.156 "));
+        vSeeds.push_back(CDNSSeedData("anon10-mainnet", "91.121.69.100"));
+        vSeeds.push_back(CDNSSeedData("anon11-mainnet", "45.76.241.37"));
+        vSeeds.push_back(CDNSSeedData("anon12-mainnet", "99.42.79.176"));
+
 
         // guarantees the first 2 characters, when base58 encoded, are "An"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x05,0x82};
