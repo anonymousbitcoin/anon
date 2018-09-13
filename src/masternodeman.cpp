@@ -672,7 +672,7 @@ CMasternode *CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight
     sort(vecMasternodeLastPaid.begin(), vecMasternodeLastPaid.end(), CompareLastPaidBlock());
 
     uint256 blockHash;
-    if (!GetBlockHash(blockHash, nBlockHeight - 10)) {
+    if (!GetBlockHash(blockHash, nBlockHeight - 101)) {
         LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment -- ERROR: GetBlockHash() failed at nBlockHeight %d\n", nBlockHeight - 10);
         return NULL;
     }
@@ -1271,70 +1271,70 @@ void CMasternodeMan::DoFullVerificationStep()
 // with the same addr but none of them is verified yet, then none of them are banned.
 // It could take many times to run this before most of the duplicate nodes are banned.
 
-// void CMasternodeMan::CheckSameAddr()
-// {
-//     if (!masternodeSync.IsSynced() || vMasternodes.empty())
-//         return;
+void CMasternodeMan::CheckSameAddr()
+{
+    if (!masternodeSync.IsSynced() || vMasternodes.empty())
+        return;
 
-//     std::vector<CMasternode *> vBan;
-//     std::vector<CMasternode *> vSortedByAddr;
+    std::vector<CMasternode *> vBan;
+    std::vector<CMasternode *> vSortedByAddr;
 
-//     {
-//         LOCK(cs);
+    {
+        LOCK(cs);
 
-//         CMasternode *pprevMasternode = NULL;
-//         CMasternode *pverifiedMasternode = NULL;
+        CMasternode *pprevMasternode = NULL;
+        CMasternode *pverifiedMasternode = NULL;
 
-//         BOOST_FOREACH (CMasternode &mn, vMasternodes)
-//         {
-//             vSortedByAddr.push_back(&mn);
-//         }
+        BOOST_FOREACH (CMasternode &mn, vMasternodes)
+        {
+            vSortedByAddr.push_back(&mn);
+        }
 
-//         sort(vSortedByAddr.begin(), vSortedByAddr.end(), CompareByAddr());
+        sort(vSortedByAddr.begin(), vSortedByAddr.end(), CompareByAddr());
 
-//         BOOST_FOREACH (CMasternode *pmn, vSortedByAddr)
-//         {
-//             // check only (pre)enabled masternodes
-//             if (!pmn->IsEnabled() && !pmn->IsPreEnabled())
-//                 continue;
-//             // initial step
-//             if (!pprevMasternode)
-//             {
-//                 pprevMasternode = pmn;
-//                 pverifiedMasternode = pmn->IsPoSeVerified() ? pmn : NULL;
-//                 continue;
-//             }
-//             // second+ step
-//             if (pmn->addr == pprevMasternode->addr)
-//             {
-//                 if (pverifiedMasternode)
-//                 {
-//                     // another masternode with the same ip is verified, ban this one
-//                     vBan.push_back(pmn);
-//                 }
-//                 else if (pmn->IsPoSeVerified())
-//                 {
-//                     // this masternode with the same ip is verified, ban previous one
-//                     vBan.push_back(pprevMasternode);
-//                     // and keep a reference to be able to ban following masternodes with the same ip
-//                     pverifiedMasternode = pmn;
-//                 }
-//             }
-//             else
-//             {
-//                 pverifiedMasternode = pmn->IsPoSeVerified() ? pmn : NULL;
-//             }
-//             pprevMasternode = pmn;
-//         }
-//     }
+        BOOST_FOREACH (CMasternode *pmn, vSortedByAddr)
+        {
+            // check only (pre)enabled masternodes
+            if (!pmn->IsEnabled() && !pmn->IsPreEnabled())
+                continue;
+            // initial step
+            if (!pprevMasternode)
+            {
+                pprevMasternode = pmn;
+                pverifiedMasternode = pmn->IsPoSeVerified() ? pmn : NULL;
+                continue;
+            }
+            // second+ step
+            if (pmn->addr == pprevMasternode->addr)
+            {
+                if (pverifiedMasternode)
+                {
+                    // another masternode with the same ip is verified, ban this one
+                    vBan.push_back(pmn);
+                }
+                else if (pmn->IsPoSeVerified())
+                {
+                    // this masternode with the same ip is verified, ban previous one
+                    vBan.push_back(pprevMasternode);
+                    // and keep a reference to be able to ban following masternodes with the same ip
+                    pverifiedMasternode = pmn;
+                }
+            }
+            else
+            {
+                pverifiedMasternode = pmn->IsPoSeVerified() ? pmn : NULL;
+            }
+            pprevMasternode = pmn;
+        }
+    }
 
-//     // ban duplicates
-//     BOOST_FOREACH (CMasternode *pmn, vBan)
-//     {
-//         LogPrintf("CMasternodeMan::CheckSameAddr -- increasing PoSe ban score for masternode %s\n", pmn->vin.prevout.ToStringShort());
-//         pmn->IncreasePoSeBanScore();
-//     }
-// }
+    // ban duplicates
+    BOOST_FOREACH (CMasternode *pmn, vBan)
+    {
+        LogPrintf("CMasternodeMan::CheckSameAddr -- increasing PoSe ban score for masternode %s\n", pmn->vin.prevout.ToStringShort());
+        pmn->IncreasePoSeBanScore();
+    }
+}
 
 bool CMasternodeMan::SendVerifyRequest(const CAddress &addr, const std::vector<CMasternode *> &vSortedByAddr)
 {
@@ -1974,7 +1974,7 @@ void CMasternodeMan::UpdatedBlockTip(const CBlockIndex *pindex)
     pCurrentBlockIndex = pindex;
     LogPrint("masternode", "CMasternodeMan::UpdatedBlockTip -- pCurrentBlockIndex->nHeight=%d\n", pCurrentBlockIndex->nHeight);
 
-    // CheckSameAddr();
+    CheckSameAddr();
 
     if (fMasterNode)
     {

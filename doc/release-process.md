@@ -84,13 +84,6 @@ signed. **CAUTION:** Remember the `v` at the beginning here:
     $ git tag -s v1.0.9
     $ git push origin v1.0.9
 
-## Make and deploy deterministic builds
-
-- Run the [Gitian deterministic build environment]([INSERT_GITHUB_REPO_URL])
-- Compare the uploaded [build manifests on gitian.sigs]([INSERT_GITHUB_REPO_URL])
-- If all is well, the DevOps engineer will build the Debian packages and update the
-  [apt.z.cash package repository](https://apt.z.cash).
-
 ## Post Release Task List
 
 ### Deploy testnet
