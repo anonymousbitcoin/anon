@@ -2,7 +2,7 @@
 
 ## Overview
 
-Backing up your Bitcoind Private private keys is the best way to be proactive about preventing loss of access to your anon.
+Backing up your Bitcoind Private private keys is the best way to be proactive about preventing loss of access to your ANON.
 
 Problems resulting from bugs in the code, user error, device failure, etc. may lead to losing access to your wallet (and as a result, the private keys of addresses which are required to spend from them).
 

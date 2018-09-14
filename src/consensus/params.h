@@ -68,6 +68,8 @@ struct Params {
     int nMasternodeMinimumConfirmations;
     // int nGovernanceFilterElements;
     // int nGovernanceMinQuorum;
+    int nForkStartHeight;
+    int nForkHeightRange;
 
     /** Block height and hash at which BIP34 becomes active */
     int BIP34Height;
