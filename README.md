@@ -187,6 +187,10 @@ brew install gcc5 --without-multilib
 
 Install:
 ```{r, engine='bash'}
+# Checkout
+git clone https://github.com/anonymousbitcoin/anon.git
+cd anon
+
 # Build
 ./anonutil/build-mac.sh -j$(sysctl -n hw.physicalcpu)
 
@@ -194,7 +198,7 @@ Install:
 ./anonutil/fetch-params.sh
 
 # Run
-./src/anond -tesnet
+./src/anond
 ```
 
 ### Additional notes
