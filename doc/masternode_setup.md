@@ -169,6 +169,7 @@ externalip=this.nodes.ip.address
 
 2. The out put should state "Masternode successfully started"
 
+3. Setup SENTINEL for your masternode. Follow instructions in this repo: https://github.com/anonymousbitcoin/sentinel
 <br>
 If you followed these steps correctly your ANON masternode should be running right now!<br>
 If the masternode has not started, restart the mnsync by issuing the command: `./src/anon-cli mnsync reset` and check the status of the sync with `./src/anon-cli mnsync status` you should look for the asset id to be 999 or MASTERNODE_SYNC_FINISHED.
