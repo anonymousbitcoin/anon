@@ -69,10 +69,14 @@ bool IsBlockPayeeValid(const CTransaction &txNew, int nBlockHeight, CAmount bloc
     {
         LogPrint("mnpayments", "IsBlockPayeeValid -- Valid masternode payment at height %d: %s", nBlockHeight, txNew.ToString());
         return true;
-    } else {
+    } 
+
+    if (nBlockHeight >= 37000) {
+        LogPrintf("IsBlockPayeeValid -- ERROR: Invalid masternode payment detected at height %d: %s", nBlockHeight, txNew.ToString());
         return false;
     }
-    
+
+    return true;    
 }
 
 void FillBlockPayments(CMutableTransaction &txNew, int nBlockHeight, CAmount blockReward, CTxOut &txoutMasternodeRet)
