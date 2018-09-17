@@ -2209,7 +2209,7 @@ CAmount CWallet::GetImmatureWatchOnlyBalance() const
 /**
  * populate vCoins with vector of available COutputs.
  */
-void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl* coinControl, bool fIncludeZeroValue, bool fIncludeCoinBase, AvailableCoinsType nCoinType) const
+void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl* coinControl, bool fIncludeZeroValue, bool fIncludeCoinBase, AvailableCoinsType nCoinType, bool mnCollateral) const
 {
     vCoins.clear();
 
@@ -2237,61 +2237,26 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                 continue;
 
             for (unsigned int i = 0; i < pcoin->vout.size(); i++) {
-
-                // MASTERNODE SPECIFIC QUERY
-                // ************************
-                // DECLARE FOUND TO 0
                 bool found = false;
-                // #1 Condition
-                // if (nCoinType == ONLY_DENOMINATED) {
-                //     found = IsDenominatedAmount(pcoin->vout[i].nValue);
-                // }
-                // #2 Condition
-                // IF NODE IS MASTERNODE AND OUTPUTS DO NOT EQUAL EXACTLY 500 COIN
-                if (nCoinType == ONLY_NOT1000IFMN) {
-                    found = !(fMasterNode && pcoin->vout[i].nValue == 500 * COIN);}
-                // #3 Condition
-                // IF NODE IS MASTERNODE AND OUTPUTS DO NOT EQUAL EXACTLY 500 COIN
-                else if (nCoinType == ONLY_NONDENOMINATED_NOT1000IFMN) {
-                    // #3.1 Condition
-                    // if (IsCollateralAmount(pcoin->vout[i].nValue)) {
-                    //     continue; // do not use collateral amounts
-                    // }
-                    // found = !IsDenominatedAmount(pcoin->vout[i].nValue);
-                    // #3.2 Condition
-                    if (found && fMasterNode) {
-                        found = pcoin->vout[i].nValue != 500 * COIN; // do not use Hot MN funds
-                    }
-                }
-                // #4 Condition
-                // WHEN WE ARE LOOKING FOR OUTPUTS THAT EQUAL EXACTLY 500 COIN
-                if (nCoinType == ONLY_1000) {
-                    found = pcoin->vout[i].nValue == 500 * COIN;
-                }
-                // #5 Condition
-                // WHEN WE DONT FIND
-                else {
+                if(nCoinType == ONLY_500) {
+                    found = pcoin->vout[i].nValue == 500*COIN;
+                } else {
                     found = true;
                 }
-                // #CLEAR
-                if (!found){
+                if(!found) continue;
+            
+                isminetype mine = IsMine(pcoin->vout[i]);
+                //Skip outputs with exactly 500 anon if they are not locked. We don't want to skew balance when z_gettotalbalance calls this function to get masternode collaterals funds. 
+                if(mnCollateral && !(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
+                    (!IsLockedCoin((*it).first, i))){
                     continue;
                 }
-                // MASTERNODE SPECIFIC QUERY
-                // ************************
-                isminetype mine = IsMine(pcoin->vout[i]);
-                if (
-                    !(IsSpent(wtxid, i))
-                    && mine != ISMINE_NO
-                    && (!IsLockedCoin((*it).first, i) || nCoinType == ONLY_1000)
-                    && (pcoin->vout[i].nValue > 0 || fIncludeZeroValue)
-                    && (!coinControl || !coinControl->HasSelected() || coinControl->fAllowOtherInputs || coinControl->IsSelected((*it).first, i)))
+                if (!(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
+                    (!IsLockedCoin((*it).first, i) || nCoinType == ONLY_500) &&
+                    (pcoin->vout[i].nValue > 0 || fIncludeZeroValue) &&
+                    (!coinControl || !coinControl->HasSelected() || coinControl->fAllowOtherInputs || coinControl->IsSelected((*it).first, i)))
                     vCoins.push_back(COutput(pcoin, i, nDepth,
                                              (mine & ISMINE_SPENDABLE) != ISMINE_NO));
-                    // DASH
-                    // vCoins.push_back(COutput(pcoin, i, nDepth,
-                    //                         ((mine & ISMINE_SPENDABLE) != ISMINE_NO) ||
-                    //                             (coinControl && coinControl->fAllowWatchOnly && (mine & ISMINE_WATCH_SOLVABLE) != ISMINE_NO)));
             }
         }
     }
@@ -2572,7 +2537,7 @@ bool CWallet::GetMasternodeVinAndKeys(CTxIn& txinRet, CPubKey& pubKeyRet, CKey& 
 
     // Find possible candidates
     std::vector<COutput> vPossibleCoins;
-    AvailableCoins(vPossibleCoins, true, NULL, false, false, ONLY_1000);
+    AvailableCoins(vPossibleCoins, true, NULL, false, false, ONLY_500);
     if(vPossibleCoins.empty()) {
         LogPrintf("CWallet::GetMasternodeVinAndKeys -- Could not locate any valid masternode vin\n if(vPossibleCoins.empty()) {\n");
         return false;
