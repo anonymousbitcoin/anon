@@ -44,6 +44,8 @@ blockchain has reached a significant size.
 
 It includes both `anond` (the daemon) and `anon-cli` (the command line tools).
 
+**To [DOWNLOAD](https://github.com/anonymousbitcoin/anon/releases) pre-built binaries, visit [RELEASES](https://github.com/anonymousbitcoin/anon/releases).**
+
 ## Build
 
 ### Testnet
