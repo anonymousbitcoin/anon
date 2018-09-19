@@ -156,6 +156,10 @@ Note that in WSL, the Anon source code must be somewhere in the default mount fi
 4. Build for Windows
 
 ```{r, engine='bash'}
+# Checkout
+git clone https://github.com/anonymousbitcoin/anon.git
+cd anon
+
 PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
 ./anonutil/build-win.sh
 ```
