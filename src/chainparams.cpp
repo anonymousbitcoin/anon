@@ -232,6 +232,12 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
+        vSeeds.push_back(CDNSSeedData("testnet_node1", "198.58.97.186"));
+        vSeeds.push_back(CDNSSeedData("testnet_node2", "45.33.13.94"));
+        vSeeds.push_back(CDNSSeedData("testnet_node3", "45.56.69.11"));
+        vSeeds.push_back(CDNSSeedData("testnet_node4", "96.126.120.121"));
+        vSeeds.push_back(CDNSSeedData("testnet_node5", "69.164.195.11"));
+
 
         // guarantees the first 2 characters, when base58 encoded, are "tA"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xCE};
