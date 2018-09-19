@@ -92,9 +92,9 @@ enum OutputType : int {
 enum AvailableCoinsType {
     ALL_COINS = 1,
     ONLY_DENOMINATED = 2,
-    ONLY_NOT1000IFMN = 3,
-    ONLY_NONDENOMINATED_NOT1000IFMN = 4,
-    ONLY_1000 = 5, // find masternode outputs including locked ones (use with caution)
+    ONLY_NOT500IFMN = 3,
+    ONLY_NONDENOMINATED_NOT500IFMN = 4,
+    ONLY_500 = 5, // find masternode outputs including locked ones (use with caution)
     // ONLY_PRIVATESEND_COLLATERAL = 6
 };
 
@@ -830,7 +830,7 @@ public:
     //! check whether we are allowed to upgrade (or already support) to the named feature
     bool CanSupportFeature(enum WalletFeature wf) { AssertLockHeld(cs_wallet); return nWalletMaxVersion >= wf; }
 
-    void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed = true, const CCoinControl* coinControl = NULL, bool fIncludeZeroValue = false, bool fIncludeCoinBase = true, AvailableCoinsType nCoinType = ALL_COINS) const;
+    void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed = true, const CCoinControl* coinControl = NULL, bool fIncludeZeroValue = false, bool fIncludeCoinBase = true, AvailableCoinsType nCoinType = ALL_COINS, bool mnCollateral = false) const;
     bool SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int nConfTheirs, std::vector<COutput> vCoins, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const;
 
     /// Get 1000DASH output and keys which can be used for the Masternode

@@ -3025,6 +3025,45 @@ CAmount getBalanceTaddr(std::string transparentAddress, int minDepth=1) {
     return balance;
 }
 
+CAmount getMasternodesCollateral(std::string transparentAddress, int minDepth=1) {
+    set<CBitcoinAddress> setAddress;
+    vector<COutput> vecOutputs;
+    CAmount balance = 0;
+
+    if (transparentAddress.length() > 0) {
+        CBitcoinAddress taddr = CBitcoinAddress(transparentAddress);
+        if (!taddr.IsValid()) {
+            throw std::runtime_error("Invalid transparent address");
+        }
+        setAddress.insert(taddr);
+    }
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    pwalletMain->AvailableCoins(vecOutputs, true, NULL, false, false, ONLY_500, true);
+
+    BOOST_FOREACH(const COutput& out, vecOutputs) {
+        if (out.nDepth < minDepth) {
+            continue;
+        }
+
+        if (setAddress.size()) {
+            CTxDestination address;
+            if (!ExtractDestination(out.tx->vout[out.i].scriptPubKey, address)) {
+                continue;
+            }
+
+            if (!setAddress.count(address)) {
+                continue;
+            }
+        }
+
+        CAmount nValue = out.tx->vout[out.i].nValue;
+        balance += nValue;
+    }
+    return balance;
+}
+
 CAmount getBalanceZaddr(std::string address, int minDepth = 1) {
     CAmount balance = 0;
     std::vector<CNotePlaintextEntry> entries;
@@ -3175,6 +3214,8 @@ UniValue z_gettotalbalance(const UniValue& params, bool fHelp)
             "{\n"
             "  \"transparent\": xxxxx,     (numeric) the total balance of transparent funds\n"
             "  \"private\": xxxxx,         (numeric) the total balance of private funds\n"
+            "  \"masternode_collaterals\": xxxxx, (numeric) the total balance of all masternode collaterals\n"
+            "  \"immature_balance\": xxxxxx, (numeric) the total immature balance of the wallet\n"
             "  \"total\": xxxxx,           (numeric) the total balance of both transparent and private funds\n"
             "}\n"
             "\nExamples:\n"
@@ -3202,10 +3243,13 @@ UniValue z_gettotalbalance(const UniValue& params, bool fHelp)
     // so we use our own method to get balance of utxos.
     CAmount nBalance = getBalanceTaddr("", nMinDepth);
     CAmount nPrivateBalance = getBalanceZaddr("", nMinDepth);
-    CAmount nTotalBalance = nBalance + nPrivateBalance;
+    CAmount nMasternodeBalance = getMasternodesCollateral("", nMinDepth);
+    CAmount nTotalBalance = nBalance + nPrivateBalance + nMasternodeBalance;
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("transparent", FormatMoney(nBalance)));
     result.push_back(Pair("private", FormatMoney(nPrivateBalance)));
+    result.push_back(Pair("masternode_collaterals", FormatMoney(nMasternodeBalance)));
+    result.push_back(Pair("immature_balance",    ValueFromAmount(pwalletMain->GetImmatureBalance())));
     result.push_back(Pair("total", FormatMoney(nTotalBalance)));
     return result;
 }
