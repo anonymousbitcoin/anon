@@ -182,7 +182,7 @@ Get dependencies:
 xcode-select --install
 
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-brew install cmake autoconf libtool automake coreutils pkgconfig gmp wget
+brew install cmake autoconf libtool automake libevent coreutils pkgconfig gmp wget
 
 brew install gcc5 --without-multilib
 ```
