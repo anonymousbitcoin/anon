@@ -95,6 +95,7 @@ LIBZCASH_H = \
 BITCOIN_CORE_H = \
   addrman.h \
   alert.h \
+  addressindex.h \
   amount.h \
   activemasternode.h \
   amqp/amqpabstractnotifier.h \
