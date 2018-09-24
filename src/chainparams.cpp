@@ -128,17 +128,6 @@ public:
         vSeeds.push_back(CDNSSeedData("anon20-mainnet", "207.246.95.8"));
                 
 
-
-
-
-
-
-
-
-
-
-
-
         // guarantees the first 2 characters, when base58 encoded, are "An"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x05,0x82};
 
@@ -207,7 +196,7 @@ public:
 
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
-        consensus.fPowAllowMinDifficultyBlocks = true;
+        consensus.fPowAllowMinDifficultyBlocks = false;
 
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
@@ -216,15 +205,15 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
-        pchMessageStart[0] = 0xa3;
-        pchMessageStart[1] = 0x45;
+        pchMessageStart[0] = 0xd3;
+        pchMessageStart[1] = 0xf4;
         pchMessageStart[2] = 0xf3;
-        pchMessageStart[3] = 0x69;
+        pchMessageStart[3] = 0x77;
         
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
-        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange;
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange + 999999998;
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 999999999;
 
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
@@ -233,15 +222,21 @@ public:
 
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis.nTime = 1536537600;
+        genesis.nTime = 1537347600;
         genesis.nBits = 0x2007ffff;
-        genesis.nNonce = uint256S("0x000000000000000000000000000000000000000000000000000000000000000d");
-        genesis.nSolution = ParseHex("00dd8d3ec1f1f3a07e3baf9a4106a790c880a96a92a76066a4046e9b1e3a995d383e7bf55593cfd9db6e4dcb06029d8db0030b22ce0627265c6d775fc2013409ef9441e7d54275b6bc67e92170c671d31b634a5559a41486bb28a79236e7c9038bf60c66");
+        genesis.nNonce = uint256S("0x000000000000000000000000000000000000000000000000000000000000000f");
+        genesis.nSolution = ParseHex("1a2a4e95433a1db4889ae7a5883d8e665ec2923e14876bbb902ccf3d7d5bd19da42bfc0d92a5fab90bab8542157c2d35fe6226922d41f060e6439a934781c599eef63c0dd6e6be2fded32e61296eb311211a25253f15bda68b9844794432bcd473717655");
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x0411c719ec9d99ce6188074ab174f499d38a8bb009eecec0602e8edd0e55dcfa"));
+        assert(consensus.hashGenesisBlock == uint256S("0x07d2dd91f13803386aa0c05afd2adfcc6f911c5571a330a1118f6a0b3e0b2073"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
+
+        vSeeds.push_back(CDNSSeedData("testnet_node1", "198.58.97.186"));
+        vSeeds.push_back(CDNSSeedData("testnet_node2", "45.33.13.94"));
+        vSeeds.push_back(CDNSSeedData("testnet_node3", "45.56.69.11"));
+        vSeeds.push_back(CDNSSeedData("testnet_node4", "96.126.120.121"));
+        vSeeds.push_back(CDNSSeedData("testnet_node5", "69.164.195.11"));
 
 
         // guarantees the first 2 characters, when base58 encoded, are "tA"
@@ -260,7 +255,7 @@ public:
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
 
-        fMiningRequiresPeers = true;
+        fMiningRequiresPeers = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
@@ -275,10 +270,10 @@ public:
             0
         };
 
-        nForkStartHeight = 0;
-        nForkHeightRange = 0;
-        nZtransparentStartBlock = 0;
-        nZshieldedStartBlock = 0;
+        nForkStartHeight = 2;
+        nForkHeightRange = 1;
+        nZtransparentStartBlock = 5;
+        nZshieldedStartBlock = 6;
     }
 };
 static CTestNetParams testNetParams;
