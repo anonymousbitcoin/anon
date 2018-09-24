@@ -292,6 +292,8 @@ extern UniValue getspentinfo(const UniValue& params, bool fHelp);
 // extern UniValue privatesend(const UniValue& params, bool fHelp);
 // extern UniValue getpoolinfo(const UniValue& params, bool fHelp);
 // extern UniValue spork(const UniValue& params, bool fHelp);
+extern UniValue listmasternodes(const UniValue& params, bool fHelp);
+extern UniValue listmasternodeconf(const UniValue& params, bool fHelp);
 extern UniValue masternode(const UniValue& params, bool fHelp);
 extern UniValue masternodelist(const UniValue& params, bool fHelp);
 extern UniValue masternodebroadcast(const UniValue& params, bool fHelp);
