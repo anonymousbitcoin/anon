@@ -126,21 +126,21 @@ UniValue importprivkey(const UniValue& params, bool fHelp)
     CKeyID vchAddress = pubkey.GetID();
     {
         pwalletMain->MarkDirty();
-        // We don't know which corresponding address will be used; label them all
-        for (const auto& dest : GetAllDestinationsForKey(pubkey)) {
-            pwalletMain->SetAddressBook(dest, strLabel, "receive");
-        }
+        pwalletMain->SetAddressBook(vchAddress, strLabel, "receive");
 
         // Don't throw error in case a key is already there
-        if (pwalletMain->HaveKey(vchAddress))
+        if (pwalletMain->HaveKey(vchAddress)) {
             return NullUniValue;
+        }
 
-        // whenever a key is imported, we need to scan the whole chain
-        pwalletMain->nTimeFirstKey = 1; // 0 would be considered 'no value'
         pwalletMain->mapKeyMetadata[vchAddress].nCreateTime = 1;
 
         if (!pwalletMain->AddKeyPubKey(key, pubkey))
             throw JSONRPCError(RPC_WALLET_ERROR, "Error adding key to wallet");
+
+        // whenever a key is imported, we need to scan the whole chain
+        pwalletMain->nTimeFirstKey = 1; // 0 would be considered 'no value'
+
         pwalletMain->LearnAllRelatedScripts(pubkey);
     }
 
