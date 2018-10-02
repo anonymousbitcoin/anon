@@ -383,6 +383,149 @@ UniValue masternode(const UniValue& params, bool fHelp)
 
     return NullUniValue;
 }
+UniValue listmasternodes(const UniValue& params, bool fHelp)
+{
+    std::string strFilter = "";
+
+    if (params.size() == 1) strFilter = params[0].get_str();
+
+    if (fHelp || (params.size() > 1))
+        throw runtime_error(
+            "listmasternodes ( \"filter\" )\n"
+            "\nGet a ranked list of masternodes\n"
+
+            "\nArguments:\n"
+            "1. \"filter\"    (string, optional) Filter search text. Partial match by txhash, status, or addr.\n"
+
+            "\nResult:\n"
+            "[\n"
+            "  {\n"
+            "    \"rank\": n,           (numeric) Masternode Rank (or 0 if not enabled)\n"
+            "    \"txhash\": \"hash\",    (string) Collateral transaction hash\n"
+            "    \"outidx\": n,         (numeric) Collateral transaction output index\n"
+            "    \"status\": s,         (string) Status (ENABLED/EXPIRED/REMOVE/etc)\n"
+            "    \"addr\": \"addr\",      (string) Masternode SnowGem address\n"
+            "    \"version\": v,        (numeric) Masternode protocol version\n"
+            "    \"lastseen\": ttt,     (numeric) The time in seconds since epoch (Jan 1 1970 GMT) of the last seen\n"
+            "    \"activetime\": ttt,   (numeric) The time in seconds since epoch (Jan 1 1970 GMT) masternode has been active\n"
+            "    \"lastpaid\": ttt,     (numeric) The time in seconds since epoch (Jan 1 1970 GMT) masternode was last paid\n"
+            "  }\n"
+            "  ,...\n"
+            "]\n"
+            "\nExamples:\n" +
+            HelpExampleCli("masternodelist", "") + HelpExampleRpc("masternodelist", ""));
+
+    UniValue ret(UniValue::VARR);
+    int nHeight;
+    {
+        LOCK(cs_main);
+        CBlockIndex* pindex = chainActive.Tip();
+        if(!pindex) return 0;
+        nHeight = pindex->nHeight;
+    }
+    std::vector<pair<int, CMasternode> > vMasternodeRanks = mnodeman.GetMasternodeRanks(nHeight);
+    BOOST_FOREACH (PAIRTYPE(int, CMasternode) & s, vMasternodeRanks) {
+        UniValue obj(UniValue::VOBJ);
+        std::string strVin = s.second.vin.prevout.ToStringShort();
+        std::string strTxHash = s.second.vin.prevout.hash.ToString();
+        uint32_t oIdx = s.second.vin.prevout.n;
+
+        CMasternode* mn = mnodeman.Find(s.second.vin);
+
+        if (mn != NULL) {
+            if (strFilter != "" && strTxHash.find(strFilter) == string::npos &&
+                mn->GetStatus().find(strFilter) == string::npos &&
+                CBitcoinAddress(mn->pubKeyCollateralAddress.GetID()).ToString().find(strFilter) == string::npos)
+                {
+                    // LogPrintf("strFilter: %s\n", strFilter); 
+                    continue;
+                }
+
+            std::string strStatus = mn->GetStatus();
+            std::string strHost;
+            int port;
+            SplitHostPort(mn->addr.ToString(), port, strHost);
+            CNetAddr node = CNetAddr(strHost, false);
+            std::string strNetwork = GetNetworkName(node.GetNetwork());
+
+            obj.push_back(Pair("rank", (strStatus == "ENABLED" ? s.first : 0)));
+            obj.push_back(Pair("network", strNetwork));
+            obj.push_back(Pair("ip", strHost));
+            obj.push_back(Pair("txhash", strTxHash));
+            obj.push_back(Pair("outidx", (uint64_t)oIdx));
+            obj.push_back(Pair("status", strStatus));
+            obj.push_back(Pair("addr", CBitcoinAddress(mn->pubKeyCollateralAddress.GetID()).ToString()));
+            obj.push_back(Pair("version", mn->nProtocolVersion));
+            obj.push_back(Pair("lastseen", (int64_t)mn->lastPing.sigTime));
+            obj.push_back(Pair("activetime", (int64_t)(mn->lastPing.sigTime - mn->sigTime)));
+            obj.push_back(Pair("lastpaid", (int64_t)mn->GetLastPaidBlock()));
+
+            ret.push_back(obj);
+        }
+    }
+
+    return ret;
+}
+
+UniValue listmasternodeconf (const UniValue& params, bool fHelp)
+{
+    std::string strFilter = "";
+
+    if (params.size() == 1) strFilter = params[0].get_str();
+
+    if (fHelp || (params.size() > 1))
+        throw runtime_error(
+            "listmasternodeconf ( \"filter\" )\n"
+            "\nPrint masternode.conf in JSON format\n"
+
+            "\nArguments:\n"
+            "1. \"filter\"    (string, optional) Filter search text. Partial match on alias, address, txHash, or status.\n"
+
+            "\nResult:\n"
+            "[\n"
+            "  {\n"
+            "    \"alias\": \"xxxx\",        (string) masternode alias\n"
+            "    \"address\": \"xxxx\",      (string) masternode IP address\n"
+            "    \"privateKey\": \"xxxx\",   (string) masternode private key\n"
+            "    \"txHash\": \"xxxx\",       (string) transaction hash\n"
+            "    \"outputIndex\": n,       (numeric) transaction output index\n"
+            "    \"status\": \"xxxx\"        (string) masternode status\n"
+            "  }\n"
+            "  ,...\n"
+            "]\n"
+
+            "\nExamples:\n" +
+            HelpExampleCli("listmasternodeconf", "") + HelpExampleRpc("listmasternodeconf", ""));
+
+    std::vector<CMasternodeConfig::CMasternodeEntry> mnEntries;
+    mnEntries = masternodeConfig.getEntries();
+
+    UniValue ret(UniValue::VARR);
+
+    BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
+   
+        CTxIn vin = CTxIn(uint256S(mne.getTxHash()), uint32_t(atoi(mne.getOutputIndex().c_str())));
+        CMasternode* pmn = mnodeman.Find(vin);
+
+        std::string strStatus = pmn ? pmn->GetStatus() : "MISSING";
+
+        if (strFilter != "" && mne.getAlias().find(strFilter) == string::npos &&
+            mne.getIp().find(strFilter) == string::npos &&
+            mne.getTxHash().find(strFilter) == string::npos &&
+            strStatus.find(strFilter) == string::npos) continue;
+
+        UniValue mnObj(UniValue::VOBJ);
+        mnObj.push_back(Pair("alias", mne.getAlias()));
+        mnObj.push_back(Pair("address", mne.getIp()));
+        mnObj.push_back(Pair("privateKey", mne.getPrivKey()));
+        mnObj.push_back(Pair("txHash", mne.getTxHash()));
+        mnObj.push_back(Pair("outputIndex", mne.getOutputIndex()));
+        mnObj.push_back(Pair("status", strStatus));
+        ret.push_back(mnObj);
+    }
+
+    return ret;
+}
 
 UniValue masternodelist(const UniValue& params, bool fHelp)
 {

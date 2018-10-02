@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/ByeBugDevelopment/anon-backup.svg?token=WBBgtRXJbdCRsjxqqhJy&branch=master)](https://travis-ci.com/ByeBugDevelopment/anon-backup)
 
-**Anonymous Bitcoin v.1.2.0**
+**Anonymous Bitcoin v.1.3.0**
 
 ANON is an implementation of the zerocash protocol, bootstrapped with a merge of the Official Bitcoin and Zclassic UTXO sets via a snapshot and airdrop, and with the additional implementation of masternodes.
 
