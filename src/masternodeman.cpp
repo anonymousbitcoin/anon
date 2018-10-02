@@ -811,13 +811,8 @@ std::vector<std::pair<int, CMasternode>> CMasternodeMan::GetMasternodeRanks(int 
     BOOST_FOREACH (CMasternode &mn, vMasternodes)
     {
 
-        if (mn.nProtocolVersion < nMinProtocol)
+        if (mn.nProtocolVersion < nMinProtocol || !mn.IsEnabled())
             continue;
-        
-        if (!mn.IsEnabled()) {
-            vecMasternodeScores.push_back(std::make_pair(-1, &mn));
-            continue;
-        }
 
         int64_t nScore = mn.CalculateScore(blockHash).GetCompact(false);
 
