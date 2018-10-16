@@ -17,7 +17,7 @@ ANON is an implementation of the zerocash protocol, bootstrapped with a merge of
 - [Usage](#usage)
 - [Masternodes](#masternodes)
 - [Contact](#contact)
-- [Contribute](#contribute)
+- [Contribute](#Contributing-to-this-project)
 - [License](#license)
 
 
@@ -235,16 +235,18 @@ To set up a masternode, refer to the [following guide](/doc/masternode_setup.md)
 	
 For more information regarding the disclosure of vulnerabilities within ANON, please refer to the [disclosure](https://www.anonfork.io/disclosure) page.
 
-## Contribute
+## Contributing to this project
 
-* Code review is welcome!
-* If you want to get to know us join our Discord: https://discord.gg/hjeBaBx
+Anyone and everyone is welcome to contribute. Please take a moment to
+review the [guidelines for contributing](CONTRIBUTING.md).
 
+* [Bug reports](CONTRIBUTING.md#bugs)
+* [Feature requests](CONTRIBUTING.md#features)
+* [Pull requests](CONTRIBUTING.md#pull-requests)
 
-Participation in the Anonymous Bitcoin project is subject to a
-[Code of Conduct](code_of_conduct.md).
+Please note, issues submitted on platforms such as Reddit, Discord or Telegram will not be considered issues unless they are officially posted on the [ANON issues](https://github.com/anonymousbitcoin/anon/issues) page.
 
-Small note: If editing the Readme, please conform to the [standard-readme](https://github.com/RichardLitt/standard-readme) specification.
+If editing the Readme, please conform to the [standard-readme](https://github.com/RichardLitt/standard-readme) specification.
 
 ## License
 
