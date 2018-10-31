@@ -424,13 +424,70 @@ UniValue listmasternodes(const UniValue& params, bool fHelp)
         nHeight = pindex->nHeight;
     }
     std::vector<pair<int, CMasternode> > vMasternodeRanks = mnodeman.GetMasternodeRanks(nHeight);
-    BOOST_FOREACH (PAIRTYPE(int, CMasternode) & s, vMasternodeRanks) {
-        UniValue obj(UniValue::VOBJ);
-        std::string strVin = s.second.vin.prevout.ToStringShort();
-        std::string strTxHash = s.second.vin.prevout.hash.ToString();
-        uint32_t oIdx = s.second.vin.prevout.n;
+/////////////////////////////////////////////////////////////////
 
-        CMasternode* mn = mnodeman.Find(s.second.vin);
+    std::vector<std::pair<int, CMasternode *>> vecMasternodeLastPaid;
+
+    /*
+        Make a vector with all of the last paid times
+    */
+    std::vector<CMasternode> vMasternodes = mnodeman.GetFullMasternodeVector();
+    int nMnCount = mnodeman.CountEnabled();
+    BOOST_FOREACH (CMasternode &mn, vMasternodes)
+    {
+        if (!mn.IsValidForPayment())
+            continue;
+
+        // if(mn.IsWatchdogExpired())
+        //     continue;
+        // //check protocol version
+        if (mn.nProtocolVersion < mnpayments.GetMinMasternodePaymentsProto())
+            continue;
+
+        //it's in the list (up to 8 entries ahead of current block to allow propagation) -- so let's skip it
+        if (mnpayments.IsScheduled(mn, nHeight))
+            continue;
+
+        //it's too new, wait for a cycle
+        if (mn.sigTime + (nMnCount * 2.6 * 60) > GetAdjustedTime())
+            continue;
+
+        //make sure it has at least as many confirmations as there are masternodes
+        if (mn.GetCollateralAge() < nMnCount)
+            continue;
+
+        vecMasternodeLastPaid.push_back(std::make_pair(mn.GetLastPaidBlock(), &mn));
+    }
+
+    int nCount = (int)vecMasternodeLastPaid.size();
+
+    //when the network is in the process of upgrading, don't penalize nodes that recently restarted
+    // if (fFilterSigTime && nCount < nMnCount / 3)
+    //     return GetNextMasternodeInQueueForPayment(nBlockHeight, false, nCount);
+
+    // Sort them low to high
+    struct CompareLastPaidBlock
+    {
+        bool operator()(const std::pair<int, CMasternode *> &t1,
+                        const std::pair<int, CMasternode *> &t2) const
+        {
+            return (t1.first != t2.first) ? (t1.first < t2.first) : (t1.second->vin < t2.second->vin);
+        }
+    };
+
+    sort(vecMasternodeLastPaid.begin(), vecMasternodeLastPaid.end(), CompareLastPaidBlock());
+
+////////////////////////////////////////////////////////////////
+
+    // BOOST_FOREACH (PAIRTYPE(int, CMasternode) & s, &vecMasternodeLastPaid) {
+    int counter = 1;
+    BOOST_FOREACH (PAIRTYPE(int, CMasternode *) & s, vecMasternodeLastPaid){
+        UniValue obj(UniValue::VOBJ);
+        std::string strVin = s.second->vin.prevout.ToStringShort();
+        std::string strTxHash = s.second->vin.prevout.hash.ToString();
+        uint32_t oIdx = s.second->vin.prevout.n;
+
+        CMasternode* mn = mnodeman.Find(s.second->vin);
 
         if (mn != NULL) {
             if (strFilter != "" && strTxHash.find(strFilter) == string::npos &&
@@ -447,8 +504,10 @@ UniValue listmasternodes(const UniValue& params, bool fHelp)
             SplitHostPort(mn->addr.ToString(), port, strHost);
             CNetAddr node = CNetAddr(strHost, false);
             std::string strNetwork = GetNetworkName(node.GetNetwork());
-
-            obj.push_back(Pair("rank", (strStatus == "ENABLED" ? s.first : 0)));
+            // if(strStatus != "ENABLED")
+            //     continue;
+            obj.push_back(Pair("rank", counter));
+            counter++;
             obj.push_back(Pair("network", strNetwork));
             obj.push_back(Pair("ip", strHost));
             obj.push_back(Pair("txhash", strTxHash));
