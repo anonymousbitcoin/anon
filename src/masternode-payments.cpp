@@ -500,7 +500,7 @@ std::string CMasternodeBlockPayees::GetRequiredPaymentsString()
 {
     LOCK(cs_vecPayees);
 
-    std::string strRequiredPayments = "Unknown #1";
+    std::string strRequiredPayments = "Unknown";
 
     BOOST_FOREACH (CMasternodePayee &payee, vecPayees)
     {
@@ -508,7 +508,7 @@ std::string CMasternodeBlockPayees::GetRequiredPaymentsString()
         ExtractDestination(payee.GetPayee(), address1);
         CBitcoinAddress address2(address1);
 
-        if (strRequiredPayments != "Unknown #2")
+        if (strRequiredPayments != "Unknown")
         {
             strRequiredPayments += ", " + address2.ToString() + ":" + boost::lexical_cast<std::string>(payee.GetVoteCount());
         }
