@@ -138,5 +138,6 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::
 CScript GetScriptForDestination(const CTxDestination& dest);
 CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
 CScript GetScriptForWitness(const CScript& redeemscript);
+CScript GetScriptForProposal(uint256 hash);
 
 #endif // BITCOIN_SCRIPT_STANDARD_H

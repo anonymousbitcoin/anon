@@ -340,6 +340,13 @@ CScript GetScriptForDestination(const CTxDestination& dest)
     return script;
 }
 
+CScript GetScriptForProposal(uint256 hash)
+{
+    CScript script;
+    script << OP_RETURN << ToByteVector(hash);
+    return script;
+}
+
 CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys)
 {
     CScript script;

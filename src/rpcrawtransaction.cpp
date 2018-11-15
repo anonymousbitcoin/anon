@@ -7,6 +7,7 @@
 #include "consensus/validation.h"
 #include "core_io.h"
 #include "init.h"
+#include "governance.h"
 #include "keystore.h"
 #include "main.h"
 #include "merkleblock.h"
@@ -499,7 +500,7 @@ UniValue verifytxoutproof(const UniValue& params, bool fHelp)
 
 UniValue createrawtransaction(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 2)
+    if ((fHelp || params.size() != 2) && params.size() != 6)
         throw runtime_error(
             "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,...}\n"
             "\nCreate a transaction spending the given inputs and sending to the given addresses.\n"
@@ -529,6 +530,8 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
             + HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"address\\\":0.01}\"")
             + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"address\\\":0.01}\"")
         );
+
+    bool proposal = params.size() == 6 ? true : false;
 
     LOCK(cs_main);
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VARR)(UniValue::VOBJ));
@@ -565,13 +568,41 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
         if (setAddress.count(address))
             throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+name_);
         setAddress.insert(address);
+        
+        CScript scriptPubKey;
+        CAmount nAmount;
 
-        CScript scriptPubKey = GetScriptForDestination(address.Get());
-        CAmount nAmount = AmountFromValue(sendTo[name_]);
+        scriptPubKey = GetScriptForDestination(address.Get());
+        nAmount = AmountFromValue(sendTo[name_]);
 
         CTxOut out(nAmount, scriptPubKey);
         rawTx.vout.push_back(out);
     }
+     if(proposal){
+            uint256 hashParent;
+
+            CScript scriptPubKey;
+            CAmount nAmount;
+            
+            // -- attach to root node (root node doesn't really exist, but has a hash of zero)
+            if(params[2].get_str() == "0") {
+                hashParent = uint256();
+            } else {
+                hashParent = ParseHashV(params[2], "fee-txid, parameter 1");
+            }
+
+            std::string strRevision = params[3].get_str();
+            std::string strTime = params[4].get_str();
+            int nRevision = boost::lexical_cast<int>(strRevision);
+            int nTime = boost::lexical_cast<int>(strTime);
+            std::string strData = params[5].get_str();
+            CGovernanceObject govobj(hashParent, nRevision, nTime, uint256(), strData);
+
+            scriptPubKey = GetScriptForProposal(govobj.GetHash());
+            nAmount = govobj.GetMinCollateralFee();
+            CTxOut out(nAmount, scriptPubKey);
+            rawTx.vout.push_back(out);
+        }
 
     return EncodeHexTx(rawTx);
 }
