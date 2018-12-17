@@ -354,6 +354,7 @@ static const CRPCCommand vRPCCommands[] =
         {"dash", "masternodebroadcast", &masternodebroadcast, true},
         {"dash", "gobject", &gobject, true},
         {"dash", "mnsync", &mnsync, true},
+        {"dash", "spork", &spork, true},
         {"dash", "getgovernanceinfo", &getgovernanceinfo, true},
         {"dash", "voteraw", &voteraw, true},
         // {"dash", "getpoolinfo", &getpoolinfo, true},
