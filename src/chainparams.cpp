@@ -201,11 +201,11 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
-        pchMessageStart[0] = 0xd3;
-        pchMessageStart[1] = 0xf4;
-        pchMessageStart[2] = 0xf3;
-        pchMessageStart[3] = 0x77;
-        
+        pchMessageStart[0] = 0x77;
+        pchMessageStart[1] = 0xf3;
+        pchMessageStart[2] = 0xf4;
+        pchMessageStart[3] = 0xd3;
+		
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange + 999999998;
@@ -213,7 +213,7 @@ public:
 
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
-        nDefaultPort = 33129;
+        nDefaultPort = 43234;
         nPruneAfterHeight = 1000;
 
 
@@ -227,13 +227,6 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-
-        vSeeds.push_back(CDNSSeedData("testnet_node1", "198.58.97.186"));
-        vSeeds.push_back(CDNSSeedData("testnet_node2", "45.33.13.94"));
-        vSeeds.push_back(CDNSSeedData("testnet_node3", "45.56.69.11"));
-        vSeeds.push_back(CDNSSeedData("testnet_node4", "96.126.120.121"));
-        vSeeds.push_back(CDNSSeedData("testnet_node5", "69.164.195.11"));
-
 
         // guarantees the first 2 characters, when base58 encoded, are "tA"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x1C,0xCE};
