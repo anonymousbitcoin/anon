@@ -2302,6 +2302,9 @@ bool CDarkSendSigner::VerifyMessage(CPubKey pubkey, const std::vector<unsigned c
         return false;
     }
 
+    pubkey.Decompress();
+    pubkeyFromSig.Decompress();
+
     if(pubkeyFromSig.GetID() != pubkey.GetID()) {
         strErrorRet = strprintf("Keys don't match: pubkey=%s, pubkeyFromSig=%s, strMessage=%s, vchSig=%s",
                     pubkey.GetID().ToString(), pubkeyFromSig.GetID().ToString(), strMessage,
