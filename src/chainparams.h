@@ -98,6 +98,10 @@ public:
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
     int FulfilledRequestExpireTime() const { return nFulfilledRequestExpireTime; }
 
+    //Sporks
+    std::string SporkPubKey() const { return strSporkPubKey; }
+    std::string MasternodePaymentPubKey() const { return strMasternodePaymentsPubKey; }
+
     uint64_t ForkStartHeight() const { return nForkStartHeight; };
     uint64_t ForkHeightRange() const { return nForkHeightRange; };
     uint64_t ZshieldedStartBlock() const { return nZshieldedStartBlock; };
@@ -135,6 +139,10 @@ protected:
     Checkpoints::CCheckpointData checkpointData;
     int nFulfilledRequestExpireTime;
     std::vector<std::string> vFoundersRewardAddress;
+
+    //Sporks
+    std::string strSporkPubKey;
+    std::string strMasternodePaymentsPubKey;
 
     uint64_t nForkStartHeight;
     uint64_t nForkHeightRange;

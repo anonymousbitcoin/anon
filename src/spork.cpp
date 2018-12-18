@@ -2,7 +2,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "spork.h"
-// #include "darksend.h"
+#include "darksend.h"
 #include "main.h"
 #include "key.h"
 
@@ -168,8 +168,8 @@ int64_t CSporkManager::GetSporkValue(int nSporkID)
     switch (nSporkID) {
     // case SPORK_2_INSTANTSEND_ENABLED:
     //     return SPORK_2_INSTANTSEND_ENABLED_DEFAULT;
-    case SPORK_3_INSTANTSEND_BLOCK_FILTERING:
-        return SPORK_3_INSTANTSEND_BLOCK_FILTERING_DEFAULT;
+    // case SPORK_3_INSTANTSEND_BLOCK_FILTERING:
+    //     return SPORK_3_INSTANTSEND_BLOCK_FILTERING_DEFAULT;
     // case SPORK_5_INSTANTSEND_MAX_VALUE:
     //     return SPORK_5_INSTANTSEND_MAX_VALUE_DEFAULT;
     case SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT:
@@ -265,20 +265,20 @@ bool CSporkMessage::Sign(std::string strSignKey)
     std::string strError = "";
     std::string strMessage = boost::lexical_cast<std::string>(nSporkID) + boost::lexical_cast<std::string>(nValue) + boost::lexical_cast<std::string>(nTimeSigned);
 
-    // if (!darkSendSigner.GetKeysFromSecret(strSignKey, key, pubkey)) {
-    //     LogPrintf("CSporkMessage::Sign -- GetKeysFromSecret() failed, invalid spork key %s\n", strSignKey);
-    //     return false;
-    // }
+    if (!darkSendSigner.GetKeysFromSecret(strSignKey, key, pubkey)) {
+        LogPrintf("CSporkMessage::Sign -- GetKeysFromSecret() failed, invalid spork key %s\n", strSignKey);
+        return false;
+    }
 
-    // if (!darkSendSigner.SignMessage(strMessage, vchSig, key)) {
-    //     LogPrintf("CSporkMessage::Sign -- SignMessage() failed\n");
-    //     return false;
-    // }
+    if (!darkSendSigner.SignMessage(strMessage, vchSig, key)) {
+        LogPrintf("CSporkMessage::Sign -- SignMessage() failed\n");
+        return false;
+    }
 
-    // if (!darkSendSigner.VerifyMessage(pubkey, vchSig, strMessage, strError)) {
-    //     LogPrintf("CSporkMessage::Sign -- VerifyMessage() failed, error: %s\n", strError);
-    //     return false;
-    // }
+    if (!darkSendSigner.VerifyMessage(pubkey, vchSig, strMessage, strError)) {
+        LogPrintf("CSporkMessage::Sign -- VerifyMessage() failed, error: %s\n", strError);
+        return false;
+    }
 
     return true;
 }
@@ -288,12 +288,12 @@ bool CSporkMessage::CheckSignature()
     //note: need to investigate why this is failing
     std::string strError = "";
     std::string strMessage = boost::lexical_cast<std::string>(nSporkID) + boost::lexical_cast<std::string>(nValue) + boost::lexical_cast<std::string>(nTimeSigned);
-   // CPubKey pubkey(ParseHex(Params().SporkPubKey()));
+   CPubKey pubkey(ParseHex(Params().SporkPubKey()));
 
-    // if (!darkSendSigner.VerifyMessage(pubkey, vchSig, strMessage, strError)) {
-    //     LogPrintf("CSporkMessage::CheckSignature -- VerifyMessage() failed, error: %s\n", strError);
-    //     return false;
-    // }
+    if (!darkSendSigner.VerifyMessage(pubkey, vchSig, strMessage, strError)) {
+        LogPrintf("CSporkMessage::CheckSignature -- VerifyMessage() failed, error: %s\n", strError);
+        return false;
+    }
 
     return true;
 }

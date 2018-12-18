@@ -347,12 +347,13 @@ void CMasternodeSync::ProcessTick()
     }
 
     // Removing this because we will not be implementing SPORK feature
-    // if (nRequestedMasternodeAssets == MASTERNODE_SYNC_INITIAL ||
-    //     (nRequestedMasternodeAssets == MASTERNODE_SYNC_SPORKS && IsBlockchainSynced()))
-    if (nRequestedMasternodeAssets == MASTERNODE_SYNC_INITIAL && IsBlockchainSynced()) 
-    {
+    if (nRequestedMasternodeAssets == MASTERNODE_SYNC_INITIAL ||
+        (nRequestedMasternodeAssets == MASTERNODE_SYNC_SPORKS && IsBlockchainSynced()))
         SwitchToNextAsset();
-    }
+    // if (nRequestedMasternodeAssets == MASTERNODE_SYNC_INITIAL && IsBlockchainSynced()) 
+    // {
+    //     SwitchToNextAsset();
+    // }
 
     std::vector<CNode *> vNodesCopy = CopyNodeVector();
 
@@ -404,15 +405,15 @@ void CMasternodeSync::ProcessTick()
 
             // SPORK : ALWAYS ASK FOR SPORKS AS WE SYNC (we skip this mode now)
 
-            // if (!netfulfilledman.HasFulfilledRequest(pnode->addr, "spork-sync"))
-            // {
-            //     // only request once from each peer
-            //     netfulfilledman.AddFulfilledRequest(pnode->addr, "spork-sync");
-            //     // get current network sporks
-            //     pnode->PushMessage(NetMsgType::GETSPORKS);
-            //     LogPrintf("CMasternodeSync::ProcessTick -- nTick %d nRequestedMasternodeAssets %d -- requesting sporks from peer %d\n", nTick, nRequestedMasternodeAssets, pnode->id);
-            //     continue; // always get sporks first, switch to the next node without waiting for the next tick
-            // }
+            if (!netfulfilledman.HasFulfilledRequest(pnode->addr, "spork-sync"))
+            {
+                // only request once from each peer
+                netfulfilledman.AddFulfilledRequest(pnode->addr, "spork-sync");
+                // get current network sporks
+                pnode->PushMessage(NetMsgType::GETSPORKS);
+                LogPrintf("CMasternodeSync::ProcessTick -- nTick %d nRequestedMasternodeAssets %d -- requesting sporks from peer %d\n", nTick, nRequestedMasternodeAssets, pnode->id);
+                continue; // always get sporks first, switch to the next node without waiting for the next tick
+            }
 
             // MNLIST : SYNC MASTERNODE LIST FROM OTHER CONNECTED CLIENTS
 

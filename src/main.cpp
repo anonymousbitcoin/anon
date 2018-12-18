@@ -4864,8 +4864,8 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
         // case MSG_TXLOCK_VOTE:
         //     return instantsend.AlreadyHave(inv.hash);
 
-        // case MSG_SPORK:
-        //     return mapSporks.count(inv.hash);
+    case MSG_SPORK:
+        return mapSporks.count(inv.hash);
 
     case MSG_MASTERNODE_PAYMENT_VOTE:
         return mnpayments.mapMasternodePaymentVotes.count(inv.hash);
@@ -5017,15 +5017,15 @@ void static ProcessGetData(CNode* pfrom)
                 //     }
                 // }
 
-                // if (!pushed && inv.type == MSG_SPORK) {
-                //     if (mapSporks.count(inv.hash)) {
-                //         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
-                //         ss.reserve(1000);
-                //         ss << mapSporks[inv.hash];
-                //         pfrom->PushMessage(NetMsgType::SPORK, ss);
-                //         pushed = true;
-                //     }
-                // }
+                if (!pushed && inv.type == MSG_SPORK) {
+                    if (mapSporks.count(inv.hash)) {
+                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                        ss.reserve(1000);
+                        ss << mapSporks[inv.hash];
+                        pfrom->PushMessage(NetMsgType::SPORK, ss);
+                        pushed = true;
+                    }
+                }
 
                 if (!pushed && inv.type == MSG_MASTERNODE_PAYMENT_VOTE) {
                     if (mnpayments.HasVerifiedPaymentVote(inv.hash)) {
@@ -5964,7 +5964,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             mnodeman.ProcessMessage(pfrom, strCommand, vRecv);
             mnpayments.ProcessMessage(pfrom, strCommand, vRecv);
             // instantsend.ProcessMessage(pfrom, strCommand, vRecv);
-            // sporkManager.ProcessSpork(pfrom, strCommand, vRecv);
+            sporkManager.ProcessSpork(pfrom, strCommand, vRecv);
             masternodeSync.ProcessMessage(pfrom, strCommand, vRecv);
             governance.ProcessMessage(pfrom, strCommand, vRecv);
         } else {
