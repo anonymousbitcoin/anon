@@ -5,6 +5,7 @@
 #include "darksend.h"
 #include "main.h"
 #include "key.h"
+#include "net.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -94,6 +95,7 @@ void CSporkManager::ExecuteSpork(int nSporkID, int nValue)
 
         LogPrintf("CSporkManager::ExecuteSpork -- Reconsider Last %d Blocks\n", nValue);
 
+        CNode::ClearBanned();
         ReprocessBlocks(nValue);
         nTimeExecuted = GetTime();
     }
