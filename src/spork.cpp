@@ -94,7 +94,7 @@ void CSporkManager::ExecuteSpork(int nSporkID, int nValue)
 
         LogPrintf("CSporkManager::ExecuteSpork -- Reconsider Last %d Blocks\n", nValue);
 
-        // ReprocessBlocks(nValue);
+        ReprocessBlocks(nValue);
         nTimeExecuted = GetTime();
     }
 }
