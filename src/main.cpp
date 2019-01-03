@@ -2278,17 +2278,22 @@ void PartitionCheck(bool (*initialDownloadCheck)(), CCriticalSection& cs, const 
 VersionBitsCache versionbitscache;
 
 int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Params& params)
-{
+{   
     LOCK(cs_main);
     int32_t nVersion = VERSIONBITS_TOP_BITS;
 
+    LogPrintf("Before loop\n");
     for (int i = 0; i < (int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS; i++) {
+        LogPrintf("i - %d; MAX_VERS - %d\n", i, (int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS);
+    
         ThresholdState state = VersionBitsState(pindexPrev, params, (Consensus::DeploymentPos)i, versionbitscache);
+        LogPrintf("State: %d\n", state);
         if (state == THRESHOLD_LOCKED_IN || state == THRESHOLD_STARTED) {
+             LogPrintf("Inside IF statement\n");
             nVersion |= VersionBitsMask(params, (Consensus::DeploymentPos)i);
         }
     }
-
+    LogPrintf("Result nVersion: %d\n", nVersion);
     return nVersion;
 }
 

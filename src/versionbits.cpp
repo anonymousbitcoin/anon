@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "versionbits.h"
+#include "util.h"
 
 #include "consensus/params.h"
 
@@ -54,6 +55,9 @@ ThresholdState AbstractThresholdConditionChecker::GetStateFor(const CBlockIndex*
         switch (state) {
         case THRESHOLD_DEFINED: {
             if (pindexPrev->GetMedianTimePast() >= nTimeTimeout) {
+                LogPrintf("Trigger 1\n");
+                LogPrintf("GetMedianTimePast: %d\n", pindexPrev->GetMedianTimePast());
+                LogPrintf("nTimeTimeout: %d\n", nTimeTimeout);
                 stateNext = THRESHOLD_FAILED;
             } else if (pindexPrev->GetMedianTimePast() >= nTimeStart) {
                 stateNext = THRESHOLD_STARTED;
@@ -62,6 +66,7 @@ ThresholdState AbstractThresholdConditionChecker::GetStateFor(const CBlockIndex*
         }
         case THRESHOLD_STARTED: {
             if (pindexPrev->GetMedianTimePast() >= nTimeTimeout) {
+                LogPrintf("Trigger 2\n");
                 stateNext = THRESHOLD_FAILED;
                 break;
             }
