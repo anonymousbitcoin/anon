@@ -558,7 +558,7 @@ void CWallet::SyncMetaData(pair<typename TxSpendMap<T>::iterator, typename TxSpe
  * spends it:
  */
 bool CWallet::IsSpent(const uint256& hash, unsigned int n) const
-{   
+{
     const COutPoint outpoint(hash, n);
     pair<TxSpends::const_iterator, TxSpends::const_iterator> range;
     range = mapTxSpends.equal_range(outpoint);
@@ -577,7 +577,7 @@ bool CWallet::IsSpent(const uint256& hash, unsigned int n) const
  * spends it:
  */
 bool CWallet::IsSpent(const uint256& nullifier) const
-{   
+{
     pair<TxNullifiers::const_iterator, TxNullifiers::const_iterator> range;
     range = mapTxNullifiers.equal_range(nullifier);
     for (TxNullifiers::const_iterator it = range.first; it != range.second; ++it) {
@@ -2239,14 +2239,14 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
             for (unsigned int i = 0; i < pcoin->vout.size(); i++) {
                 bool found = false;
                 if(nCoinType == ONLY_500) {
-                    found = pcoin->vout[i].nValue == 500*COIN;
+                    found = pcoin->vout[i].nValue == 10000*COIN;
                 } else {
                     found = true;
                 }
                 if(!found) continue;
-            
+
                 isminetype mine = IsMine(pcoin->vout[i]);
-                //Skip outputs with exactly 500 anon if they are not locked. We don't want to skew balance when z_gettotalbalance calls this function to get masternode collaterals funds. 
+                //Skip outputs with exactly 10000 anon if they are not locked. We don't want to skew balance when z_gettotalbalance calls this function to get masternode collaterals funds. 
                 if(mnCollateral && !(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
                     (!IsLockedCoin((*it).first, i))){
                     continue;
@@ -3830,7 +3830,7 @@ void CWallet::GetFilteredNotes(std::vector<CNotePlaintextEntry> & outEntries, st
             if (ignoreSpent && nd.nullifier && IsSpent(*nd.nullifier)) {
                 continue;
             }
-    
+
             int i = jsop.js; // Index into CTransaction.vjoinsplit
             int j = jsop.n; // Index into JSDescription.ciphertexts
 
