@@ -3676,7 +3676,9 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
     // reward block is reached, with exception of the genesis block.
     // The last founders reward block is defined as the block just before the
     // first subsidy halving block, which occurs at halving_interval + slow_start_shift
-    if (nHeight > 0 && sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDERS_REWARD)) {
+    if (nHeight > 0 
+        && sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDERS_REWARD)
+        && block.nTime > sporkManager.GetSporkValue(SPORK_15_REQUIRE_FOUNDERS_REWARD)) {
         bool found = false;
 
         BOOST_FOREACH(const CTxOut& output, block.vtx[0].vout) {
