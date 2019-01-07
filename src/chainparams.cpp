@@ -107,21 +107,20 @@ public:
         vSeeds.push_back(CDNSSeedData("anon11-mainnet", "149.202.74.156 "));
         vSeeds.push_back(CDNSSeedData("anon12-mainnet", "91.121.69.100"));
         vSeeds.push_back(CDNSSeedData("anon13-mainnet", "45.76.241.37"));
-        vSeeds.push_back(CDNSSeedData("anon14-mainnet", "99.42.79.176"));
 
         vSeeds.push_back(CDNSSeedData("anon14-mainnet", "149.28.224.182"));
-        vSeeds.push_back(CDNSSeedData("anon14-mainnet", "140.82.45.19"));
-        vSeeds.push_back(CDNSSeedData("anon14-mainnet", "45.76.1.51"));
-        vSeeds.push_back(CDNSSeedData("anon14-mainnet", "149.28.224.254"));
-        vSeeds.push_back(CDNSSeedData("anon14-mainnet", "45.63.9.86"));
-        vSeeds.push_back(CDNSSeedData("anon14-mainnet", "108.61.159.183"));
+        vSeeds.push_back(CDNSSeedData("anon15-mainnet", "140.82.45.19"));
+        vSeeds.push_back(CDNSSeedData("anon16-mainnet", "45.76.1.51"));
+        vSeeds.push_back(CDNSSeedData("anon17-mainnet", "149.28.224.254"));
+        vSeeds.push_back(CDNSSeedData("anon18-mainnet", "45.63.9.86"));
+        vSeeds.push_back(CDNSSeedData("anon19-mainnet", "108.61.159.183"));
 
-        vSeeds.push_back(CDNSSeedData("anon15-mainnet", "149.28.40.191"));
-        vSeeds.push_back(CDNSSeedData("anon16-mainnet", "207.148.17.101"));
-        vSeeds.push_back(CDNSSeedData("anon17-mainnet", "45.77.103.39"));
-        vSeeds.push_back(CDNSSeedData("anon18-mainnet", "149.28.60.58"));
-        vSeeds.push_back(CDNSSeedData("anon19-mainnet", "45.76.8.166"));
-        vSeeds.push_back(CDNSSeedData("anon20-mainnet", "207.246.95.8"));
+        vSeeds.push_back(CDNSSeedData("anon20-mainnet", "149.28.40.191"));
+        vSeeds.push_back(CDNSSeedData("anon21-mainnet", "207.148.17.101"));
+        vSeeds.push_back(CDNSSeedData("anon22-mainnet", "45.77.103.39"));
+        vSeeds.push_back(CDNSSeedData("anon23-mainnet", "149.28.60.58"));
+        vSeeds.push_back(CDNSSeedData("anon24-mainnet", "45.76.8.166"));
+        vSeeds.push_back(CDNSSeedData("anon25-mainnet", "207.246.95.8"));
                 
 
         // guarantees the first 2 characters, when base58 encoded, are "An"
