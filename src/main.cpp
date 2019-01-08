@@ -2577,11 +2577,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 #endif
         CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
         std::string strError = "";
-        if (block.vtx[0].GetValueOut() > blockReward)
+
+        if (block.vtx[0].GetValueOut() > blockReward && (pindex->nHeight % chainparams.GetConsensus().nSuperblockCycle != 0)){
             return state.DoS(100,
                              error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                    block.vtx[0].GetValueOut(), blockReward),
                              REJECT_INVALID, "bad-cb-amount");
+        }
 
         if (!IsBlockValueValid(block, pindex->nHeight, blockReward, strError)) {
             return state.DoS(0, error("ConnectBlock(ANON): %s", strError), REJECT_INVALID, "bad-cb-amount");
