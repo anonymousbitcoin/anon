@@ -63,8 +63,14 @@ struct Params {
     int nMasternodePaymentsStartBlock;
     int nMasternodePaymentsIncreaseBlock;
     int nMasternodePaymentsIncreasePeriod; // in blocks
+    
+    // Budget related
+    int nBudgetPaymentsStartBlock;
+    int nBudgetPaymentsCycleBlocks;
+    int nBudgetPaymentsWindowBlocks;
     int nSuperblockStartBlock;
-    int nSuperblockCycle;     // in blocks
+    int nSuperblockCycle; // in blocks
+
     int nMasternodeMinimumConfirmations;
     // int nGovernanceFilterElements;
     // int nGovernanceMinQuorum;

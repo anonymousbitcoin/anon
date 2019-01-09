@@ -1482,7 +1482,7 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex)
     return true;
 }
 
-CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
+CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly)
 {
     CAmount nSubsidy = 50 * COIN;
     const CChainParams& chainparams = Params();
@@ -1490,27 +1490,27 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     if (nHeight <= chainparams.ForkStartHeight() + chainparams.ForkHeightRange()) {
         return 0;
     }
-    //reset height as if airdrop blocks didn't exist
-    nHeight -= chainparams.ForkStartHeight() + chainparams.ForkHeightRange();
+    //adjust height as if airdrop blocks don't exist
+    int adjastedHeight = nHeight - (chainparams.ForkStartHeight() + chainparams.ForkHeightRange());
 
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
     // MAX_SUBSIDY/2 to keep the monetary curve consistent with no slow start.
-    if (nHeight < consensusParams.nSubsidySlowStartInterval / 2) {
+    if (adjastedHeight < consensusParams.nSubsidySlowStartInterval / 2) {
         nSubsidy /= consensusParams.nSubsidySlowStartInterval;
-        nSubsidy *= nHeight;
+        nSubsidy *= adjastedHeight;
         return nSubsidy;
-    } else if (nHeight < consensusParams.nSubsidySlowStartInterval) {
+    } else if (adjastedHeight < consensusParams.nSubsidySlowStartInterval) {
         nSubsidy /= consensusParams.nSubsidySlowStartInterval;
-        nSubsidy *= (nHeight + 1);
+        nSubsidy *= (adjastedHeight + 1);
         return nSubsidy;
     }
 
-    assert(nHeight > consensusParams.SubsidySlowStartShift());
+    assert(adjastedHeight > consensusParams.SubsidySlowStartShift());
 
     int halvingInterval = consensusParams.nSubsidyHalvingInterval;
 
-    int halvings = (nHeight - consensusParams.SubsidySlowStartShift()) / halvingInterval;
+    int halvings = (adjastedHeight - consensusParams.SubsidySlowStartShift()) / halvingInterval;
 
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 64)
@@ -1518,7 +1518,12 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
     // Subsidy is cut in half every 134,000 blocks which will occur approximately every 2.5 years.
     nSubsidy >>= halvings;
-    return nSubsidy;
+    // return nSubsidy;
+
+    // Hard fork to reduce the block reward by 5 extra percent (allowing budget/superblocks)
+    CAmount nSuperblockPart = (nHeight >= consensusParams.nBudgetPaymentsStartBlock) ? nSubsidy/20 : 0;
+
+    return fSuperblockPartOnly ? nSuperblockPart : nSubsidy - nSuperblockPart;
 }
 
 //ANON

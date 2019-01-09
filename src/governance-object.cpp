@@ -579,25 +579,27 @@ bool CGovernanceObject::IsCollateralValid(std::string& strError)
 
     // GET CONFIRMATIONS FOR TRANSACTION
 
-    // LOCK(cs_main);
+    LOCK(cs_main);
+    // TODO: ENABLE this when InstandSend is added
     // int nConfirmationsIn = GetIXConfirmations(nCollateralHash);
-    // if (nBlockHash != uint256()) {
-    //     BlockMap::iterator mi = mapBlockIndex.find(nBlockHash);
-    //     if (mi != mapBlockIndex.end() && (*mi).second) {
-    //         CBlockIndex* pindex = (*mi).second;
-    //         if (chainActive.Contains(pindex)) {
-    //             nConfirmationsIn += chainActive.Height() - pindex->nHeight + 1;
-    //         }
-    //     }
-    // }
+    int nConfirmationsIn = 0;
+    if (nBlockHash != uint256()) {
+        BlockMap::iterator mi = mapBlockIndex.find(nBlockHash);
+        if (mi != mapBlockIndex.end() && (*mi).second) {
+            CBlockIndex* pindex = (*mi).second;
+            if (chainActive.Contains(pindex)) {
+                nConfirmationsIn += chainActive.Height() - pindex->nHeight + 1;
+            }
+        }
+    }
 
-    // if(nConfirmationsIn >= GOVERNANCE_FEE_CONFIRMATIONS) {
-    //     strError = "valid";
-    // } else {
-    //     strError = strprintf("Collateral requires at least %d confirmations - %d confirmations", GOVERNANCE_FEE_CONFIRMATIONS, nConfirmationsIn);
-    //     LogPrintf ("CGovernanceObject::IsCollateralValid -- %s - %d confirmations\n", strError, nConfirmationsIn);
-    //     return false;
-    // }
+    if(nConfirmationsIn >= GOVERNANCE_FEE_CONFIRMATIONS) {
+        strError = "valid";
+    } else {
+        strError = strprintf("Collateral requires at least %d confirmations - %d confirmations", GOVERNANCE_FEE_CONFIRMATIONS, nConfirmationsIn);
+        LogPrintf ("CGovernanceObject::IsCollateralValid -- %s - %d confirmations\n", strError, nConfirmationsIn);
+        return false;
+    }
 
     return true;
 }

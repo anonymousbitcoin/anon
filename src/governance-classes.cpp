@@ -520,7 +520,7 @@ bool CSuperblock::IsValidBlockHeight(int nBlockHeight)
 {
     // SUPERBLOCKS CAN HAPPEN ONLY after hardfork and only ONCE PER CYCLE
     return nBlockHeight >= Params().GetConsensus().nSuperblockStartBlock &&
-            ((nBlockHeight % Params().GetConsensus().nSuperblockCycle) == 0);
+            (((Params().GetConsensus().nSuperblockStartBlock - nBlockHeight) % Params().GetConsensus().nSuperblockCycle) == 0);
 }
 
 CAmount CSuperblock::GetPaymentsLimit(int nBlockHeight)
@@ -535,12 +535,15 @@ CAmount CSuperblock::GetPaymentsLimit(int nBlockHeight)
     int nBits = consensusParams.fPowAllowMinDifficultyBlocks ? UintToArith256(consensusParams.powLimit).GetCompact() : 1;
     // some part of all blocks issued during the cycle goes to superblock, see GetBlockSubsidy
     // CAmount nSuperblockPartOfSubsidy = GetBlockSubsidy(nBits, nBlockHeight, consensusParams, true);
-    CAmount nSuperblockPartOfSubsidy = GetBlockSubsidy(nBlockHeight, consensusParams);
 
-    CAmount nPaymentsLimit = nSuperblockPartOfSubsidy * consensusParams.nSuperblockCycle;
-    LogPrint("gobject", "CSuperblock::GetPaymentsLimit -- Valid superblock height %d, payments max %lld\n", nBlockHeight, nPaymentsLimit);
+    CAmount nSuperblockPartOfSubsidy = 0;
+    
+    int firstBlockOfCycle = nBlockHeight - consensusParams.nSuperblockCycle;
+    for(int i = firstBlockOfCycle; i < nBlockHeight; i++){
+        nSuperblockPartOfSubsidy += GetBlockSubsidy(i, consensusParams, true);
+    }
 
-    return nPaymentsLimit;
+    return nSuperblockPartOfSubsidy;
 }
 
 void CSuperblock::ParsePaymentSchedule(std::string& strPaymentAddresses, std::string& strPaymentAmounts)
