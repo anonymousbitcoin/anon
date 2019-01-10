@@ -158,6 +158,10 @@ public:
         fTestnetToBeDeprecatedFieldRPC = false;
 
         nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
+
+        // Spork
+        strSporkPubKey = "04bfa076a1a7cb40186262ec00678b8f59a214d9ba295fbe041201b6c3b80dfe0fc0885be8d4b33ef8e1c817c3661830bb25013a2f013887a9d2bf75a8adff3811";
+
         checkpointData = {
             {
                 {      0, consensus.hashGenesisBlock }
@@ -278,6 +282,9 @@ public:
         fMineBlocksOnDemand = false;
         fTestnetToBeDeprecatedFieldRPC = true;
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
+
+        // Spork
+        strSporkPubKey = "046d545575c6338d649008224cc349e6a3f7fd80e1c4670f1afa1daedef2580ad856f09b0054db5932fa959bb3bc0317415a3edc64143964819441beb58d1f94f3";
 
         checkpointData = (Checkpoints::CCheckpointData) {
             boost::assign::map_list_of
