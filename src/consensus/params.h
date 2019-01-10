@@ -67,7 +67,6 @@ struct Params {
     // Budget related
     int nBudgetPaymentsStartBlock;
     int nBudgetPaymentsCycleBlocks;
-    int nBudgetPaymentsWindowBlocks;
     int nSuperblockStartBlock;
     int nSuperblockCycle; // in blocks
 

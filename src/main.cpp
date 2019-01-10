@@ -1491,26 +1491,26 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, b
         return 0;
     }
     //adjust height as if airdrop blocks don't exist
-    int adjastedHeight = nHeight - (chainparams.ForkStartHeight() + chainparams.ForkHeightRange());
+    int adjustedHeight = nHeight - (chainparams.ForkStartHeight() + chainparams.ForkHeightRange());
 
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
     // MAX_SUBSIDY/2 to keep the monetary curve consistent with no slow start.
-    if (adjastedHeight < consensusParams.nSubsidySlowStartInterval / 2) {
+    if (adjustedHeight < consensusParams.nSubsidySlowStartInterval / 2) {
         nSubsidy /= consensusParams.nSubsidySlowStartInterval;
-        nSubsidy *= adjastedHeight;
+        nSubsidy *= adjustedHeight;
         return nSubsidy;
-    } else if (adjastedHeight < consensusParams.nSubsidySlowStartInterval) {
+    } else if (adjustedHeight < consensusParams.nSubsidySlowStartInterval) {
         nSubsidy /= consensusParams.nSubsidySlowStartInterval;
-        nSubsidy *= (adjastedHeight + 1);
+        nSubsidy *= (adjustedHeight + 1);
         return nSubsidy;
     }
 
-    assert(adjastedHeight > consensusParams.SubsidySlowStartShift());
+    assert(adjustedHeight > consensusParams.SubsidySlowStartShift());
 
     int halvingInterval = consensusParams.nSubsidyHalvingInterval;
 
-    int halvings = (adjastedHeight - consensusParams.SubsidySlowStartShift()) / halvingInterval;
+    int halvings = (adjustedHeight - consensusParams.SubsidySlowStartShift()) / halvingInterval;
 
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 64)
