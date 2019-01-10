@@ -652,7 +652,7 @@ CMasternode *CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight
             continue;
 
         //it's too new, wait for a cycle
-        if (fFilterSigTime && mn.sigTime + (nMnCount * 2.6 * 60) > GetAdjustedTime())
+        if (fFilterSigTime && mn.sigTime + (nMnCount * 10 * 60) > GetAdjustedTime())
             continue;
 
         //make sure it has at least as many confirmations as there are masternodes
