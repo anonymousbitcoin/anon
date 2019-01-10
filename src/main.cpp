@@ -3671,11 +3671,8 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         }
     }
 
-    // Coinbase transaction must include an output sending 20% of
-    // the block reward to a founders reward script, until the last founders
-    // reward block is reached, with exception of the genesis block.
-    // The last founders reward block is defined as the block just before the
-    // first subsidy halving block, which occurs at halving_interval + slow_start_shift
+    // Coinbase transaction must include an output sending 10% of
+    // the block reward to a founders reward script with exception of the genesis block.
     if (nHeight > 0 
         && sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDERS_REWARD)
         && block.nTime > sporkManager.GetSporkValue(SPORK_15_REQUIRE_FOUNDERS_REWARD)) {
