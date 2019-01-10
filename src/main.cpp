@@ -3671,6 +3671,27 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         }
     }
 
+    // Coinbase transaction must include an output sending 10% of
+    // the block reward to a founders reward script with exception of the genesis block.
+    if (nHeight > 0 
+        && sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDERS_REWARD)
+        && block.nTime > sporkManager.GetSporkValue(SPORK_15_REQUIRE_FOUNDERS_REWARD)) {
+        bool found = false;
+
+        BOOST_FOREACH(const CTxOut& output, block.vtx[0].vout) {
+            if (output.scriptPubKey == Params().GetFoundersRewardScriptAtHeight(nHeight)) {
+                if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) / 10)) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            return state.DoS(100, error("%s: founders reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
+        }
+    }
+
     return true;
 }
 

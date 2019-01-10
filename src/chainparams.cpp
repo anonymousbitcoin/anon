@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "main.h"
+#include "base58.h"
 #include "crypto/equihash.h"
 #include "util.h"
 #include "utilstrencodings.h"
@@ -171,6 +172,13 @@ public:
         eh_epoch_2 = eh144_5;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
+
+        // Founders reward
+        vFoundersRewardAddress = {
+            // "", /* main-index: 0*/
+            // "", /* main-index: 1*/
+            // "" /* main-index: 2*/
+};
  
     }
 };
@@ -266,10 +274,19 @@ public:
             0
         };
 
+        //setup airdrop blocks range
         nForkStartHeight = 2;
         nForkHeightRange = 1;
         nZtransparentStartBlock = 5;
         nZshieldedStartBlock = 6;
+
+        // Founders reward
+        vFoundersRewardAddress = {
+            "tAJzf6XuVdCpNbsaeqppYPm2GfJgKSLKt9B", /* test-index: 0*/
+            "tAFtvb8o26AzNQbA28EeVYNaZAHVUshGdZJ", /* test-index: 1*/
+            "tAD2bqrKbchgLa3ZJrKeALwWkrdfzgnofNd" /* test-index: 2*/
+ 
+};
     }
 };
 static CTestNetParams testNetParams;
@@ -399,4 +416,28 @@ int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, cons
     ehparams[0]=params.eh_epoch_2_params();
     ehparams[1]=params.eh_epoch_1_params();
     return 2;
+}
+
+std::string CChainParams::GetFoundersRewardAddressAtHeight(int nHeight) const {
+   // choose new founders address every ~6 months.
+    int foundersRewardAddressPeriod = 25000;
+
+    // asserts if node runs out of the founder addresses
+    assert(nHeight >= 0 && ((nHeight - 37000) / foundersRewardAddressPeriod) < vFoundersRewardAddress.size());
+
+    int vFoundersRewardAddressIndex = (nHeight - 37000) / foundersRewardAddressPeriod;
+
+    return vFoundersRewardAddress[vFoundersRewardAddressIndex];
+}
+
+CScript CChainParams::GetFoundersRewardScriptAtHeight(int nHeight) const {
+    
+    CKeyID keyID;
+    CBitcoinAddress addr;
+    
+    addr.SetString(GetFoundersRewardAddressAtHeight(nHeight).c_str());
+    addr.GetKeyID(keyID);
+
+    CScript scriptPubKey = CScript() << OP_DUP << OP_HASH160 << ToByteVector(keyID) << OP_EQUALVERIFY << OP_CHECKSIG;
+    return scriptPubKey;
 }
