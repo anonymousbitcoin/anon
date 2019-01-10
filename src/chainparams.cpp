@@ -34,7 +34,14 @@ public:
         strCurrencyUnits = "ANON";
         consensus.fCoinbaseMustBeProtected = true;
         consensus.nSubsidySlowStartInterval = 1;
-        consensus.nSubsidyHalvingInterval = 134000; 
+        consensus.nSubsidyHalvingInterval = 134000; //1st halving occurs after block 150,740 (airdropped blocks offset)
+
+        // Budget related
+        consensus.nBudgetPaymentsStartBlock = 39420; // (coinburn block [37,000] + [2,420] (~16 days)
+        consensus.nBudgetPaymentsCycleBlocks = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
+        consensus.nSuperblockStartBlock = 43800; // The block at which 1st superblock goes live
+        consensus.nSuperblockCycle = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
+
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
@@ -197,6 +204,12 @@ public:
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+
+        // Budget related
+        consensus.nBudgetPaymentsStartBlock = 20;
+        consensus.nBudgetPaymentsCycleBlocks = 10;
+        consensus.nSuperblockStartBlock = 30; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
+        consensus.nSuperblockCycle = 10; // Superblocks can be issued hourly on testnet
 
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);

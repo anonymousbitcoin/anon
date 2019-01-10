@@ -100,7 +100,6 @@ public:
 
     //Sporks
     std::string SporkPubKey() const { return strSporkPubKey; }
-    std::string MasternodePaymentPubKey() const { return strMasternodePaymentsPubKey; }
 
     uint64_t ForkStartHeight() const { return nForkStartHeight; };
     uint64_t ForkHeightRange() const { return nForkHeightRange; };
@@ -147,7 +146,6 @@ protected:
 
     //Sporks
     std::string strSporkPubKey;
-    std::string strMasternodePaymentsPubKey;
 
     uint64_t nForkStartHeight;
     uint64_t nForkHeightRange;
