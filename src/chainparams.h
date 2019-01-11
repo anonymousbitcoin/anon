@@ -152,6 +152,12 @@ protected:
     uint64_t nForkHeightRange;
     uint64_t nZshieldedStartBlock;
     uint64_t nZtransparentStartBlock;
+
+    //Masternode related
+    int masternodeCollateralChangeBlock;
+    int masternodeCollateralOld;
+    int masternodeCollateralNew;
+
 };
 
 /**

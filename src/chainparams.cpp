@@ -175,6 +175,11 @@ public:
         nZtransparentStartBlock = 9893 + nForkStartHeight;
         nZshieldedStartBlock = 10132 + nForkStartHeight;
 
+        // masternode related
+        masternodeCollateralChangeBlock = 37000;
+        masternodeCollateralOld = 500; 
+        masternodeCollateralNew = 10000;
+
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
@@ -292,6 +297,11 @@ public:
         nForkHeightRange = 1;
         nZtransparentStartBlock = 5;
         nZshieldedStartBlock = 6;
+
+        //masternode collateral
+        masternodeCollateralChangeBlock = 1;
+        masternodeCollateralOld = 500; 
+        masternodeCollateralNew = 10000;
 
         // Founders reward
         vFoundersRewardAddress = {
@@ -456,14 +466,8 @@ CScript CChainParams::GetFoundersRewardScriptAtHeight(int nHeight) const {
 }
 
 int CChainParams::GetMasternodeCollateral(int nHeight) const {
-    
-    int masternodeCollateral;
 
-        if(nHeight >= 37000) {
-            masternodeCollateral = 10000;
-        } else {
-            masternodeCollateral = 500;
-        }
-        
-    return masternodeCollateral;
+        if(nHeight >= masternodeCollateralChangeBlock)
+            return masternodeCollateralNew;
+        return masternodeCollateralOld;
 }
