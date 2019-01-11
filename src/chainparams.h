@@ -112,6 +112,8 @@ public:
     std::string GetFoundersRewardAddressAtIndex(int i) const;
     int GetMasternodeCollateral(int nHeight) const;
 
+    int GetFoundersRewardBlockStart() const { return nFoundersRewardBlockStart; };
+
 protected:
     CChainParams() {}
 
@@ -157,6 +159,10 @@ protected:
     int masternodeCollateralChangeBlock;
     int masternodeCollateralOld;
     int masternodeCollateralNew;
+
+    //Founders reward
+    int nFoundersRewardBlockStart;
+    int foundersRewardAddressPeriod;
 
 };
 

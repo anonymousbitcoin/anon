@@ -185,6 +185,12 @@ public:
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
 
+        // Don't expect founders reward prior this block
+        nFoundersRewardBlockStart = 37000; // actual block may vary, due to using SPORK to activate founders reward
+
+        // choose new founders address every ~6 months.
+        foundersRewardAddressPeriod = 25000;
+
         // Founders reward
         vFoundersRewardAddress = {
             // "", /* main-index: 0*/
@@ -302,6 +308,12 @@ public:
         masternodeCollateralChangeBlock = 1;
         masternodeCollateralOld = 500; 
         masternodeCollateralNew = 10000;
+
+        // Don't expect founders reward prior this block
+        nFoundersRewardBlockStart = 100; // actual block may vary, due to using SPORK to activate founders reward
+
+        // choose new founders address every ~6 months.
+        foundersRewardAddressPeriod = 25000;
 
         // Founders reward
         vFoundersRewardAddress = {
@@ -442,13 +454,11 @@ int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, cons
 }
 
 std::string CChainParams::GetFoundersRewardAddressAtHeight(int nHeight) const {
-   // choose new founders address every ~6 months.
-    int foundersRewardAddressPeriod = 25000;
 
     // asserts if node runs out of the founder addresses
-    assert(nHeight >= 0 && ((nHeight - 37000) / foundersRewardAddressPeriod) < vFoundersRewardAddress.size());
+    assert(nHeight >= nFoundersRewardBlockStart && ((nHeight - nFoundersRewardBlockStart) / foundersRewardAddressPeriod) < vFoundersRewardAddress.size());
 
-    int vFoundersRewardAddressIndex = (nHeight - 37000) / foundersRewardAddressPeriod;
+    int vFoundersRewardAddressIndex = (nHeight - nFoundersRewardBlockStart) / foundersRewardAddressPeriod;
 
     return vFoundersRewardAddress[vFoundersRewardAddressIndex];
 }
