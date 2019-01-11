@@ -62,7 +62,7 @@ public:
 
         consensus.nForkStartHeight = 3;
         consensus.nForkHeightRange = 16737;
-
+        
         pchMessageStart[0] = 0x83;
         pchMessageStart[1] = 0xD8;
         pchMessageStart[2] = 0x47;
@@ -453,4 +453,17 @@ CScript CChainParams::GetFoundersRewardScriptAtHeight(int nHeight) const {
 
     CScript scriptPubKey = CScript() << OP_DUP << OP_HASH160 << ToByteVector(keyID) << OP_EQUALVERIFY << OP_CHECKSIG;
     return scriptPubKey;
+}
+
+int CChainParams::GetMasternodeCollateral(int nHeight) const {
+    
+    int masternodeCollateral;
+
+        if(nHeight >= 37000) {
+            masternodeCollateral = 10000;
+        } else {
+            masternodeCollateral = 500;
+        }
+        
+    return masternodeCollateral;
 }

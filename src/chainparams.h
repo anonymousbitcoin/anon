@@ -110,6 +110,7 @@ public:
     std::string GetFoundersRewardAddressAtHeight(int height) const;
     CScript GetFoundersRewardScriptAtHeight(int height) const;
     std::string GetFoundersRewardAddressAtIndex(int i) const;
+    int GetMasternodeCollateral(int nHeight) const;
 
 protected:
     CChainParams() {}

@@ -2239,14 +2239,14 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
             for (unsigned int i = 0; i < pcoin->vout.size(); i++) {
                 bool found = false;
                 if(nCoinType == ONLY_500) {
-                    found = pcoin->vout[i].nValue == 10000*COIN;
+                    found = pcoin->vout[i].nValue == Params().GetMasternodeCollateral(chainActive.Height())*COIN;
                 } else {
                     found = true;
                 }
                 if(!found) continue;
 
                 isminetype mine = IsMine(pcoin->vout[i]);
-                //Skip outputs with exactly 10000 anon if they are not locked. We don't want to skew balance when z_gettotalbalance calls this function to get masternode collaterals funds. 
+                //Skip outputs with exactly Params().GetMasternodeCollateral(chainActive.Height()) anon if they are not locked. We don't want to skew balance when z_gettotalbalance calls this function to get masternode collaterals funds. 
                 if(mnCollateral && !(IsSpent(wtxid, i)) && mine != ISMINE_NO &&
                     (!IsLockedCoin((*it).first, i))){
                     continue;
