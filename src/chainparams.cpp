@@ -185,12 +185,29 @@ public:
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
 
         // Founders reward
+        // ~ 6 months per each address 
         vFoundersRewardAddress = {
-            // "", /* main-index: 0*/
-            // "", /* main-index: 1*/
-            // "" /* main-index: 2*/
-};
- 
+            "AnNhQ4bYHtdPiWfjXEr6GN4kfYxwUP8sf2g", /* main-index: 0*/
+            "AnUMeF4PzFSxdhrG1dFxg9L1hgEs1xC32mA", /* main-index: 1*/
+            "AnTBoW13Mf5NNPgsnDsvcbkyWt3ERNCSFUq", /* main-index: 2*/
+            "AnggA4wFWzd8GMcPHiigdiU59cQKb9asq2n", /* main-index: 3*/
+            "AnaEq58AGA5BvjyQQ1tiYRtTp3AJBbZn8kY", /* main-index: 4*/
+            "AnhUL1HEgcvGADi2DuDEUvMBKvNcQjto3sR", /* main-index: 5*/
+            "AncyG25fWsH2zzX5WhAidkAQtjfAVaZaMcj", /* main-index: 6*/
+            "AnaTx6oHTggyWifNYirpeWjwUhPaLjWpXYq", /* main-index: 7*/
+            "AnPcwA8LyaM79bECmDzf6hESCzuM7Bcog7d", /* main-index: 8*/
+            "AnQFWT4b7foe75eUFnS3YFwcZmzMyRYTnfq", /* main-index: 9*/
+            "AnRQdA7CEYXJ5qBUGRAACKA5SKBW2rDLUEc", /* main-index: 10*/
+            "AnRqy2LczE5DV8RRydXLGSTRaZpszMwdGbf", /* main-index: 11*/
+            "AnaY5PzxKSQH9MdevwfFxVBdX2qKiiR89YK", /* main-index: 12*/
+            "Ani2bk41GKoteRfoYedoP4aaS2r888CDbic", /* main-index: 13*/
+            "AnQ3G8U31m3jmqRfQjZ4XgbQEMNX4TW8Jz3", /* main-index: 14*/
+            "AnZYnEcr1mat4EWDXUXu2ZY54ARJ7NmjB1A", /* main-index: 15*/
+            "AnVwcAzC9ounFAzKaCDtQjhZTZCugSqvFzo", /* main-index: 16*/
+            "AnVBJ5oRrdvdTWDtb41eL6cCaSU3qAfM4VY", /* main-index: 17*/
+            "Anc4J1Snvs9buX8FeFMM2tZC9G1cie3wUn2", /* main-index: 18*/
+            "Ani1avTH5BFDEiZRWUpaaLEeqpHVCo9dn2V"  /* main-index: 19*/
+        };
     }
 };
 static CMainParams mainParams;
@@ -301,12 +318,30 @@ public:
         nZshieldedStartBlock = 6;
 
         // Founders reward
+        // ~ 6 months per each address 
         vFoundersRewardAddress = {
-            "tAJzf6XuVdCpNbsaeqppYPm2GfJgKSLKt9B", /* test-index: 0*/
-            "tAFtvb8o26AzNQbA28EeVYNaZAHVUshGdZJ", /* test-index: 1*/
-            "tAD2bqrKbchgLa3ZJrKeALwWkrdfzgnofNd" /* test-index: 2*/
- 
-};
+            "tAHLDZxnjpuQah28VMDnWsrK747j4kg8YzV", /* test-index: 0*/
+            "tAHUxqMjG6tUSyjfpH2dTUHBk2gAoKQckdF", /* test-index: 1*/
+            "tAKFCqQa5n9oCcTBVdxbj4z651CqvYDjfyS", /* test-index: 2*/
+            "tAGnnENyonMAFV5c6EjnZUf9mvacWF4Qf6z", /* test-index: 3*/
+            "tASoVFeMmWXrn19PkDaGK67d671jveudMMq", /* test-index: 4*/
+            "tAA95SwRY47M6neVn81hoUzvANx1q4udt9q", /* test-index: 5*/
+            "tAGt9vmkkyPfu8Tc6K3Fnw1cYebaUWRaDBv", /* test-index: 6*/
+            "tAF1hUrjqfjoN5GGmDvNP3yG1zzigZ5u9YP", /* test-index: 7*/
+            "tATSk8P4c4SVUcwA9oobkqgNoHtu8xT4mvc", /* test-index: 8*/
+            "tAPVBCyvugQE91FDYRJtP5h2WvPJtVe2L3Z", /* test-index: 9*/
+            "tANDfgz3pw6et13sEcW2DPcNU6rTho6RgZe", /* test-index: 10*/
+            "tAPmN5w385eBWPc1LDVhHTUe2JANvSnFBuT", /* test-index: 11*/
+            "tAXMHLHroZVhTv3GM9hnbtrmHCGuG6Wmm6i", /* test-index: 12*/
+            "tALG9FCG8EUQ38LXku99rbtqbmgQhyvLzoH", /* test-index: 13*/
+            "tAHVQvDrbayCQKc1pfakopQak87QgvhVCay", /* test-index: 14*/
+            "tA9xYZ2KCBayYwPRhjYwmuytk4q5djpcD1A", /* test-index: 15*/
+            "tAXDnj3JTNassQY7ffGeC3wZ3DPGybyXYqB", /* test-index: 16*/
+            "tABJBqFqvjRFoPeaWP4bspxnKZmK5gnNA8G", /* test-index: 17*/
+            "tAKpajpeJzp4aZUpe35ymKtAwk7WheA3aTu", /* test-index: 18*/
+            "tANq6WULf5eaTSvTt7jP2XjQ85VwEoZCHJn"  /* test-index: 19*/
+        };
+
     }
 };
 static CTestNetParams testNetParams;
