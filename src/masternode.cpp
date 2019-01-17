@@ -193,7 +193,7 @@ void CMasternode::Check(bool fForce)
         CCoins coins;
         if (!pcoinsTip->GetCoins(vin.prevout.hash, coins) ||
             (unsigned int)vin.prevout.n >= coins.vout.size() ||
-            coins.vout[vin.prevout.n].IsNull())
+            coins.vout[vin.prevout.n].IsNull() || coins.vout[vin.prevout.n].nValue !=  Params().GetMasternodeCollateral(chainActive.Height())*COIN)
         {
             nActiveState = MASTERNODE_OUTPOINT_SPENT;
             LogPrint("masternode", "CMasternode::Check -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
