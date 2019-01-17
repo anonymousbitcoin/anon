@@ -160,7 +160,7 @@ public:
         nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
 
         // Spork
-        strSporkPubKey = "04bfa076a1a7cb40186262ec00678b8f59a214d9ba295fbe041201b6c3b80dfe0fc0885be8d4b33ef8e1c817c3661830bb25013a2f013887a9d2bf75a8adff3811";
+        strSporkPubKey = "04859b86231cc91816c4ca2be433030fc0d544fcd712c3ffd9b099c496a693ddc720533acd5d9d77b6b1bf50c52cc44351bc166afb040c3725f4dcd2b5e57c83a7";
 
         checkpointData = {
             {
@@ -284,7 +284,7 @@ public:
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
         // Spork
-        strSporkPubKey = "046d545575c6338d649008224cc349e6a3f7fd80e1c4670f1afa1daedef2580ad856f09b0054db5932fa959bb3bc0317415a3edc64143964819441beb58d1f94f3";
+        strSporkPubKey = "04b8c57d8921b9ecd769052739f8d137104b68f68714f4d4ca3219c5664a74048bd7cbe8badbe0baeee17ec463a13f3d0f5964f56d68317fd6ef14e86380383c74";
 
         checkpointData = (Checkpoints::CCheckpointData) {
             boost::assign::map_list_of
