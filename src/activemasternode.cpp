@@ -206,9 +206,12 @@ void CActiveMasternode::ManageStateInitial()
         LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet is locked\n", GetStateString());
         return;
     }
-    if(pwalletMain->GetBalance() < 10000*COIN) {
-        LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet balance is < 10000 ANON\n", GetStateString());
-        return;
+    {
+        LOCK(cs_main);
+        if(pwalletMain->GetBalance() < Params().GetMasternodeCollateral(chainActive.Height())*COIN) {
+            LogPrintf("CActiveMasternode::ManageStateInitial -- %s: Wallet balance is < %d ANON\n", GetStateString(), Params().GetMasternodeCollateral(chainActive.Height()));
+            return;
+        }
     }
 
     // Choose coins to use

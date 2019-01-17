@@ -2262,9 +2262,12 @@ bool CDarkSendSigner::IsVinAssociatedWithPubkey(const CTxIn& txin, const CPubKey
 
     CTransaction tx;
     uint256 hash;
-    if(GetTransaction(txin.prevout.hash, tx, hash, true)) {
-        BOOST_FOREACH(CTxOut out, tx.vout)
-            if(out.nValue == 10000*COIN && out.scriptPubKey == payee) return true;
+    {
+        LOCK(cs_main);
+        if(GetTransaction(txin.prevout.hash, tx, hash, true)) {
+            BOOST_FOREACH(CTxOut out, tx.vout)
+                if(out.nValue == Params().GetMasternodeCollateral(chainActive.Height())*COIN && out.scriptPubKey == payee) return true;
+        }
     }
     return false;
 }

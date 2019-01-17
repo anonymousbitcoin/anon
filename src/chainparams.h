@@ -110,6 +110,9 @@ public:
     std::string GetFoundersRewardAddressAtHeight(int height) const;
     CScript GetFoundersRewardScriptAtHeight(int height) const;
     std::string GetFoundersRewardAddressAtIndex(int i) const;
+    int GetMasternodeCollateral(int nHeight) const;
+
+    int GetFoundersRewardBlockStart() const { return nFoundersRewardBlockStart; };
 
 protected:
     CChainParams() {}
@@ -151,6 +154,16 @@ protected:
     uint64_t nForkHeightRange;
     uint64_t nZshieldedStartBlock;
     uint64_t nZtransparentStartBlock;
+
+    //Masternode related
+    int masternodeCollateralChangeBlock;
+    int masternodeCollateralOld;
+    int masternodeCollateralNew;
+
+    //Founders reward
+    int nFoundersRewardBlockStart;
+    int foundersRewardAddressPeriod;
+
 };
 
 /**

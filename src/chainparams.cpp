@@ -62,7 +62,7 @@ public:
 
         consensus.nForkStartHeight = 3;
         consensus.nForkHeightRange = 16737;
-
+        
         pchMessageStart[0] = 0x83;
         pchMessageStart[1] = 0xD8;
         pchMessageStart[2] = 0x47;
@@ -179,10 +179,21 @@ public:
         nZtransparentStartBlock = 9893 + nForkStartHeight;
         nZshieldedStartBlock = 10132 + nForkStartHeight;
 
+        // masternode related
+        masternodeCollateralChangeBlock = 37000;
+        masternodeCollateralOld = 500; 
+        masternodeCollateralNew = 10000;
+
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
+
+        // Don't expect founders reward prior this block
+        nFoundersRewardBlockStart = 37000; // actual block may vary, due to using SPORK to activate founders reward
+
+        // choose new founders address every ~6 months.
+        foundersRewardAddressPeriod = 25000;
 
         // Founders reward
         // ~ 6 months per each address 
@@ -316,6 +327,17 @@ public:
         nForkHeightRange = 1;
         nZtransparentStartBlock = 5;
         nZshieldedStartBlock = 6;
+
+        //masternode collateral
+        masternodeCollateralChangeBlock = 1;
+        masternodeCollateralOld = 500; 
+        masternodeCollateralNew = 10000;
+
+        // Don't expect founders reward prior this block
+        nFoundersRewardBlockStart = 100; // actual block may vary, due to using SPORK to activate founders reward
+
+        // choose new founders address every ~6 months.
+        foundersRewardAddressPeriod = 25000;
 
         // Founders reward
         // ~ 6 months per each address 
@@ -474,13 +496,11 @@ int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, cons
 }
 
 std::string CChainParams::GetFoundersRewardAddressAtHeight(int nHeight) const {
-   // choose new founders address every ~6 months.
-    int foundersRewardAddressPeriod = 25000;
 
     // asserts if node runs out of the founder addresses
-    assert(nHeight >= 0 && ((nHeight - 37000) / foundersRewardAddressPeriod) < vFoundersRewardAddress.size());
+    assert(nHeight >= nFoundersRewardBlockStart && ((nHeight - nFoundersRewardBlockStart) / foundersRewardAddressPeriod) < vFoundersRewardAddress.size());
 
-    int vFoundersRewardAddressIndex = (nHeight - 37000) / foundersRewardAddressPeriod;
+    int vFoundersRewardAddressIndex = (nHeight - nFoundersRewardBlockStart) / foundersRewardAddressPeriod;
 
     return vFoundersRewardAddress[vFoundersRewardAddressIndex];
 }
@@ -495,4 +515,11 @@ CScript CChainParams::GetFoundersRewardScriptAtHeight(int nHeight) const {
 
     CScript scriptPubKey = CScript() << OP_DUP << OP_HASH160 << ToByteVector(keyID) << OP_EQUALVERIFY << OP_CHECKSIG;
     return scriptPubKey;
+}
+
+int CChainParams::GetMasternodeCollateral(int nHeight) const {
+
+        if(nHeight >= masternodeCollateralChangeBlock)
+            return masternodeCollateralNew;
+        return masternodeCollateralOld;
 }
