@@ -186,43 +186,45 @@ std::string CMasternodeSync::GetAssetName()
 
 void CMasternodeSync::SwitchToNextAsset()
 {
-    switch (nRequestedMasternodeAssets)
+    switch(nRequestedMasternodeAssets)
     {
-    case (MASTERNODE_SYNC_FAILED):
-        throw std::runtime_error("Can't switch to next asset from failed, should use Reset() first!");
-        break;
-    case (MASTERNODE_SYNC_INITIAL):
-        ClearFulfilledRequests();
-        nTimeLastMasternodeList = GetTime();
-        nRequestedMasternodeAssets = MASTERNODE_SYNC_LIST;
-        LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
-        break;
-    case (MASTERNODE_SYNC_LIST):
-        nTimeLastPaymentVote = GetTime();
-        nRequestedMasternodeAssets = MASTERNODE_SYNC_MNW;
-        LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
-        break;
-    case (MASTERNODE_SYNC_MNW):
-        nTimeLastGovernanceItem = GetTime();
-        nRequestedMasternodeAssets = MASTERNODE_SYNC_GOVERNANCE;
-        // nRequestedMasternodeAssets = MASTERNODE_SYNC_FINISHED;
-        LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
-        break;
-    case(MASTERNODE_SYNC_GOVERNANCE):
-        LogPrintf("CMasternodeSync::SwitchToNextAsset -- Sync has finished\n");
-        nRequestedMasternodeAssets = MASTERNODE_SYNC_FINISHED;
-        //try to activate our masternode if possible
-        activeMasternode.ManageState();
-        TRY_LOCK(cs_vNodes, lockRecv);
-        if (!lockRecv)
-            return;
+        case(MASTERNODE_SYNC_FAILED):
+            throw std::runtime_error("Can't switch to next asset from failed, should use Reset() first!");
+            break;
+        case(MASTERNODE_SYNC_INITIAL):
+            ClearFulfilledRequests();
+            nRequestedMasternodeAssets = MASTERNODE_SYNC_SPORKS;
+            LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
+            break;
+        case(MASTERNODE_SYNC_SPORKS):
+            nTimeLastMasternodeList = GetTime();
+            nRequestedMasternodeAssets = MASTERNODE_SYNC_LIST;
+            LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
+            break;
+        case(MASTERNODE_SYNC_LIST):
+            nTimeLastPaymentVote = GetTime();
+            nRequestedMasternodeAssets = MASTERNODE_SYNC_MNW;
+            LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
+            break;
+        case(MASTERNODE_SYNC_MNW):
+            nTimeLastGovernanceItem = GetTime();
+            nRequestedMasternodeAssets = MASTERNODE_SYNC_GOVERNANCE;
+            LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
+            break;
+        case(MASTERNODE_SYNC_GOVERNANCE):
+            LogPrintf("CMasternodeSync::SwitchToNextAsset -- Sync has finished\n");
+            nRequestedMasternodeAssets = MASTERNODE_SYNC_FINISHED;
+            //try to activate our masternode if possible
+            activeMasternode.ManageState();
 
-        BOOST_FOREACH (CNode *pnode, vNodes)
-        {
-            netfulfilledman.AddFulfilledRequest(pnode->addr, "full-sync");
-        }
+            TRY_LOCK(cs_vNodes, lockRecv);
+            if(!lockRecv) return;
 
-        break;
+            BOOST_FOREACH(CNode* pnode, vNodes) {
+                netfulfilledman.AddFulfilledRequest(pnode->addr, "full-sync");
+            }
+
+            break;
     }
     nRequestedMasternodeAttempt = 0;
     nTimeAssetSyncStarted = GetTime();
