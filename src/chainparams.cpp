@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "main.h"
+#include "base58.h"
 #include "crypto/equihash.h"
 #include "util.h"
 #include "utilstrencodings.h"
@@ -33,7 +34,14 @@ public:
         strCurrencyUnits = "ANON";
         consensus.fCoinbaseMustBeProtected = true;
         consensus.nSubsidySlowStartInterval = 1;
-        consensus.nSubsidyHalvingInterval = 134000; 
+        consensus.nSubsidyHalvingInterval = 134000; //1st halving occurs after block 150,740 (airdropped blocks offset)
+
+        // Budget related
+        consensus.nBudgetPaymentsStartBlock = 39420; // (coinburn block [37,000] + [2,420] (~16 days)
+        consensus.nBudgetPaymentsCycleBlocks = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
+        consensus.nSuperblockStartBlock = 43800; // The block at which 1st superblock goes live
+        consensus.nSuperblockCycle = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
+
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
@@ -54,7 +62,7 @@ public:
 
         consensus.nForkStartHeight = 3;
         consensus.nForkHeightRange = 16737;
-
+        
         pchMessageStart[0] = 0x83;
         pchMessageStart[1] = 0xD8;
         pchMessageStart[2] = 0x47;
@@ -149,6 +157,10 @@ public:
         fTestnetToBeDeprecatedFieldRPC = false;
 
         nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
+
+        // Spork
+        strSporkPubKey = "04859b86231cc91816c4ca2be433030fc0d544fcd712c3ffd9b099c496a693ddc720533acd5d9d77b6b1bf50c52cc44351bc166afb040c3725f4dcd2b5e57c83a7";
+
         checkpointData = {
             {
                 {      0, consensus.hashGenesisBlock }
@@ -166,11 +178,46 @@ public:
         nZtransparentStartBlock = 9893 + nForkStartHeight;
         nZshieldedStartBlock = 10132 + nForkStartHeight;
 
+        // masternode related
+        masternodeCollateralChangeBlock = 37000;
+        masternodeCollateralOld = 500; 
+        masternodeCollateralNew = 10000;
+
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
- 
+
+        // Don't expect founders reward prior this block
+        nFoundersRewardBlockStart = 37000; // actual block may vary, due to using SPORK to activate founders reward
+
+        // choose new founders address every ~6 months.
+        foundersRewardAddressPeriod = 25000;
+
+        // Founders reward
+        // ~ 6 months per each address 
+        vFoundersRewardAddress = {
+            "AnNhQ4bYHtdPiWfjXEr6GN4kfYxwUP8sf2g", /* main-index: 0*/
+            "AnUMeF4PzFSxdhrG1dFxg9L1hgEs1xC32mA", /* main-index: 1*/
+            "AnTBoW13Mf5NNPgsnDsvcbkyWt3ERNCSFUq", /* main-index: 2*/
+            "AnggA4wFWzd8GMcPHiigdiU59cQKb9asq2n", /* main-index: 3*/
+            "AnaEq58AGA5BvjyQQ1tiYRtTp3AJBbZn8kY", /* main-index: 4*/
+            "AnhUL1HEgcvGADi2DuDEUvMBKvNcQjto3sR", /* main-index: 5*/
+            "AncyG25fWsH2zzX5WhAidkAQtjfAVaZaMcj", /* main-index: 6*/
+            "AnaTx6oHTggyWifNYirpeWjwUhPaLjWpXYq", /* main-index: 7*/
+            "AnPcwA8LyaM79bECmDzf6hESCzuM7Bcog7d", /* main-index: 8*/
+            "AnQFWT4b7foe75eUFnS3YFwcZmzMyRYTnfq", /* main-index: 9*/
+            "AnRQdA7CEYXJ5qBUGRAACKA5SKBW2rDLUEc", /* main-index: 10*/
+            "AnRqy2LczE5DV8RRydXLGSTRaZpszMwdGbf", /* main-index: 11*/
+            "AnaY5PzxKSQH9MdevwfFxVBdX2qKiiR89YK", /* main-index: 12*/
+            "Ani2bk41GKoteRfoYedoP4aaS2r888CDbic", /* main-index: 13*/
+            "AnQ3G8U31m3jmqRfQjZ4XgbQEMNX4TW8Jz3", /* main-index: 14*/
+            "AnZYnEcr1mat4EWDXUXu2ZY54ARJ7NmjB1A", /* main-index: 15*/
+            "AnVwcAzC9ounFAzKaCDtQjhZTZCugSqvFzo", /* main-index: 16*/
+            "AnVBJ5oRrdvdTWDtb41eL6cCaSU3qAfM4VY", /* main-index: 17*/
+            "Anc4J1Snvs9buX8FeFMM2tZC9G1cie3wUn2", /* main-index: 18*/
+            "Ani1avTH5BFDEiZRWUpaaLEeqpHVCo9dn2V"  /* main-index: 19*/
+        };
     }
 };
 static CMainParams mainParams;
@@ -188,6 +235,12 @@ public:
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+
+        // Budget related
+        consensus.nBudgetPaymentsStartBlock = 20;
+        consensus.nBudgetPaymentsCycleBlocks = 10;
+        consensus.nSuperblockStartBlock = 30; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
+        consensus.nSuperblockCycle = 10; // Superblocks can be issued hourly on testnet
 
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
@@ -257,6 +310,9 @@ public:
         fTestnetToBeDeprecatedFieldRPC = true;
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
+        // Spork
+        strSporkPubKey = "04b8c57d8921b9ecd769052739f8d137104b68f68714f4d4ca3219c5664a74048bd7cbe8badbe0baeee17ec463a13f3d0f5964f56d68317fd6ef14e86380383c74";
+
         checkpointData = (Checkpoints::CCheckpointData) {
             boost::assign::map_list_of
             ( 0, consensus.hashGenesisBlock),
@@ -265,10 +321,48 @@ public:
             0
         };
 
+        //setup airdrop blocks range
         nForkStartHeight = 2;
         nForkHeightRange = 1;
         nZtransparentStartBlock = 5;
         nZshieldedStartBlock = 6;
+
+        //masternode collateral
+        masternodeCollateralChangeBlock = 1;
+        masternodeCollateralOld = 500; 
+        masternodeCollateralNew = 10000;
+
+        // Don't expect founders reward prior this block
+        nFoundersRewardBlockStart = 100; // actual block may vary, due to using SPORK to activate founders reward
+
+        // choose new founders address every ~6 months.
+        foundersRewardAddressPeriod = 25000;
+
+        // Founders reward
+        // ~ 6 months per each address 
+        vFoundersRewardAddress = {
+            "tAHLDZxnjpuQah28VMDnWsrK747j4kg8YzV", /* test-index: 0*/
+            "tAHUxqMjG6tUSyjfpH2dTUHBk2gAoKQckdF", /* test-index: 1*/
+            "tAKFCqQa5n9oCcTBVdxbj4z651CqvYDjfyS", /* test-index: 2*/
+            "tAGnnENyonMAFV5c6EjnZUf9mvacWF4Qf6z", /* test-index: 3*/
+            "tASoVFeMmWXrn19PkDaGK67d671jveudMMq", /* test-index: 4*/
+            "tAA95SwRY47M6neVn81hoUzvANx1q4udt9q", /* test-index: 5*/
+            "tAGt9vmkkyPfu8Tc6K3Fnw1cYebaUWRaDBv", /* test-index: 6*/
+            "tAF1hUrjqfjoN5GGmDvNP3yG1zzigZ5u9YP", /* test-index: 7*/
+            "tATSk8P4c4SVUcwA9oobkqgNoHtu8xT4mvc", /* test-index: 8*/
+            "tAPVBCyvugQE91FDYRJtP5h2WvPJtVe2L3Z", /* test-index: 9*/
+            "tANDfgz3pw6et13sEcW2DPcNU6rTho6RgZe", /* test-index: 10*/
+            "tAPmN5w385eBWPc1LDVhHTUe2JANvSnFBuT", /* test-index: 11*/
+            "tAXMHLHroZVhTv3GM9hnbtrmHCGuG6Wmm6i", /* test-index: 12*/
+            "tALG9FCG8EUQ38LXku99rbtqbmgQhyvLzoH", /* test-index: 13*/
+            "tAHVQvDrbayCQKc1pfakopQak87QgvhVCay", /* test-index: 14*/
+            "tA9xYZ2KCBayYwPRhjYwmuytk4q5djpcD1A", /* test-index: 15*/
+            "tAXDnj3JTNassQY7ffGeC3wZ3DPGybyXYqB", /* test-index: 16*/
+            "tABJBqFqvjRFoPeaWP4bspxnKZmK5gnNA8G", /* test-index: 17*/
+            "tAKpajpeJzp4aZUpe35ymKtAwk7WheA3aTu", /* test-index: 18*/
+            "tANq6WULf5eaTSvTt7jP2XjQ85VwEoZCHJn"  /* test-index: 19*/
+        };
+
     }
 };
 static CTestNetParams testNetParams;
@@ -398,4 +492,33 @@ int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, cons
     ehparams[0]=params.eh_epoch_2_params();
     ehparams[1]=params.eh_epoch_1_params();
     return 2;
+}
+
+std::string CChainParams::GetFoundersRewardAddressAtHeight(int nHeight) const {
+
+    // asserts if node runs out of the founder addresses
+    assert(nHeight >= nFoundersRewardBlockStart && ((nHeight - nFoundersRewardBlockStart) / foundersRewardAddressPeriod) < vFoundersRewardAddress.size());
+
+    int vFoundersRewardAddressIndex = (nHeight - nFoundersRewardBlockStart) / foundersRewardAddressPeriod;
+
+    return vFoundersRewardAddress[vFoundersRewardAddressIndex];
+}
+
+CScript CChainParams::GetFoundersRewardScriptAtHeight(int nHeight) const {
+    
+    CKeyID keyID;
+    CBitcoinAddress addr;
+    
+    addr.SetString(GetFoundersRewardAddressAtHeight(nHeight).c_str());
+    addr.GetKeyID(keyID);
+
+    CScript scriptPubKey = CScript() << OP_DUP << OP_HASH160 << ToByteVector(keyID) << OP_EQUALVERIFY << OP_CHECKSIG;
+    return scriptPubKey;
+}
+
+int CChainParams::GetMasternodeCollateral(int nHeight) const {
+
+        if(nHeight >= masternodeCollateralChangeBlock)
+            return masternodeCollateralNew;
+        return masternodeCollateralOld;
 }

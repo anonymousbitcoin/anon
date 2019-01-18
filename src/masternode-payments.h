@@ -24,8 +24,8 @@ static const int MNPAYMENTS_SIGNATURES_TOTAL = 8;
 //  vote for masternode and be elected as a payment winner
 // V1 - Last protocol version before update
 // V2 - Newest protocol version
-static const int MIN_MASTERNODE_PAYMENT_PROTO_VERSION_1 = 70206;
-static const int MIN_MASTERNODE_PAYMENT_PROTO_VERSION_2 = 70206;
+static const int MIN_MASTERNODE_PAYMENT_PROTO_VERSION_1 = 180005;
+static const int MIN_MASTERNODE_PAYMENT_PROTO_VERSION_2 = 180006;
 
 extern CCriticalSection cs_vecPayees;
 extern CCriticalSection cs_mapMasternodeBlocks;
@@ -36,8 +36,10 @@ extern CMasternodePayments mnpayments;
 /// TODO: all 4 functions do not belong here really, they should be refactored/moved somewhere (main.cpp ?)
 bool IsBlockValueValid(const CBlock &block, int nBlockHeight, CAmount blockReward, std::string &strErrorRet);
 bool IsBlockPayeeValid(const CTransaction &txNew, int nBlockHeight, CAmount blockReward);
-void FillBlockPayments(CMutableTransaction &txNew, int nBlockHeight, CAmount blockReward, CTxOut &txoutMasternodeRet);
+void FillBlockPayments(CMutableTransaction& txNew, int nBlockHeight, CAmount blockReward, CTxOut& txoutMasternodeRet, std::vector<CTxOut>& voutSuperblockRet);
+
 std::string GetRequiredPaymentsString(int nBlockHeight);
+
 
 class CMasternodePayee
 {

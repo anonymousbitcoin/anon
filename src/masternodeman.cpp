@@ -652,7 +652,7 @@ CMasternode *CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight
             continue;
 
         //it's too new, wait for a cycle
-        if (fFilterSigTime && mn.sigTime + (nMnCount * 2.6 * 60) > GetAdjustedTime())
+        if (fFilterSigTime && mn.sigTime + (nMnCount * 10 * 60) > GetAdjustedTime())
             continue;
 
         //make sure it has at least as many confirmations as there are masternodes
@@ -1687,8 +1687,6 @@ void CMasternodeMan::UpdateMasternodeList(CMasternodeBroadcast mnb)
 
 bool CMasternodeMan::CheckMnbAndUpdateMasternodeList(CNode *pfrom, CMasternodeBroadcast mnb, int &nDos)
 {
-    // Need LOCK2 here to ensure consistent locking order because the SimpleCheck call below locks cs_main
-    // LOCK2(cs_main, cs);
     // Need to lock cs_main here to ensure consistent locking order because the SimpleCheck call below locks cs_main
     LOCK(cs_main);
     {

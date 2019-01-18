@@ -843,9 +843,9 @@ UniValue getgovernanceinfo(const UniValue& params, bool fHelp)
             "  \"governanceminquorum\": xxxxx,           (numeric) the absolute minimum number of votes needed to trigger a governance action\n"
             "  \"masternodewatchdogmaxseconds\": xxxxx,  (numeric) sentinel watchdog expiration time in seconds\n"
             "  \"proposalfee\": xxx.xx,                  (numeric) the collateral transaction fee which must be paid to create a proposal in\n"
-            // "  \"superblockcycle\": xxxxx,               (numeric) the number of blocks between superblocks\n"
-            // "  \"lastsuperblock\": xxxxx,                (numeric) the block number of the last superblock\n"
-            // "  \"nextsuperblock\": xxxxx,                (numeric) the block number of the next superblock\n"
+            "  \"superblockcycle\": xxxxx,               (numeric) the number of blocks between superblocks\n"
+            "  \"lastsuperblock\": xxxxx,                (numeric) the block number of the last superblock\n"
+            "  \"nextsuperblock\": xxxxx,                (numeric) the block number of the next superblock\n"
             "}\n"
             "\nExamples:\n"
             + HelpExampleCli("getgovernanceinfo", "")
@@ -854,7 +854,7 @@ UniValue getgovernanceinfo(const UniValue& params, bool fHelp)
     }
 
     // Compute last/next superblock
-    // int nLastSuperblock, nNextSuperblock;
+    int nLastSuperblock, nNextSuperblock;
 
     // Get current block height
     int nBlockHeight = 0;
@@ -864,55 +864,55 @@ UniValue getgovernanceinfo(const UniValue& params, bool fHelp)
     }
 
     // Get chain parameters
-    // int nSuperblockStartBlock = Params().GetConsensus().nSuperblockStartBlock;
-    // int nSuperblockCycle = Params().GetConsensus().nSuperblockCycle;
+    int nSuperblockStartBlock = Params().GetConsensus().nSuperblockStartBlock;
+    int nSuperblockCycle = Params().GetConsensus().nSuperblockCycle;
 
     // Get first superblock
-    // int nFirstSuperblockOffset = (nSuperblockCycle - nSuperblockStartBlock % nSuperblockCycle) % nSuperblockCycle;
-    // int nFirstSuperblock = nSuperblockStartBlock + nFirstSuperblockOffset;
+    int nFirstSuperblockOffset = (nSuperblockCycle - nSuperblockStartBlock % nSuperblockCycle) % nSuperblockCycle;
+    int nFirstSuperblock = nSuperblockStartBlock + nFirstSuperblockOffset;
 
-    // if(nBlockHeight < nFirstSuperblock){
-    //     nLastSuperblock = 0;
-    //     nNextSuperblock = nFirstSuperblock;
-    // } else {
-    //     nLastSuperblock = nBlockHeight - nBlockHeight % nSuperblockCycle;
-    //     nNextSuperblock = nLastSuperblock + nSuperblockCycle;
-    // }
+    if(nBlockHeight < nFirstSuperblock){
+        nLastSuperblock = 0;
+        nNextSuperblock = nFirstSuperblock;
+    } else {
+        nLastSuperblock = nBlockHeight - nBlockHeight % nSuperblockCycle;
+        nNextSuperblock = nLastSuperblock + nSuperblockCycle;
+    }
 
     UniValue obj(UniValue::VOBJ);
     obj.push_back(Pair("governanceminquorum", nGovernanceMinQuorum));
     obj.push_back(Pair("masternodewatchdogmaxseconds", MASTERNODE_WATCHDOG_MAX_SECONDS));
     obj.push_back(Pair("proposalfee", ValueFromAmount(GOVERNANCE_PROPOSAL_FEE_TX)));
-    // obj.push_back(Pair("superblockcycle", Params().GetConsensus().nSuperblockCycle));
-    // obj.push_back(Pair("lastsuperblock", nLastSuperblock));
-    // obj.push_back(Pair("nextsuperblock", nNextSuperblock));
+    obj.push_back(Pair("superblockcycle", Params().GetConsensus().nSuperblockCycle));
+    obj.push_back(Pair("lastsuperblock", nLastSuperblock));
+    obj.push_back(Pair("nextsuperblock", nNextSuperblock));
 
     return obj;
 }
 
-// UniValue getsuperblockbudget(const UniValue& params, bool fHelp)
-// {
-//     if (fHelp || params.size() != 1) {
-//         throw std::runtime_error(
-//             "getsuperblockbudget index\n"
-//             "\nReturns the absolute maximum sum of superblock payments allowed.\n"
-//             "\nArguments:\n"
-//             "1. index         (numeric, required) The block index\n"
-//             "\nResult:\n"
-//             "n                (numeric) The absolute maximum sum of superblock payments allowed, in " + CURRENCY_UNIT + "\n"
-//             "\nExamples:\n"
-//             + HelpExampleCli("getsuperblockbudget", "1000")
-//             + HelpExampleRpc("getsuperblockbudget", "1000")
-//         );
-//     }
+UniValue getsuperblockbudget(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1) {
+        throw std::runtime_error(
+            "getsuperblockbudget index\n"
+            "\nReturns the absolute maximum sum of superblock payments allowed.\n"
+            "\nArguments:\n"
+            "1. index         (numeric, required) The block index\n"
+            "\nResult:\n"
+            "n                (numeric) The absolute maximum sum of superblock payments allowed, in ANON\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getsuperblockbudget", "1000")
+            + HelpExampleRpc("getsuperblockbudget", "1000")
+        );
+    }
 
-//     int nBlockHeight = params[0].get_int();
-//     if (nBlockHeight < 0) {
-//         throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
-//     }
+    int nBlockHeight = params[0].get_int();
+    if (nBlockHeight < 0) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
+    }
 
-//     CAmount nBudget = CSuperblock::GetPaymentsLimit(nBlockHeight);
-//     std::string strBudget = FormatMoney(nBudget);
+    CAmount nBudget = CSuperblock::GetPaymentsLimit(nBlockHeight);
+    std::string strBudget = FormatMoney(nBudget);
 
-//     return strBudget;
-// }
+    return strBudget;
+}

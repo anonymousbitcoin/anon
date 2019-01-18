@@ -2,9 +2,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "spork.h"
-// #include "darksend.h"
+#include "darksend.h"
 #include "main.h"
 #include "key.h"
+#include "net.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -75,7 +76,7 @@ void CSporkManager::ExecuteSpork(int nSporkID, int nValue)
     //correct fork via spork technology
     if (nSporkID == SPORK_12_RECONSIDER_BLOCKS && nValue > 0) {
         // allow to reprocess 24h of blocks max, which should be enough to resolve any issues
-        int64_t nMaxBlocks = 576;
+        int64_t nMaxBlocks = 144;
         // this potentially can be a heavy operation, so only allow this to be executed once per 10 minutes
         int64_t nTimeout = 10 * 60;
 
@@ -94,7 +95,8 @@ void CSporkManager::ExecuteSpork(int nSporkID, int nValue)
 
         LogPrintf("CSporkManager::ExecuteSpork -- Reconsider Last %d Blocks\n", nValue);
 
-        // ReprocessBlocks(nValue);
+        CNode::ClearBanned();
+        ReprocessBlocks(nValue);
         nTimeExecuted = GetTime();
     }
 }
@@ -149,6 +151,9 @@ bool CSporkManager::IsSporkActive(int nSporkID)
         case SPORK_14_REQUIRE_SENTINEL_FLAG:
             r = SPORK_14_REQUIRE_SENTINEL_FLAG_DEFAULT;
             break;
+        case SPORK_15_REQUIRE_FOUNDERS_REWARD:
+            r = SPORK_15_REQUIRE_FOUNDERS_REWARD_DEFAULT;
+            break;
         default:
             LogPrint("spork", "CSporkManager::IsSporkActive -- Unknown Spork ID %d\n", nSporkID);
             r = 4070908800ULL; // 2099-1-1 i.e. off by default
@@ -168,8 +173,8 @@ int64_t CSporkManager::GetSporkValue(int nSporkID)
     switch (nSporkID) {
     // case SPORK_2_INSTANTSEND_ENABLED:
     //     return SPORK_2_INSTANTSEND_ENABLED_DEFAULT;
-    case SPORK_3_INSTANTSEND_BLOCK_FILTERING:
-        return SPORK_3_INSTANTSEND_BLOCK_FILTERING_DEFAULT;
+    // case SPORK_3_INSTANTSEND_BLOCK_FILTERING:
+    //     return SPORK_3_INSTANTSEND_BLOCK_FILTERING_DEFAULT;
     // case SPORK_5_INSTANTSEND_MAX_VALUE:
     //     return SPORK_5_INSTANTSEND_MAX_VALUE_DEFAULT;
     case SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT:
@@ -184,6 +189,8 @@ int64_t CSporkManager::GetSporkValue(int nSporkID)
         return SPORK_13_OLD_SUPERBLOCK_FLAG_DEFAULT;
     case SPORK_14_REQUIRE_SENTINEL_FLAG:
         return SPORK_14_REQUIRE_SENTINEL_FLAG_DEFAULT;
+    case SPORK_15_REQUIRE_FOUNDERS_REWARD:
+        return SPORK_15_REQUIRE_FOUNDERS_REWARD_DEFAULT;
     default:
         LogPrint("spork", "CSporkManager::GetSporkValue -- Unknown Spork ID %d\n", nSporkID);
         return -1;
@@ -210,6 +217,8 @@ int CSporkManager::GetSporkIDByName(std::string strName)
         return SPORK_13_OLD_SUPERBLOCK_FLAG;
     if (strName == "SPORK_14_REQUIRE_SENTINEL_FLAG")
         return SPORK_14_REQUIRE_SENTINEL_FLAG;
+    if (strName == "SPORK_15_REQUIRE_FOUNDERS_REWARD")
+        return SPORK_15_REQUIRE_FOUNDERS_REWARD;
 
     LogPrint("spork", "CSporkManager::GetSporkIDByName -- Unknown Spork name '%s'\n", strName);
     return -1;
@@ -236,6 +245,8 @@ std::string CSporkManager::GetSporkNameByID(int nSporkID)
         return "SPORK_13_OLD_SUPERBLOCK_FLAG";
     case SPORK_14_REQUIRE_SENTINEL_FLAG:
         return "SPORK_14_REQUIRE_SENTINEL_FLAG";
+    case SPORK_15_REQUIRE_FOUNDERS_REWARD:
+        return "SPORK_15_REQUIRE_FOUNDERS_REWARD";
     default:
         LogPrint("spork", "CSporkManager::GetSporkNameByID -- Unknown Spork ID %d\n", nSporkID);
         return "Unknown";
@@ -265,20 +276,20 @@ bool CSporkMessage::Sign(std::string strSignKey)
     std::string strError = "";
     std::string strMessage = boost::lexical_cast<std::string>(nSporkID) + boost::lexical_cast<std::string>(nValue) + boost::lexical_cast<std::string>(nTimeSigned);
 
-    // if (!darkSendSigner.GetKeysFromSecret(strSignKey, key, pubkey)) {
-    //     LogPrintf("CSporkMessage::Sign -- GetKeysFromSecret() failed, invalid spork key %s\n", strSignKey);
-    //     return false;
-    // }
+    if (!darkSendSigner.GetKeysFromSecret(strSignKey, key, pubkey)) {
+        LogPrintf("CSporkMessage::Sign -- GetKeysFromSecret() failed, invalid spork key %s\n", strSignKey);
+        return false;
+    }
 
-    // if (!darkSendSigner.SignMessage(strMessage, vchSig, key)) {
-    //     LogPrintf("CSporkMessage::Sign -- SignMessage() failed\n");
-    //     return false;
-    // }
+    if (!darkSendSigner.SignMessage(strMessage, vchSig, key)) {
+        LogPrintf("CSporkMessage::Sign -- SignMessage() failed\n");
+        return false;
+    }
 
-    // if (!darkSendSigner.VerifyMessage(pubkey, vchSig, strMessage, strError)) {
-    //     LogPrintf("CSporkMessage::Sign -- VerifyMessage() failed, error: %s\n", strError);
-    //     return false;
-    // }
+    if (!darkSendSigner.VerifyMessage(pubkey, vchSig, strMessage, strError)) {
+        LogPrintf("CSporkMessage::Sign -- VerifyMessage() failed, error: %s\n", strError);
+        return false;
+    }
 
     return true;
 }
@@ -288,12 +299,12 @@ bool CSporkMessage::CheckSignature()
     //note: need to investigate why this is failing
     std::string strError = "";
     std::string strMessage = boost::lexical_cast<std::string>(nSporkID) + boost::lexical_cast<std::string>(nValue) + boost::lexical_cast<std::string>(nTimeSigned);
-   // CPubKey pubkey(ParseHex(Params().SporkPubKey()));
+   CPubKey pubkey(ParseHex(Params().SporkPubKey()));
 
-    // if (!darkSendSigner.VerifyMessage(pubkey, vchSig, strMessage, strError)) {
-    //     LogPrintf("CSporkMessage::CheckSignature -- VerifyMessage() failed, error: %s\n", strError);
-    //     return false;
-    // }
+    if (!darkSendSigner.VerifyMessage(pubkey, vchSig, strMessage, strError)) {
+        LogPrintf("CSporkMessage::CheckSignature -- VerifyMessage() failed, error: %s\n", strError);
+        return false;
+    }
 
     return true;
 }

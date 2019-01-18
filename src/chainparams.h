@@ -98,10 +98,21 @@ public:
     void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
     int FulfilledRequestExpireTime() const { return nFulfilledRequestExpireTime; }
 
+    //Sporks
+    std::string SporkPubKey() const { return strSporkPubKey; }
+
     uint64_t ForkStartHeight() const { return nForkStartHeight; };
     uint64_t ForkHeightRange() const { return nForkHeightRange; };
     uint64_t ZshieldedStartBlock() const { return nZshieldedStartBlock; };
     uint64_t ZtransparentStartBlock() const { return nZtransparentStartBlock; };
+
+    /** Return the founder's reward address and script for a given block height */
+    std::string GetFoundersRewardAddressAtHeight(int height) const;
+    CScript GetFoundersRewardScriptAtHeight(int height) const;
+    std::string GetFoundersRewardAddressAtIndex(int i) const;
+    int GetMasternodeCollateral(int nHeight) const;
+
+    int GetFoundersRewardBlockStart() const { return nFoundersRewardBlockStart; };
 
 protected:
     CChainParams() {}
@@ -136,10 +147,23 @@ protected:
     int nFulfilledRequestExpireTime;
     std::vector<std::string> vFoundersRewardAddress;
 
+    //Sporks
+    std::string strSporkPubKey;
+
     uint64_t nForkStartHeight;
     uint64_t nForkHeightRange;
     uint64_t nZshieldedStartBlock;
     uint64_t nZtransparentStartBlock;
+
+    //Masternode related
+    int masternodeCollateralChangeBlock;
+    int masternodeCollateralOld;
+    int masternodeCollateralNew;
+
+    //Founders reward
+    int nFoundersRewardBlockStart;
+    int foundersRewardAddressPeriod;
+
 };
 
 /**

@@ -87,6 +87,7 @@ public:
     // memory only
     mutable std::vector<uint256> vMerkleTree;
     mutable CTxOut txoutMasternode;             // masternode payment
+    mutable std::vector<CTxOut> voutSuperblock; // superblock payment
     mutable bool fChecked;
 
     CBlock()
@@ -114,6 +115,7 @@ public:
         vtx.clear();
         vMerkleTree.clear();
         txoutMasternode = CTxOut();
+        voutSuperblock.clear();
         fChecked = false;
     }
 

@@ -29,7 +29,7 @@ CDarkSendSigner darkSendSigner;
 
 // void CDarksendPool::ProcessMessage(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 // {
-//     if(fLiteMode) return; // 
+//     if(fLiteMode) return; //
 //     if(!masternodeSync.IsBlockchainSynced()) return;
 
 //     if(strCommand == NetMsgType::DSACCEPT) {
@@ -2262,9 +2262,12 @@ bool CDarkSendSigner::IsVinAssociatedWithPubkey(const CTxIn& txin, const CPubKey
 
     CTransaction tx;
     uint256 hash;
-    if(GetTransaction(txin.prevout.hash, tx, hash, true)) {
-        BOOST_FOREACH(CTxOut out, tx.vout)
-            if(out.nValue == 500*COIN && out.scriptPubKey == payee) return true;
+    {
+        LOCK(cs_main);
+        if(GetTransaction(txin.prevout.hash, tx, hash, true)) {
+            BOOST_FOREACH(CTxOut out, tx.vout)
+                if(out.nValue == Params().GetMasternodeCollateral(chainActive.Height())*COIN && out.scriptPubKey == payee) return true;
+        }
     }
     return false;
 }
@@ -2301,6 +2304,9 @@ bool CDarkSendSigner::VerifyMessage(CPubKey pubkey, const std::vector<unsigned c
         strErrorRet = "Error recovering public key.";
         return false;
     }
+
+    pubkey.Decompress();
+    pubkeyFromSig.Decompress();
 
     if(pubkeyFromSig.GetID() != pubkey.GetID()) {
         strErrorRet = strprintf("Keys don't match: pubkey=%s, pubkeyFromSig=%s, strMessage=%s, vchSig=%s",

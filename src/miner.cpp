@@ -766,9 +766,19 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn)
 
         // Update coinbase transaction with additional info about masternode and governance payments,
         // get some info back to pass to getblocktemplate
-        FillBlockPayments(txNew, nHeight, blockReward, pblock->txoutMasternode);
+        FillBlockPayments(txNew, nHeight, blockReward, pblock->txoutMasternode, pblock->voutSuperblock);
         LogPrintf("CreateNewBlock -- nBlockHeight %d blockReward %lld txoutMasternode %s txNew %s",
                   nHeight, blockReward, pblock->txoutMasternode.ToString(), txNew.ToString());
+
+         if (nHeight > Params().GetFoundersRewardBlockStart() && sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDERS_REWARD)) {
+            // Founders reward is 10% of the block subsidy
+            auto vFoundersReward = (blockReward - nFees) / 10;
+            // Take some reward away from us
+            txNew.vout[0].nValue -= vFoundersReward;
+
+            // And give it to the founders
+            txNew.vout.push_back(CTxOut(vFoundersReward, chainparams.GetFoundersRewardScriptAtHeight(nHeight)));
+        }
 
         // Update block coinbase
         pblock->vtx[0] = txNew;

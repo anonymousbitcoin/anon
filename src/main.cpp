@@ -1482,7 +1482,7 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex)
     return true;
 }
 
-CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
+CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly)
 {
     CAmount nSubsidy = 50 * COIN;
     const CChainParams& chainparams = Params();
@@ -1490,27 +1490,27 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     if (nHeight <= chainparams.ForkStartHeight() + chainparams.ForkHeightRange()) {
         return 0;
     }
-    //reset height as if airdrop blocks didn't exist
-    nHeight -= chainparams.ForkStartHeight() + chainparams.ForkHeightRange();
+    //adjust height as if airdrop blocks don't exist
+    int adjustedHeight = nHeight - (chainparams.ForkStartHeight() + chainparams.ForkHeightRange());
 
     // Mining slow start
     // The subsidy is ramped up linearly, skipping the middle payout of
     // MAX_SUBSIDY/2 to keep the monetary curve consistent with no slow start.
-    if (nHeight < consensusParams.nSubsidySlowStartInterval / 2) {
+    if (adjustedHeight < consensusParams.nSubsidySlowStartInterval / 2) {
         nSubsidy /= consensusParams.nSubsidySlowStartInterval;
-        nSubsidy *= nHeight;
+        nSubsidy *= adjustedHeight;
         return nSubsidy;
-    } else if (nHeight < consensusParams.nSubsidySlowStartInterval) {
+    } else if (adjustedHeight < consensusParams.nSubsidySlowStartInterval) {
         nSubsidy /= consensusParams.nSubsidySlowStartInterval;
-        nSubsidy *= (nHeight + 1);
+        nSubsidy *= (adjustedHeight + 1);
         return nSubsidy;
     }
 
-    assert(nHeight > consensusParams.SubsidySlowStartShift());
+    assert(adjustedHeight > consensusParams.SubsidySlowStartShift());
 
     int halvingInterval = consensusParams.nSubsidyHalvingInterval;
 
-    int halvings = (nHeight - consensusParams.SubsidySlowStartShift()) / halvingInterval;
+    int halvings = (adjustedHeight - consensusParams.SubsidySlowStartShift()) / halvingInterval;
 
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 64)
@@ -1518,7 +1518,12 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
     // Subsidy is cut in half every 134,000 blocks which will occur approximately every 2.5 years.
     nSubsidy >>= halvings;
-    return nSubsidy;
+    // return nSubsidy;
+
+    // Hard fork to reduce the block reward by 5 extra percent (allowing budget/superblocks)
+    CAmount nSuperblockPart = (nHeight >= consensusParams.nBudgetPaymentsStartBlock) ? nSubsidy/20 : 0;
+
+    return fSuperblockPartOnly ? nSuperblockPart : nSubsidy - nSuperblockPart;
 }
 
 //ANON
@@ -2572,11 +2577,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 #endif
         CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
         std::string strError = "";
-        if (block.vtx[0].GetValueOut() > blockReward)
+
+        if (block.vtx[0].GetValueOut() > blockReward && (pindex->nHeight % chainparams.GetConsensus().nSuperblockCycle != 0)){
             return state.DoS(100,
                              error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                    block.vtx[0].GetValueOut(), blockReward),
                              REJECT_INVALID, "bad-cb-amount");
+        }
 
         if (!IsBlockValueValid(block, pindex->nHeight, blockReward, strError)) {
             return state.DoS(0, error("ConnectBlock(ANON): %s", strError), REJECT_INVALID, "bad-cb-amount");
@@ -2998,6 +3005,50 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
     LogPrint("bench", "  - Connect postprocess: %.2fms [%.2fs]\n", (nTime6 - nTime5) * 0.001, nTimePostConnect * 0.000001);
     LogPrint("bench", "- Connect block: %.2fms [%.2fs]\n", (nTime6 - nTime1) * 0.001, nTimeTotal * 0.000001);
     return true;
+}
+
+bool DisconnectBlocks(int blocks)
+{
+    LOCK(cs_main);
+
+    CValidationState state;
+    // const CChainParams& chainparams = Params();
+
+    LogPrintf("DisconnectBlocks -- Got command to replay %d blocks\n", blocks);
+    for(int i = 0; i < blocks; i++) {
+        if(!DisconnectTip(state)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void ReprocessBlocks(int nBlocks)
+{
+    LOCK(cs_main);
+
+    std::map<uint256, int64_t>::iterator it = mapRejectedBlocks.begin();
+    while(it != mapRejectedBlocks.end()){
+        //use a window twice as large as is usual for the nBlocks we want to reset
+        if((*it).second  > GetTime() - (nBlocks*60*5)) {
+            BlockMap::iterator mi = mapBlockIndex.find((*it).first);
+            if (mi != mapBlockIndex.end() && (*mi).second) {
+
+                CBlockIndex* pindex = (*mi).second;
+                LogPrintf("ReprocessBlocks -- %s\n", (*it).first.ToString());
+
+                CValidationState state;
+                ReconsiderBlock(state, pindex);
+            }
+        }
+        ++it;
+    }
+
+    DisconnectBlocks(nBlocks);
+
+    CValidationState state;
+    ActivateBestChain(state);
 }
 
 /**
@@ -3624,6 +3675,27 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
         if (block.vtx[0].vin[0].scriptSig.size() < expect.size() ||
             !std::equal(expect.begin(), expect.end(), block.vtx[0].vin[0].scriptSig.begin())) {
             return state.DoS(100, error("%s: block height mismatch in coinbase", __func__), REJECT_INVALID, "bad-cb-height");
+        }
+    }
+
+    // Coinbase transaction must include an output sending 10% of
+    // the block reward to a founders reward script with exception of the genesis block.
+    if (nHeight > Params().GetFoundersRewardBlockStart()
+        && sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDERS_REWARD)
+        && (block.nTime - 7200) > sporkManager.GetSporkValue(SPORK_15_REQUIRE_FOUNDERS_REWARD)) {
+        bool found = false;
+
+        BOOST_FOREACH(const CTxOut& output, block.vtx[0].vout) {
+            if (output.scriptPubKey == Params().GetFoundersRewardScriptAtHeight(nHeight)) {
+                if (output.nValue == (GetBlockSubsidy(nHeight, consensusParams) / 10)) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            return state.DoS(100, error("%s: founders reward missing", __func__), REJECT_INVALID, "cb-no-founders-reward");
         }
     }
 
@@ -4864,8 +4936,8 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
         // case MSG_TXLOCK_VOTE:
         //     return instantsend.AlreadyHave(inv.hash);
 
-        // case MSG_SPORK:
-        //     return mapSporks.count(inv.hash);
+    case MSG_SPORK:
+        return mapSporks.count(inv.hash);
 
     case MSG_MASTERNODE_PAYMENT_VOTE:
         return mnpayments.mapMasternodePaymentVotes.count(inv.hash);
@@ -5017,15 +5089,15 @@ void static ProcessGetData(CNode* pfrom)
                 //     }
                 // }
 
-                // if (!pushed && inv.type == MSG_SPORK) {
-                //     if (mapSporks.count(inv.hash)) {
-                //         CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
-                //         ss.reserve(1000);
-                //         ss << mapSporks[inv.hash];
-                //         pfrom->PushMessage(NetMsgType::SPORK, ss);
-                //         pushed = true;
-                //     }
-                // }
+                if (!pushed && inv.type == MSG_SPORK) {
+                    if (mapSporks.count(inv.hash)) {
+                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                        ss.reserve(1000);
+                        ss << mapSporks[inv.hash];
+                        pfrom->PushMessage(NetMsgType::SPORK, ss);
+                        pushed = true;
+                    }
+                }
 
                 if (!pushed && inv.type == MSG_MASTERNODE_PAYMENT_VOTE) {
                     if (mnpayments.HasVerifiedPaymentVote(inv.hash)) {
@@ -5964,7 +6036,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             mnodeman.ProcessMessage(pfrom, strCommand, vRecv);
             mnpayments.ProcessMessage(pfrom, strCommand, vRecv);
             // instantsend.ProcessMessage(pfrom, strCommand, vRecv);
-            // sporkManager.ProcessSpork(pfrom, strCommand, vRecv);
+            sporkManager.ProcessSpork(pfrom, strCommand, vRecv);
             masternodeSync.ProcessMessage(pfrom, strCommand, vRecv);
             governance.ProcessMessage(pfrom, strCommand, vRecv);
         } else {

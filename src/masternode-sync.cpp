@@ -186,43 +186,45 @@ std::string CMasternodeSync::GetAssetName()
 
 void CMasternodeSync::SwitchToNextAsset()
 {
-    switch (nRequestedMasternodeAssets)
+    switch(nRequestedMasternodeAssets)
     {
-    case (MASTERNODE_SYNC_FAILED):
-        throw std::runtime_error("Can't switch to next asset from failed, should use Reset() first!");
-        break;
-    case (MASTERNODE_SYNC_INITIAL):
-        ClearFulfilledRequests();
-        nTimeLastMasternodeList = GetTime();
-        nRequestedMasternodeAssets = MASTERNODE_SYNC_LIST;
-        LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
-        break;
-    case (MASTERNODE_SYNC_LIST):
-        nTimeLastPaymentVote = GetTime();
-        nRequestedMasternodeAssets = MASTERNODE_SYNC_MNW;
-        LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
-        break;
-    case (MASTERNODE_SYNC_MNW):
-        nTimeLastGovernanceItem = GetTime();
-        nRequestedMasternodeAssets = MASTERNODE_SYNC_GOVERNANCE;
-        // nRequestedMasternodeAssets = MASTERNODE_SYNC_FINISHED;
-        LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
-        break;
-    case(MASTERNODE_SYNC_GOVERNANCE):
-        LogPrintf("CMasternodeSync::SwitchToNextAsset -- Sync has finished\n");
-        nRequestedMasternodeAssets = MASTERNODE_SYNC_FINISHED;
-        //try to activate our masternode if possible
-        activeMasternode.ManageState();
-        TRY_LOCK(cs_vNodes, lockRecv);
-        if (!lockRecv)
-            return;
+        case(MASTERNODE_SYNC_FAILED):
+            throw std::runtime_error("Can't switch to next asset from failed, should use Reset() first!");
+            break;
+        case(MASTERNODE_SYNC_INITIAL):
+            ClearFulfilledRequests();
+            nRequestedMasternodeAssets = MASTERNODE_SYNC_SPORKS;
+            LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
+            break;
+        case(MASTERNODE_SYNC_SPORKS):
+            nTimeLastMasternodeList = GetTime();
+            nRequestedMasternodeAssets = MASTERNODE_SYNC_LIST;
+            LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
+            break;
+        case(MASTERNODE_SYNC_LIST):
+            nTimeLastPaymentVote = GetTime();
+            nRequestedMasternodeAssets = MASTERNODE_SYNC_MNW;
+            LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
+            break;
+        case(MASTERNODE_SYNC_MNW):
+            nTimeLastGovernanceItem = GetTime();
+            nRequestedMasternodeAssets = MASTERNODE_SYNC_GOVERNANCE;
+            LogPrintf("CMasternodeSync::SwitchToNextAsset -- Starting %s\n", GetAssetName());
+            break;
+        case(MASTERNODE_SYNC_GOVERNANCE):
+            LogPrintf("CMasternodeSync::SwitchToNextAsset -- Sync has finished\n");
+            nRequestedMasternodeAssets = MASTERNODE_SYNC_FINISHED;
+            //try to activate our masternode if possible
+            activeMasternode.ManageState();
 
-        BOOST_FOREACH (CNode *pnode, vNodes)
-        {
-            netfulfilledman.AddFulfilledRequest(pnode->addr, "full-sync");
-        }
+            TRY_LOCK(cs_vNodes, lockRecv);
+            if(!lockRecv) return;
 
-        break;
+            BOOST_FOREACH(CNode* pnode, vNodes) {
+                netfulfilledman.AddFulfilledRequest(pnode->addr, "full-sync");
+            }
+
+            break;
     }
     nRequestedMasternodeAttempt = 0;
     nTimeAssetSyncStarted = GetTime();
@@ -347,12 +349,13 @@ void CMasternodeSync::ProcessTick()
     }
 
     // Removing this because we will not be implementing SPORK feature
-    // if (nRequestedMasternodeAssets == MASTERNODE_SYNC_INITIAL ||
-    //     (nRequestedMasternodeAssets == MASTERNODE_SYNC_SPORKS && IsBlockchainSynced()))
-    if (nRequestedMasternodeAssets == MASTERNODE_SYNC_INITIAL && IsBlockchainSynced()) 
-    {
+    if (nRequestedMasternodeAssets == MASTERNODE_SYNC_INITIAL ||
+        (nRequestedMasternodeAssets == MASTERNODE_SYNC_SPORKS && IsBlockchainSynced()))
         SwitchToNextAsset();
-    }
+    // if (nRequestedMasternodeAssets == MASTERNODE_SYNC_INITIAL && IsBlockchainSynced()) 
+    // {
+    //     SwitchToNextAsset();
+    // }
 
     std::vector<CNode *> vNodesCopy = CopyNodeVector();
 
@@ -404,15 +407,15 @@ void CMasternodeSync::ProcessTick()
 
             // SPORK : ALWAYS ASK FOR SPORKS AS WE SYNC (we skip this mode now)
 
-            // if (!netfulfilledman.HasFulfilledRequest(pnode->addr, "spork-sync"))
-            // {
-            //     // only request once from each peer
-            //     netfulfilledman.AddFulfilledRequest(pnode->addr, "spork-sync");
-            //     // get current network sporks
-            //     pnode->PushMessage(NetMsgType::GETSPORKS);
-            //     LogPrintf("CMasternodeSync::ProcessTick -- nTick %d nRequestedMasternodeAssets %d -- requesting sporks from peer %d\n", nTick, nRequestedMasternodeAssets, pnode->id);
-            //     continue; // always get sporks first, switch to the next node without waiting for the next tick
-            // }
+            if (!netfulfilledman.HasFulfilledRequest(pnode->addr, "spork-sync"))
+            {
+                // only request once from each peer
+                netfulfilledman.AddFulfilledRequest(pnode->addr, "spork-sync");
+                // get current network sporks
+                pnode->PushMessage(NetMsgType::GETSPORKS);
+                LogPrintf("CMasternodeSync::ProcessTick -- nTick %d nRequestedMasternodeAssets %d -- requesting sporks from peer %d\n", nTick, nRequestedMasternodeAssets, pnode->id);
+                continue; // always get sporks first, switch to the next node without waiting for the next tick
+            }
 
             // MNLIST : SYNC MASTERNODE LIST FROM OTHER CONNECTED CLIENTS
 
