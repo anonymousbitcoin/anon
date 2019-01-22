@@ -253,10 +253,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
-        pchMessageStart[0] = 0xd3;
-        pchMessageStart[1] = 0xf4;
-        pchMessageStart[2] = 0xf3;
-        pchMessageStart[3] = 0x77;
+        pchMessageStart[0] = 0xf1;
+        pchMessageStart[1] = 0xa3;
+        pchMessageStart[2] = 0x39;
+        pchMessageStart[3] = 0xbc;
         
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
@@ -282,8 +282,8 @@ public:
 
         vSeeds.push_back(CDNSSeedData("testnet_node1", "198.58.97.186"));
         vSeeds.push_back(CDNSSeedData("testnet_node2", "45.33.13.94"));
-        vSeeds.push_back(CDNSSeedData("testnet_node3", "45.56.69.11"));
-        vSeeds.push_back(CDNSSeedData("testnet_node4", "96.126.120.121"));
+        vSeeds.push_back(CDNSSeedData("testnet_node3", "45.56.69.11")); 
+        vSeeds.push_back(CDNSSeedData("testnet_node4", "96.126.120.121")); 
         vSeeds.push_back(CDNSSeedData("testnet_node5", "69.164.195.11"));
 
 
