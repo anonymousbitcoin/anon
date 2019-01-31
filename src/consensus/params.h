@@ -70,11 +70,16 @@ struct Params {
     int nSuperblockStartBlock;
     int nSuperblockCycle; // in blocks
 
+    // Masternode
     int nMasternodeMinimumConfirmations;
-    // int nGovernanceFilterElements;
-    // int nGovernanceMinQuorum;
+    
+    // Aidrop
     int nForkStartHeight;
     int nForkHeightRange;
+
+    // Governance
+    int nGovernanceFilterElements;
+    int nGovernanceMinQuorum;
 
     /** Block height and hash at which BIP34 becomes active */
     int BIP34Height;
