@@ -276,9 +276,9 @@ public:
         
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange + 999999998;
-        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 999999999;
-
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange + 1596; //actual block 1599
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1597; //actual block 1600
+ 
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
         nDefaultPort = 33129;
