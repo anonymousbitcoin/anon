@@ -677,6 +677,8 @@ void CGovernanceObject::UpdateSentinelVariables()
     // CALCULATE THE MINUMUM VOTE COUNT REQUIRED FOR FULL SIGNAL
 
     // todo - 12.1 - should be set to `10` after governance vote compression is implemented
+    int nGovernanceMinQuorum = Params().GetConsensus().nGovernanceMinQuorum;
+
     int nAbsVoteReq = std::max(nGovernanceMinQuorum, int(nMnCount * (nGovernanceMinQuorum * 0.01)));
     int nAbsDeleteReq = std::max(nGovernanceMinQuorum, (2 * nMnCount) / 3);
     // todo - 12.1 - Temporarily set to 1 for testing - reverted

@@ -41,6 +41,13 @@ public:
         consensus.nBudgetPaymentsCycleBlocks = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
         consensus.nSuperblockStartBlock = 43800; // The block at which 1st superblock goes live
         consensus.nSuperblockCycle = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
+        
+        // masternode
+        consensus.nMasternodeMinimumConfirmations = 3;
+
+        // governance
+        consensus.nGovernanceMinQuorum = 25;
+        consensus.nGovernanceFilterElements = 20000;
 
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
@@ -173,6 +180,8 @@ public:
                             //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
+
+        //setup airdrop blocks range
         nForkStartHeight = 3;
         nForkHeightRange = 16737;
         nZtransparentStartBlock = 9893 + nForkStartHeight;
@@ -241,6 +250,13 @@ public:
         consensus.nBudgetPaymentsCycleBlocks = 10;
         consensus.nSuperblockStartBlock = 30; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
         consensus.nSuperblockCycle = 10; // Superblocks can be issued hourly on testnet
+
+        //masternode
+        consensus.nMasternodeMinimumConfirmations = 1;
+
+        // governance
+        consensus.nGovernanceMinQuorum = 3;
+        consensus.nGovernanceFilterElements = 20000;
 
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
@@ -385,6 +401,13 @@ public:
         consensus.prePowLimit = consensus.powLimit;
         consensus.nPowMaxAdjustDown = 0; // Turn off adjustment down
         consensus.nPowMaxAdjustUp = 0; // Turn off adjustment up
+
+        //masternode
+        consensus.nMasternodeMinimumConfirmations = 1;
+
+        // governance
+        consensus.nGovernanceMinQuorum = 3;
+        consensus.nGovernanceFilterElements = 20000;
 
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
         consensus.nMinerConfirmationWindow = 144; // Faster than normal for regtest (144 instead of 2016)
