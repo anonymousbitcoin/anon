@@ -259,11 +259,17 @@ public:
         pchMessageStart[1] = 0xa3;
         pchMessageStart[2] = 0x39;
         pchMessageStart[3] = 0xbc;
+
+        //setup airdrop blocks range
+        nForkStartHeight = 2;
+        nForkHeightRange = 1;
+        nZtransparentStartBlock = 5;
+        nZshieldedStartBlock = 6;
         
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange + 1596; //actual block 1599
-        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1597; //actual block 1600
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange + 1616; //actual block 1619
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1617; //actual block 1620
  
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
@@ -322,12 +328,6 @@ public:
             0,
             0
         };
-
-        //setup airdrop blocks range
-        nForkStartHeight = 2;
-        nForkHeightRange = 1;
-        nZtransparentStartBlock = 5;
-        nZshieldedStartBlock = 6;
 
         //masternode collateral
         masternodeCollateralChangeBlock = 1;
