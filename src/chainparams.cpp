@@ -41,6 +41,13 @@ public:
         consensus.nBudgetPaymentsCycleBlocks = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
         consensus.nSuperblockStartBlock = 43800; // The block at which 1st superblock goes live
         consensus.nSuperblockCycle = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
+        
+        // masternode
+        consensus.nMasternodeMinimumConfirmations = 3;
+
+        // governance
+        consensus.nGovernanceMinQuorum = 25;
+        consensus.nGovernanceFilterElements = 20000;
 
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
@@ -159,6 +166,8 @@ public:
                             //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
+
+        //setup airdrop blocks range
         nForkStartHeight = 3;
         nForkHeightRange = 16737;
         nZtransparentStartBlock = 9893 + nForkStartHeight;
@@ -228,6 +237,13 @@ public:
         consensus.nSuperblockStartBlock = 30; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
         consensus.nSuperblockCycle = 10; // Superblocks can be issued hourly on testnet
 
+        //masternode
+        consensus.nMasternodeMinimumConfirmations = 1;
+
+        // governance
+        consensus.nGovernanceMinQuorum = 3;
+        consensus.nGovernanceFilterElements = 20000;
+
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -243,12 +259,18 @@ public:
         pchMessageStart[1] = 0xa3;
         pchMessageStart[2] = 0x39;
         pchMessageStart[3] = 0xbc;
+
+        //setup airdrop blocks range
+        nForkStartHeight = 2;
+        nForkHeightRange = 1;
+        nZtransparentStartBlock = 5;
+        nZshieldedStartBlock = 6;
         
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange + 999999998;
-        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 999999999;
-
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange + 1616; //actual block 1619
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1617; //actual block 1620
+ 
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
         nDefaultPort = 33129;
@@ -306,12 +328,6 @@ public:
             0,
             0
         };
-
-        //setup airdrop blocks range
-        nForkStartHeight = 2;
-        nForkHeightRange = 1;
-        nZtransparentStartBlock = 5;
-        nZshieldedStartBlock = 6;
 
         //masternode collateral
         masternodeCollateralChangeBlock = 1;
@@ -371,6 +387,13 @@ public:
         consensus.prePowLimit = consensus.powLimit;
         consensus.nPowMaxAdjustDown = 0; // Turn off adjustment down
         consensus.nPowMaxAdjustUp = 0; // Turn off adjustment up
+
+        //masternode
+        consensus.nMasternodeMinimumConfirmations = 1;
+
+        // governance
+        consensus.nGovernanceMinQuorum = 3;
+        consensus.nGovernanceFilterElements = 20000;
 
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
         consensus.nMinerConfirmationWindow = 144; // Faster than normal for regtest (144 instead of 2016)
