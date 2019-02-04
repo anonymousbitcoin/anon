@@ -81,8 +81,9 @@ void ThreadSendAlert()
     // 180004 : 1.0.0
     // 180005 : 1.2.0
     // 180006 : 2.0.0
+    // 180007 : 2.1.0
     alert.nMinVer       = 180006;
-    alert.nMaxVer       = 180007;
+    alert.nMaxVer       = 180008;
 
     //
     // main.cpp:
