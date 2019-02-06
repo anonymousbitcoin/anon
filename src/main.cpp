@@ -3643,6 +3643,12 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         if (pcheckpoint && nHeight < pcheckpoint->nHeight)
             return state.DoS(100, error("%s: forked chain older than last checkpoint (height %d)", __func__, nHeight));
     }
+    // TEMP SOLUTION
+    if (nHeight == 38404) {
+        if (block.GetHash().ToString() != "0000003e14aed8597b83880b4e4b46002a548b33904a1b415b51a746aee467c0")
+        return state.DoS(100, error("%s: invalid forked chain", __func__),
+                         REJECT_INVALID, "bad-chain");
+    }
 
     // Reject block.nVersion < 4 blocks
     if (block.nVersion < 4)
