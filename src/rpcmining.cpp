@@ -692,6 +692,9 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
 
     UniValue aCaps(UniValue::VARR); aCaps.push_back("proposal");
 
+    //ANON v2.1.0
+    UniValue coinbaseRequiredOutputsArr(UniValue::VARR);
+
     UniValue txCoinbase = NullUniValue;
     UniValue transactions(UniValue::VARR);
     map<uint256, int64_t> setTxIndex;
@@ -720,13 +723,34 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
         int index_in_template = i - 1;
         entry.push_back(Pair("fee", pblocktemplate->vTxFees[index_in_template]));
         entry.push_back(Pair("sigops", pblocktemplate->vTxSigOps[index_in_template]));
+        
+        //development fund
+        entry.push_back(Pair("development_payments", sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDERS_REWARD)));
 
         if (tx.IsCoinBase()) {
             // Show founders' reward if it is required
-            if (pblock->vtx[0].vout.size() > 1) {
+            if (pblock->vtx[0].vout.size() > 1 && sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDERS_REWARD)) {
+                    
                 // Correct this if GetBlockTemplate changes the order
-                entry.push_back(Pair("foundersreward", (int64_t)tx.vout[1].nValue));
+                int64_t nHeight = (int64_t)(pindexPrev->nHeight+1);
+
+                CAmount blockReward = GetBlockSubsidy(nHeight, consensusParams);
+
+                // Developement fee is 10% of the block subsidy
+                CAmount vFoundersReward = (blockReward) / 10;
+
+                UniValue requiredFoundersOutputsObj(UniValue::VOBJ);
+
+                requiredFoundersOutputsObj.push_back(Pair("amount", vFoundersReward));
+                entry.push_back(Pair("developmentreward", vFoundersReward));
+
+                requiredFoundersOutputsObj.push_back(Pair("script", HexStr(Params().GetFoundersRewardScriptAtHeight(nHeight))));
+                entry.push_back(Pair("developmentscript", HexStr(Params().GetFoundersRewardScriptAtHeight(nHeight))));
+
+                requiredFoundersOutputsObj.push_back(Pair("type", "development"));
+                coinbaseRequiredOutputsArr.push_back(requiredFoundersOutputsObj);
             }
+            
             entry.push_back(Pair("required", true));
             txCoinbase = entry;
         } else {
@@ -816,6 +840,56 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight+1)));
 
+    // Masternode payment
+    UniValue masternodeObj(UniValue::VOBJ);
+    if(pblock->txoutMasternode != CTxOut()) {
+        UniValue requiredMasternodeOutputsObj(UniValue::VOBJ);
+        CTxDestination address1;
+        ExtractDestination(pblock->txoutMasternode.scriptPubKey, address1);
+        CBitcoinAddress address2(address1);
+        
+        masternodeObj.push_back(Pair("payee", address2.ToString().c_str()));
+
+        masternodeObj.push_back(Pair("script", HexStr(pblock->txoutMasternode.scriptPubKey.begin(), pblock->txoutMasternode.scriptPubKey.end())));
+        requiredMasternodeOutputsObj.push_back(Pair("script", HexStr(pblock->txoutMasternode.scriptPubKey.begin(), pblock->txoutMasternode.scriptPubKey.end())));
+
+        requiredMasternodeOutputsObj.push_back(Pair("amount",pblock->txoutMasternode.nValue));
+        masternodeObj.push_back(Pair("amount", pblock->txoutMasternode.nValue));
+
+        requiredMasternodeOutputsObj.push_back(Pair("type", "masternode"));
+        coinbaseRequiredOutputsArr.push_back(requiredMasternodeOutputsObj);
+    }
+    result.push_back(Pair("masternode", masternodeObj));
+    result.push_back(Pair("masternode_payments_started", pindexPrev->nHeight + 1 > Params().GetConsensus().nMasternodePaymentsStartBlock));
+
+    // Superblock payment
+    UniValue superblockObjArray(UniValue::VARR);
+    if(pblock->voutSuperblock.size()) {
+        BOOST_FOREACH (const CTxOut& txout, pblock->voutSuperblock) {
+            UniValue requiredSuperblockOutputsObj(UniValue::VOBJ);
+            UniValue entry(UniValue::VOBJ);
+            CTxDestination address1;
+            ExtractDestination(txout.scriptPubKey, address1);
+            CBitcoinAddress address2(address1);
+            entry.push_back(Pair("payee", address2.ToString().c_str()));
+
+            entry.push_back(Pair("script", HexStr(txout.scriptPubKey.begin(), txout.scriptPubKey.end())));
+            requiredSuperblockOutputsObj.push_back(Pair("script", HexStr(txout.scriptPubKey.begin(), txout.scriptPubKey.end())));
+
+            entry.push_back(Pair("amount", txout.nValue));
+            requiredSuperblockOutputsObj.push_back(Pair("amount", txout.nValue));
+
+            requiredSuperblockOutputsObj.push_back(Pair("type", "superblock"));
+            
+            coinbaseRequiredOutputsArr.push_back(requiredSuperblockOutputsObj);
+            superblockObjArray.push_back(entry);
+        }
+    }
+    result.push_back(Pair("coinbase_required_outputs", coinbaseRequiredOutputsArr));
+    result.push_back(Pair("superblock", superblockObjArray));
+    result.push_back(Pair("superblocks_started", pindexPrev->nHeight + 1 > Params().GetConsensus().nSuperblockStartBlock));
+
+    //keep this for now so we don't break old mining software
     if(pblock->txoutMasternode != CTxOut()) {
         CTxDestination address1;
         ExtractDestination(pblock->txoutMasternode.scriptPubKey, address1);
@@ -842,6 +916,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
         }
       }
     result.push_back(Pair("masternode_payments", isWinner));
+
     return result;
 }
 
