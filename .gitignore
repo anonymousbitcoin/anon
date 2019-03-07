@@ -111,6 +111,7 @@ qa/pull-tester/test.*/*
 qa/pull-tester/tests_config.py
 
 !src/leveldb*/Makefile
+!src/snark/Makefile
 
 /doc/doxygen/
 
