@@ -21,13 +21,29 @@
 #include <utility>
 #include <vector>
 
+#include "prevector.h"
 #include <boost/array.hpp>
 #include <boost/optional.hpp>
-#include "prevector.h"
 
 class CScript;
 
 static const unsigned int MAX_SIZE = 0x02000000;
+
+/**
+ * Dummy data type to identify deserializing constructors.
+ *
+ * By convention, a constructor of a type T with signature
+ *
+ *   template <typename Stream> T::T(deserialize_type, Stream& s)
+ *
+ * is a deserializing constructor, which builds the type by
+ * deserializing it from s. If T contains const fields, this
+ * is likely the only way to do so.
+ */
+struct deserialize_type {
+};
+constexpr deserialize_type deserialize{};
+
 
 /**
  * Used to bypass the rule against non-const reference to temporary
@@ -54,26 +70,26 @@ inline T* NCONST_PTR(const T* val)
  * @note These functions avoid the undefined case of indexing into an empty
  * vector, as well as that of indexing after the end of the vector.
  */
-template <typename V>
-inline typename V::value_type* begin_ptr(V& v)
+template <class T, class TAl>
+inline T* begin_ptr(std::vector<T, TAl>& v)
 {
     return v.empty() ? NULL : &v[0];
 }
 /** Get begin pointer of vector (const version) */
-template <typename V>
-inline const typename V::value_type* begin_ptr(const V& v)
+template <class T, class TAl>
+inline const T* begin_ptr(const std::vector<T, TAl>& v)
 {
     return v.empty() ? NULL : &v[0];
 }
 /** Get end pointer of vector (non-const version) */
-template <typename V>
-inline typename V::value_type* end_ptr(V& v)
+template <class T, class TAl>
+inline T* end_ptr(std::vector<T, TAl>& v)
 {
     return v.empty() ? NULL : (&v[0] + v.size());
 }
 /** Get end pointer of vector (const version) */
-template <typename V>
-inline const typename V::value_type* end_ptr(const V& v)
+template <class T, class TAl>
+inline const T* end_ptr(const std::vector<T, TAl>& v)
 {
     return v.empty() ? NULL : (&v[0] + v.size());
 }
@@ -701,6 +717,13 @@ void Serialize(Stream& os, const boost::array<T, N>& item, int nType, int nVersi
 template <typename Stream, typename T, std::size_t N>
 void Unserialize(Stream& is, boost::array<T, N>& item, int nType, int nVersion);
 
+template <typename T, std::size_t N>
+unsigned int GetSerializeSize(const std::array<T, N>& item, int nType, int nVersion);
+template <typename Stream, typename T, std::size_t N>
+void Serialize(Stream& os, const std::array<T, N>& item, int nType, int nVersion);
+template <typename Stream, typename T, std::size_t N>
+void Unserialize(Stream& is, std::array<T, N>& item, int nType, int nVersion);
+
 /**
  * pair
  */
@@ -919,7 +942,11 @@ void Serialize_impl(Stream& os, const std::vector<T, A>& v, int nType, int nVers
 {
     WriteCompactSize(os, v.size());
     for (typename std::vector<T, A>::const_iterator vi = v.begin(); vi != v.end(); ++vi)
+#ifdef __APPLE__
+        ::Serialize(os, static_cast<T>(*vi), nType, nVersion);
+#else
         ::Serialize(os, (*vi), nType, nVersion);
+#endif
 }
 
 template <typename Stream, typename T, typename A>
@@ -1064,6 +1091,33 @@ void Unserialize(Stream& is, boost::array<T, N>& item, int nType, int nVersion)
     }
 }
 
+template <typename Stream, typename T, std::size_t N>
+void Unserialize(Stream& is, std::array<T, N>& item, int nType, int nVersion)
+{
+    for (size_t i = 0; i < N; i++) {
+        Unserialize(is, item[i], nType, nVersion);
+    }
+}
+
+
+template <typename T, std::size_t N>
+unsigned int GetSerializeSize(const std::array<T, N>& item, int nType, int nVersion)
+{
+    unsigned int size = 0;
+    for (size_t i = 0; i < N; i++) {
+        size += GetSerializeSize(item[0], nType, nVersion);
+    }
+    return size;
+}
+
+template <typename Stream, typename T, std::size_t N>
+void Serialize(Stream& os, const std::array<T, N>& item, int nType, int nVersion)
+{
+    for (size_t i = 0; i < N; i++) {
+        Serialize(os, item[i], nType, nVersion);
+    }
+}
+
 
 /**
  * pair
@@ -1181,10 +1235,11 @@ void Unserialize(Stream& is, std::list<T, A>& l, int nType, int nVersion)
 {
     l.clear();
     unsigned int nSize = ReadCompactSize(is);
+    typename std::list<T, A>::iterator it = l.begin();
     for (unsigned int i = 0; i < nSize; i++) {
-        T val;
-        Unserialize(is, val, nType, nVersion);
-        l.push_back(val);
+        T item;
+        Unserialize(is, item, nType, nVersion);
+        l.push_back(item);
     }
 }
 
@@ -1240,6 +1295,9 @@ public:
     {
         return nSize;
     }
+
+    int GetVersion() const { return nVersion; }
+    int GetType() const { return nType; }
 };
 
 #endif // BITCOIN_SERIALIZE_H

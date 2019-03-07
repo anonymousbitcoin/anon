@@ -137,6 +137,8 @@ public:
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x88,0xAD,0xE4};
         // guarantees the first 2 characters, when base58 encoded, are "zc"
         base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0x9A};
+        // guarantees the first 4 characters, when base58 encoded, are "ZiVK"
+        base58Prefixes[ZCVIEWING_KEY]      = {0xA8,0xAB,0xD3};
         // guarantees the first 2 characters, when base58 encoded, are "SK"
         base58Prefixes[ZCSPENDING_KEY]     = {0xAB,0x36};
 
@@ -167,17 +169,21 @@ public:
         };
 
 
-        //setup airdrop blocks range
+        // Setup airdrop blocks range
         nForkStartHeight = 3;
         nForkHeightRange = 16737;
         nZtransparentStartBlock = 9893 + nForkStartHeight;
         nZshieldedStartBlock = 10132 + nForkStartHeight;
 
-        // masternode related
+        // Masternode related
         masternodeCollateralChangeBlock = 37000;
         masternodeCollateralOld = 500; 
         masternodeCollateralNew = 10000;
 
+        //Sapling
+        saplingActivationBlock = 50000;
+
+        // Equihash algo
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
@@ -255,6 +261,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
+        consensus.nForkStartHeight = 2;
+        consensus.nForkHeightRange = 1;
+
         pchMessageStart[0] = 0xf1;
         pchMessageStart[1] = 0xa3;
         pchMessageStart[2] = 0x39;
@@ -265,6 +274,14 @@ public:
         nForkHeightRange = 1;
         nZtransparentStartBlock = 5;
         nZshieldedStartBlock = 6;
+
+        // Masternode related
+        masternodeCollateralChangeBlock = 1;
+        masternodeCollateralOld = 500; 
+        masternodeCollateralNew = 10000;
+
+        //Sapling
+        saplingActivationBlock = 3000;
         
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
@@ -306,6 +323,8 @@ public:
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x35,0x83,0x94};
         // guarantees the first 2 characters, when base58 encoded, are "zt"
         base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xB6};
+        // guarantees the first 4 characters, when base58 encoded, are "ZiVt"
+        base58Prefixes[ZCVIEWING_KEY]      = {0xA8,0xAC,0x0C};
         // guarantees the first 2 characters, when base58 encoded, are "ST"
         base58Prefixes[ZCSPENDING_KEY]     = {0xAC,0x08};
 
@@ -384,16 +403,38 @@ public:
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
         consensus.powLimit = uint256S("0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f");
+        consensus.nPowAveragingWindow = 17;
         consensus.prePowLimit = consensus.powLimit;
+
+        assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 0; // Turn off adjustment down
         consensus.nPowMaxAdjustUp = 0; // Turn off adjustment up
+        consensus.nPowTargetSpacing = 10 * 60;
 
         //masternode
         consensus.nMasternodeMinimumConfirmations = 1;
 
+        // Budget related
+        consensus.nBudgetPaymentsStartBlock = 5000;
+        consensus.nBudgetPaymentsCycleBlocks = 1000;
+        consensus.nSuperblockStartBlock = 6000; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
+        consensus.nSuperblockCycle = 1000;
+
         // governance
         consensus.nGovernanceMinQuorum = 3;
         consensus.nGovernanceFilterElements = 20000;
+
+        // Setup airdrop blocks range
+        nForkStartHeight = 0;
+        nForkHeightRange = 0;
+        nZtransparentStartBlock = 0;
+        nZshieldedStartBlock = 0;
+
+        // Equihash algo
+        eh_epoch_1 = eh48_5;
+        eh_epoch_2 = eh48_5;
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
 
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
         consensus.nMinerConfirmationWindow = 144; // Faster than normal for regtest (144 instead of 2016)
@@ -401,12 +442,14 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 999999999999ULL;
 
-        pchMessageStart[0] = 0xaa;
-        pchMessageStart[1] = 0xe8;
-        pchMessageStart[2] = 0x3f;
-        pchMessageStart[3] = 0x5f;
+        pchMessageStart[0] = 0x2f;
+        pchMessageStart[1] = 0x54;
+        pchMessageStart[2] = 0xcc;
+        pchMessageStart[3] = 0x9d;
         nMaxTipAge = 24 * 60 * 60;
 
+        //Sapling
+        saplingActivationBlock = 200;
 
         const size_t N = 48, K = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
@@ -417,7 +460,7 @@ public:
         genesis.nNonce = uint256S("0x0000000000000000000000000000000000000000000000000000000000000014");
         genesis.nSolution = ParseHex("082db3be12af6517f20de6265d02f5c971010ee2e2d784c525b16c21185cce784c5ec38f");
         consensus.hashGenesisBlock = genesis.GetHash();
-        nDefaultPort = 3130;
+        nDefaultPort = 18344;
         assert(consensus.hashGenesisBlock == uint256S("0x0405af839b4b9e53bae1f951e76b0e0a33d1ca6901fc264893adb375cc04a410"));
         nPruneAfterHeight = 1000;
 
@@ -438,9 +481,6 @@ public:
             0,
             0
         };
-
-        nForkStartHeight = 0;
-        nForkHeightRange = 0;
     }
 };
 static CRegTestParams regTestParams;
@@ -530,4 +570,9 @@ int CChainParams::GetMasternodeCollateral(int nHeight) const {
         if(nHeight >= masternodeCollateralChangeBlock)
             return masternodeCollateralNew;
         return masternodeCollateralOld;
+}
+
+bool CChainParams::isGrothActive(int nHeight) const {
+        assert(saplingActivationBlock > 0);
+        return nHeight >= saplingActivationBlock;
 }
