@@ -61,7 +61,7 @@ TEST(PoW, DifficultyAveraging) {
               GetNextWorkRequired(&blocks[lastBlk], nullptr, params));
 
     // Result should be the same as if the average difficulty was used
-    arith_uint256 average = UintToArith256(uint256S("00007ff1c6696969696969696969696969696969696969696969696969696969"));
+    arith_uint256 average = UintToArith256(uint256S("0000796968696969696969696969696969696969696969696969696969696969"));
     EXPECT_EQ(CalculateNextWorkRequired(average,
                                         blocks[lastBlk].GetMedianTimePast(),
                                         blocks[firstBlk].GetMedianTimePast(),
