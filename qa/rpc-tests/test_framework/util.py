@@ -21,30 +21,7 @@ import subprocess
 import time
 import re
 
-from .authproxy import AuthServiceProxy, JSONRPCException
-from .util import *
-
-#Set Mocktime default to OFF.
-#MOCKTIME is only needed for scripts that use the
-#cached version of the blockchain.  If the cached
-#version of the blockchain is used without MOCKTIME
-#then the mempools will not sync due to IBD.
-MOCKTIME = 0
-
-def enable_mocktime():
-    #For backwared compatibility of the python scripts
-    #with previous versions of the cache, set MOCKTIME 
-    #to regtest genesis time + (201 * 156)
-    global MOCKTIME
-    MOCKTIME = 1482971059 + (201 * 156)    
-
-def disable_mocktime():
-    global MOCKTIME
-    MOCKTIME = 0
-
-def get_mocktime():
-    return MOCKTIME
-
+from authproxy import AuthServiceProxy
 
 def p2p_port(n):
     return 11000 + n + os.getpid()%999
@@ -52,7 +29,7 @@ def rpc_port(n):
     return 12000 + n + os.getpid()%999
 
 def check_json_precision():
-    """Make sure json library being used does not lose precision converting ANON values"""
+    """Make sure json library being used does not lose precision converting BTC values"""
     n = Decimal("20000000.00000003")
     satoshis = int(json.loads(json.dumps(float(n)))*1.0e8)
     if satoshis != 2000000000000003:
@@ -67,12 +44,14 @@ def hex_str_to_bytes(hex_str):
 def str_to_b64str(string):
     return b64encode(string.encode('utf-8')).decode('ascii')
 
-def sync_blocks(rpc_connections, wait=1):
+def sync_blocks(rpc_connections, wait=1, p=False):
     """
     Wait until everybody has the same block count
     """
     while True:
         counts = [ x.getblockcount() for x in rpc_connections ]
+        if p :
+            print counts
         if counts == [ counts[0] ]*len(counts):
             break
         time.sleep(wait)
@@ -100,14 +79,14 @@ def initialize_datadir(dirname, n):
         os.makedirs(datadir)
     with open(os.path.join(datadir, "anon.conf"), 'w') as f:
         f.write("regtest=1\n");
+        f.write("debug=1\n");
+        f.write("txindex=1\n");
         f.write("showmetrics=0\n");
         f.write("rpcuser=rt\n");
         f.write("rpcpassword=rt\n");
         f.write("port="+str(p2p_port(n))+"\n");
         f.write("rpcport="+str(rpc_port(n))+"\n");
         f.write("listenonion=0\n");
-        f.write("txindex=1\n");
-        f.write("debug=1\n");
     return datadir
 
 def initialize_chain(test_dir):
@@ -117,27 +96,33 @@ def initialize_chain(test_dir):
     anond and anon-cli must be in search path.
     """
 
-    # if not os.path.isdir(os.path.join("cache", "node0")):
-    if (not os.path.isdir(os.path.join("cache","node0"))
-        or not os.path.isdir(os.path.join("cache","node1"))
-        or not os.path.isdir(os.path.join("cache","node2"))
-        or not os.path.isdir(os.path.join("cache","node3"))):
-
+    if not os.path.isdir(os.path.join("cache", "node0")):
         devnull = open("/dev/null", "w+")
-        
         # Create cache directories, run bitcoinds:
         for i in range(4):
             datadir=initialize_datadir("cache", i)
-            args = [ os.getenv("ANOND", "anond"), "-keypool=1", "-datadir="+datadir, "-discover=0" ]
+            args = [ os.getenv("BITCOIND", "anond"), "-keypool=1", "-datadir="+datadir, "-discover=0" ]
             if i > 0:
                 args.append("-connect=127.0.0.1:"+str(p2p_port(0)))
             bitcoind_processes[i] = subprocess.Popen(args)
             if os.getenv("PYTHON_DEBUG", ""):
-                print( "initialize_chain: anond started, calling anon-cli -rpcwait getblockcount")
-            subprocess.check_call([ os.getenv("ANONCLI", "anon-cli"), "-datadir="+datadir,
+                print "initialize_chain: anond started, calling anon-cli -rpcwait getblockcount"
+            subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir,
                                     "-rpcwait", "getblockcount"], stdout=devnull)
+            
+            # subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir,
+            #                         "-rpcwait", "mnsync next"], stdout=devnull)
+            # subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir,
+            #                         "-rpcwait", "mnsync next"], stdout=devnull)
+            
+            # subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir,
+            #                         "-rpcwait", "mnsync next"], stdout=devnull)
+            
+            # subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir,
+            #                         "-rpcwait", "mnsync next"], stdout=devnull)
+
             if os.getenv("PYTHON_DEBUG", ""):
-                print( "initialize_chain: anon-cli -rpcwait getblockcount completed")
+                print "initialize_chain: anon-cli -rpcwait getblockcount completed"
         devnull.close()
         rpcs = []
         for i in range(4):
@@ -151,9 +136,8 @@ def initialize_chain(test_dir):
         # Create a 200-block-long chain; each of the 4 nodes
         # gets 25 mature blocks and 25 immature.
         # blocks are created with timestamps 10 minutes apart, starting
-        # at 1 Jan 2014
-        enable_mocktime()
-        block_time = get_mocktime() - (201 * 156)
+        # at Fri, 12 May 2017 00:15:50 GMT (genesis block time)
+        block_time = 1535569200
         for i in range(2):
             for peer in range(4):
                 for j in range(25):
@@ -166,7 +150,6 @@ def initialize_chain(test_dir):
         # Shut them down, and clean up cache directories:
         stop_nodes(rpcs)
         wait_bitcoinds()
-        disable_mocktime()
         for i in range(4):
             os.remove(log_filename("cache", i, "debug.log"))
             os.remove(log_filename("cache", i, "db.log"))
@@ -185,7 +168,7 @@ def initialize_chain_clean(test_dir, num_nodes):
     Useful if a test case wants complete control over initialization.
     """
     for i in range(num_nodes):
-        datadir=initialize_datadir(test_dir, i)
+        initialize_datadir(test_dir, i)
 
 
 def _rpchost_to_args(rpchost):
@@ -210,22 +193,39 @@ def _rpchost_to_args(rpchost):
 
 def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=None):
     """
-    Start a bitcoind and return RPC connection to it
+    Start a anond and return RPC connection to it
     """
     datadir = os.path.join(dirname, "node"+str(i))
     if binary is None:
-        binary = os.getenv("ANOND", "anond")
-    args = [ binary, "-datadir="+datadir, "-keypool=1", "-discover=0", "-rest", "-mocktime="+str(get_mocktime()) ]
+        binary = os.getenv("BITCOIND", "anond")
+    args = [ binary, "-datadir="+datadir, "-keypool=1", "-discover=0", "-rest" ]
     if extra_args is not None: args.extend(extra_args)
     bitcoind_processes[i] = subprocess.Popen(args)
     devnull = open("/dev/null", "w+")
     if os.getenv("PYTHON_DEBUG", ""):
-        print( "start_node: anond started, calling anon-cli -rpcwait getblockcount")
-    subprocess.check_call([ os.getenv("ANONCLI", "anon-cli"), "-datadir="+datadir] +
+        print "start_node: anond started, calling anon-cli -rpcwait getblockcount"
+    subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir] +
                           _rpchost_to_args(rpchost)  +
                           ["-rpcwait", "getblockcount"], stdout=devnull)
+    
+    subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir] +
+                          _rpchost_to_args(rpchost)  +
+                          ["-rpcwait", "mnsync", "next"], stdout=devnull)
+    # subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir] +
+    #                       _rpchost_to_args(rpchost)  +
+    #                       ["-rpcwait", "mnsync", "next"], stdout=devnull)
+    # subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir] +
+    #                       _rpchost_to_args(rpchost)  +
+    #                       ["-rpcwait", "mnsync", "next"], stdout=devnull)
+    # subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir] +
+    #                       _rpchost_to_args(rpchost)  +
+    #                       ["-rpcwait", "mnsync", "next"], stdout=devnull)
+    # subprocess.check_call([ os.getenv("BITCOINCLI", "anon-cli"), "-datadir="+datadir] +
+    #                       _rpchost_to_args(rpchost)  +
+    #                       ["-rpcwait", "mnsync", "next"], stdout=devnull)
+
     if os.getenv("PYTHON_DEBUG", ""):
-        print( "start_node: calling anon-cli -rpcwait getblockcount returned")
+        print "start_node: calling anon-cli -rpcwait getblockcount returned"
     devnull.close()
     url = "http://rt:rt@%s:%d" % (rpchost or '127.0.0.1', rpc_port(i))
     if timewait is not None:
@@ -237,7 +237,7 @@ def start_node(i, dirname, extra_args=None, rpchost=None, timewait=None, binary=
 
 def start_nodes(num_nodes, dirname, extra_args=None, rpchost=None, binary=None):
     """
-    Start multiple bitcoinds, return RPC connections to them
+    Start multiple anonds, return RPC connections to them
     """
     if extra_args is None: extra_args = [ None for i in range(num_nodes) ]
     if binary is None: binary = [ None for i in range(num_nodes) ]
@@ -245,6 +245,10 @@ def start_nodes(num_nodes, dirname, extra_args=None, rpchost=None, binary=None):
 
 def log_filename(dirname, n_node, logname):
     return os.path.join(dirname, "node"+str(n_node), "regtest", logname)
+
+def check_node(i):
+    bitcoind_processes[i].poll()
+    return bitcoind_processes[i].returncode
 
 def stop_node(node, i):
     node.stop()
@@ -384,9 +388,18 @@ def random_transaction(nodes, amount, min_fee, fee_increment, fee_variants):
 
     return (txid, signresult["hex"], fee)
 
-def assert_equal(thing1, thing2):
-    if thing1 != thing2:
-        raise AssertionError("%s != %s"%(str(thing1),str(thing2)))
+def assert_equal(expected, actual, message = ""):
+    if expected != actual:
+        if message:
+            message = "%s; " % message 
+        raise AssertionError("%sexpected: <%s> but was: <%s>" % (message, str(expected), str(actual)))
+
+def assert_true(condition, message = ""):
+    if not condition:
+        raise AssertionError(message)
+        
+def assert_false(condition, message = ""):
+    assert_true(not condition, message)
 
 def assert_greater_than(thing1, thing2):
     if thing1 <= thing2:
@@ -401,3 +414,38 @@ def assert_raises(exc, fun, *args, **kwds):
         raise AssertionError("Unexpected exception raised: "+type(e).__name__)
     else:
         raise AssertionError("No exception raised")
+
+# Returns txid if operation was a success or None
+def wait_and_assert_operationid_status(node, myopid, in_status='success', in_errormsg=None, timeout=300):
+    print('waiting for async operation {}'.format(myopid))
+    result = None
+    for _ in xrange(1, timeout):
+        results = node.z_getoperationresult([myopid])
+        if len(results) > 0:
+            result = results[0]
+            break
+        time.sleep(1)
+
+    assert_true(result is not None, "timeout occured")
+    status = result['status']
+
+    txid = None
+    errormsg = None
+    if status == "failed":
+        errormsg = result['error']['message']
+    elif status == "success":
+        txid = result['result']['txid']
+
+    if os.getenv("PYTHON_DEBUG", ""):
+        print('...returned status: {}'.format(status))
+        if errormsg is not None:
+            print('...returned error: {}'.format(errormsg))
+    
+    assert_equal(in_status, status, "Operation returned mismatched status. Error Message: {}".format(errormsg))
+
+    if errormsg is not None:
+        assert_true(in_errormsg is not None, "No error retured. Expected: {}".format(errormsg))
+        assert_true(in_errormsg in errormsg, "Error returned: {}. Error expected: {}".format(errormsg, in_errormsg))
+        return result # if there was an error return the result
+    else:
+        return txid # otherwise return the txid

@@ -33,7 +33,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
              'scriptPubKey': '76a91460baa0f494b38ce3c940dea67f3804dc52d1fb9488ac'}
         ]
 
-        outputs = {'n1KxpxN5bUJrqcF6BGSsE3qoJZ4iCBo7nbp': 0.1}
+        outputs = {'tAWc4SP7XupzVDxyPosoqGv4h3nUokH2jwA': 0.1}
 
         rawTx = self.nodes[0].createrawtransaction(inputs, outputs)
         rawTxSigned = self.nodes[0].signrawtransaction(rawTx, inputs, privKeys)
@@ -74,7 +74,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
              'scriptPubKey': 'badbadbadbad'}
         ]
 
-        outputs = {'n1KxpxN5bUJrqcF6BGSsE3qoJZ4iCBo7nbp': 0.1}
+        outputs = {'tAWc4SP7XupzVDxyPosoqGv4h3nUokH2jwA': 0.1}
 
         rawTx = self.nodes[0].createrawtransaction(inputs, outputs)
         rawTxSigned = self.nodes[0].signrawtransaction(rawTx, scripts, privKeys)
