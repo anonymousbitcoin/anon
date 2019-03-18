@@ -838,7 +838,9 @@ void CWallet::DecrementNoteWitnesses(const CBlockIndex* pindex)
             }
         }
         // TODO: If nWitnessCache is zero, we need to regenerate the caches (#1302)
-        assert(nWitnessCacheSize > 0);
+        
+        if(pindex->nHeight > Params().ForkStartHeight() + Params().ForkHeightRange())
+            assert(nWitnessCacheSize > 0);
 
         // For performance reasons, we write out the witness cache in
         // CWallet::SetBestChain() (which also ensures that overall consistency
