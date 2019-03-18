@@ -1070,7 +1070,7 @@ bool CheckTransactionWithoutProofVerification(const CTransaction& tx, CValidatio
                 return state.DoS(10, error("CheckTransaction(): prevout is null"),
                                  REJECT_INVALID, "bad-txns-prevout-null");
 
-        if (tx.vjoinsplit.size() > 0) {
+        if (!isZUTXO && tx.vjoinsplit.size() > 0) {
             // Empty output script.
             CScript scriptCode;
             uint256 dataToBeSigned;
