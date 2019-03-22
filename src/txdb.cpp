@@ -196,6 +196,7 @@ bool CCoinsViewDB::GetStats(CCoinsStats &stats) const {
     boost::scoped_ptr<leveldb::Iterator> pcursor(const_cast<CLevelDBWrapper*>(&db)->NewIterator());
     pcursor->SeekToFirst();
 
+    int lastAirdropBlock = Params().GetConsensus().nForkStartHeight + Params().GetConsensus().nForkHeightRange;
     CHashWriter ss(SER_GETHASH, PROTOCOL_VERSION);
     stats.hashBlock = GetBestBlock();
     ss << stats.hashBlock;
@@ -221,7 +222,7 @@ bool CCoinsViewDB::GetStats(CCoinsStats &stats) const {
                 stats.nTransactions++;
                 for (unsigned int i=0; i<coins.vout.size(); i++) {
                     const CTxOut &out = coins.vout[i];
-                    if (!out.IsNull()) {
+                    if (!out.IsNull() && coins.nHeight > lastAirdropBlock) {
                         stats.nTransactionOutputs++;
                         ss << VARINT(i+1);
                         ss << out;
