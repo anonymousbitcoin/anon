@@ -264,10 +264,10 @@ public:
         consensus.nForkStartHeight = 2;
         consensus.nForkHeightRange = 1;
 
-        pchMessageStart[0] = 0xf1;
-        pchMessageStart[1] = 0xa3;
-        pchMessageStart[2] = 0x39;
-        pchMessageStart[3] = 0xbc;
+        pchMessageStart[0] = 0xf7;
+        pchMessageStart[1] = 0xd4;
+        pchMessageStart[2] = 0xc1;
+        pchMessageStart[3] = 0xb9;
 
         //setup airdrop blocks range
         nForkStartHeight = 2;
@@ -281,12 +281,12 @@ public:
         masternodeCollateralNew = 10000;
 
         //Sapling
-        saplingActivationBlock = 3000;
+        saplingActivationBlock = 100; 
         
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange + 1616; //actual block 1619
-        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1617; //actual block 1620
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 3
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 4
  
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
@@ -354,7 +354,7 @@ public:
         masternodeCollateralNew = 10000;
 
         // Don't expect founders reward prior this block
-        nFoundersRewardBlockStart = 100; // actual block may vary, due to using SPORK to activate founders reward
+        nFoundersRewardBlockStart = 50; // actual block may vary, due to using SPORK to activate founders reward
 
         // choose new founders address every ~6 months.
         foundersRewardAddressPeriod = 25000;
