@@ -942,7 +942,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("pruned",                fPruneMode));
 
     ZCIncrementalMerkleTree tree;
-    pcoinsTip->GetAnchorAt(pcoinsTip->GetBestAnchor(), tree);
+    pcoinsTip->GetAnchorAt(pcoinsTip->GetBestAnchor(), tree, false);
     obj.push_back(Pair("commitments",           tree.size()));
 
     CBlockIndex* tip = chainActive.Tip();

@@ -66,6 +66,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
+        
+        // sprout burn
+        consensus.zResetHeight = 50000;
 
         consensus.nForkStartHeight = 3;
         consensus.nForkHeightRange = 16737;
@@ -250,6 +253,9 @@ public:
         consensus.nGovernanceMinQuorum = 3;
         consensus.nGovernanceFilterElements = 20000;
 
+        // sprout burn
+        consensus.zResetHeight = 3000;
+
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -287,7 +293,8 @@ public:
         eh_epoch_2 = eh144_5;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 3
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 4
- 
+
+        
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
         nDefaultPort = 33129;
@@ -423,6 +430,9 @@ public:
         // governance
         consensus.nGovernanceMinQuorum = 3;
         consensus.nGovernanceFilterElements = 20000;
+
+         // sprout burn
+        consensus.zResetHeight = 1;
 
         // Setup airdrop blocks range
         nForkStartHeight = 0;
