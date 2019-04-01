@@ -84,8 +84,8 @@ class ZkeyImportExportTest (BitcoinTestFramework):
                 return cmp(b["amount"], a["amount"])
 
             txs.sort(cmp_confirmations_high_to_low)
-            print("Sorted txs", txs)
-            print("amts", amts)
+            # print("Sorted txs", txs)
+            # print("amts", amts)
 
             try:
                 assert_equal(amts, [tx["amount"] for tx in txs])
@@ -141,7 +141,7 @@ class ZkeyImportExportTest (BitcoinTestFramework):
         for amount in amounts[2:4]:
             z_send(alice, alice_zaddr, bob_zaddr, amount)
 
-        print("Bob amounts:", amounts[:4])
+        # print("Bob amounts:", amounts[:4])
         verify_utxos(bob, amounts[:4], bob_zaddr)
         # verify_utxos(charlie, [])
 
@@ -171,7 +171,7 @@ class ZkeyImportExportTest (BitcoinTestFramework):
         # Try to reproduce zombie balance reported in #1936
         # At generated zaddr, receive ZEC, and send ZEC back out. bob -> alice
         for amount in amounts[:2]:
-            print("Sending amount from bob to alice: ", amount)
+            # print("Sending amount from bob to alice: ", amount)
             z_send(bob, bob_zaddr, alice_zaddr, amount)
 
         balance = float(sum(amounts) - sum(amounts[:2]))
