@@ -3019,7 +3019,7 @@ bool static DisconnectTip(CValidationState& state)
     UpdateTip(pindexDelete->pprev);
     // Get the current commitment tree
     ZCIncrementalMerkleTree newTree;
-    assert(pcoinsTip->GetAnchorAt(pcoinsTip->GetBestAnchor(), newTree, pindexDelete->nHeight - 1 >= Params().GetConsensus().zResetHeight));
+    assert(pcoinsTip->GetAnchorAt(pcoinsTip->GetBestAnchor(), newTree, pindexDelete->nHeight - 1 > Params().GetConsensus().zResetHeight));
     // Let wallets know transactions went from 1-confirmed to
     // 0-confirmed or conflicted:
     BOOST_FOREACH (const CTransaction& tx, block.vtx) {
@@ -3054,7 +3054,7 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
     }
     // Get the current commitment tree
     ZCIncrementalMerkleTree oldTree;
-    assert(pcoinsTip->GetAnchorAt(pcoinsTip->GetBestAnchor(), oldTree, chainActive.Height() >= Params().GetConsensus().zResetHeight));
+    assert(pcoinsTip->GetAnchorAt(pcoinsTip->GetBestAnchor(), oldTree, chainActive.Height() > Params().GetConsensus().zResetHeight));
     // Apply the block atomically to the chain state.
     int64_t nTime2 = GetTimeMicros();
     nTimeReadFromDisk += nTime2 - nTime1;

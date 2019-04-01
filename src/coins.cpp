@@ -118,6 +118,8 @@ bool CCoinsViewCache::GetAnchorAt(const uint256 &rt, ZCIncrementalMerkleTree &tr
     }
 
     if (!base->GetAnchorAt(rt, tree, postBurn)) {
+        if(postBurn)
+            return true;
         return false;
     }
 

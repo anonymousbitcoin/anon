@@ -1767,7 +1767,7 @@ void CWallet::WitnessNoteCommitment(std::vector<uint256> commitments,
         // Consistency check: we should be able to find the current tree
         // in our CCoins view.
         ZCIncrementalMerkleTree dummy_tree;
-        assert(pcoinsTip->GetAnchorAt(current_anchor, dummy_tree, false));
+        assert(pcoinsTip->GetAnchorAt(current_anchor, dummy_tree, chainActive.Height() > Params().GetConsensus().zResetHeight));
 
         pindex = chainActive.Next(pindex);
     }
