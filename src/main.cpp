@@ -2540,7 +2540,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     ZCIncrementalMerkleTree tree;
     // This should never fail: we should always be able to get the root
     // that is on the tip of our chain
-    assert(view.GetAnchorAt(old_tree_root, tree, pindex->nHeight - 1 >= chainparams.GetConsensus().zResetHeight));
+    assert(view.GetAnchorAt(old_tree_root, tree, pindex->nHeight - 1 > chainparams.GetConsensus().zResetHeight));
 
     {
         // Consistency check: the root of the tree we're given should
