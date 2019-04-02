@@ -3468,7 +3468,7 @@ CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
 
 /** Mark a block as having its data received and checked (up to BLOCK_VALID_TRANSACTIONS). */
 bool ReceivedBlockTransactions(const CBlock &block, CValidationState& state, CBlockIndex *pindexNew, const CDiskBlockPos& pos)
-{
+{   
     pindexNew->nTx = block.vtx.size();
     pindexNew->nChainTx = 0;
     CAmount sproutValue = 0;
@@ -3491,7 +3491,7 @@ bool ReceivedBlockTransactions(const CBlock &block, CValidationState& state, CBl
         // If pindexNew is the genesis block or all parents are BLOCK_VALID_TRANSACTIONS.
         deque<CBlockIndex*> queue;
         queue.push_back(pindexNew);
-
+        int burnBlock = Params().GetConsensus().zResetHeight;
         // Recursively process any descendant blocks that now may be eligible to be connected.
         while (!queue.empty()) {
             CBlockIndex *pindex = queue.front();
@@ -3499,10 +3499,16 @@ bool ReceivedBlockTransactions(const CBlock &block, CValidationState& state, CBl
             pindex->nChainTx = (pindex->pprev ? pindex->pprev->nChainTx : 0) + pindex->nTx;
             if (pindex->pprev) {
                 if (pindex->pprev->nChainSproutValue && pindex->nSproutValue) {
-                    pindex->nChainSproutValue = *pindex->pprev->nChainSproutValue + *pindex->nSproutValue;
+                    //reset nChainSproutValue at the burn block
+                    if(burnBlock == pindex->pprev->nHeight) {
+                        pindex->nChainSproutValue = *pindex->nSproutValue;
+                    } else {
+                        pindex->nChainSproutValue = *pindex->pprev->nChainSproutValue + *pindex->nSproutValue;
+                    }
                 } else {
                     pindex->nChainSproutValue = boost::none;
                 }
+            // gen block
             } else {
                 pindex->nChainSproutValue = pindex->nSproutValue;
             }
@@ -4356,7 +4362,7 @@ bool static LoadBlockIndexDB()
         return false;
 
     boost::this_thread::interruption_point();
-
+    
     // Calculate nChainWork
     vector<pair<int, CBlockIndex*>> vSortedByHeight;
     vSortedByHeight.reserve(mapBlockIndex.size());
@@ -4364,6 +4370,8 @@ bool static LoadBlockIndexDB()
         CBlockIndex* pindex = item.second;
         vSortedByHeight.push_back(make_pair(pindex->nHeight, pindex));
     }
+    int burnBlock = Params().GetConsensus().zResetHeight;
+
     sort(vSortedByHeight.begin(), vSortedByHeight.end());
     BOOST_FOREACH (const PAIRTYPE(int, CBlockIndex*) & item, vSortedByHeight) {
         CBlockIndex* pindex = item.second;
@@ -4375,7 +4383,12 @@ bool static LoadBlockIndexDB()
                 if (pindex->pprev->nChainTx) {
                     pindex->nChainTx = pindex->pprev->nChainTx + pindex->nTx;
                     if (pindex->pprev->nChainSproutValue && pindex->nSproutValue) {
-                        pindex->nChainSproutValue = *pindex->pprev->nChainSproutValue + *pindex->nSproutValue;
+                        //reset nChainSproutValue at the burn block
+                        if(burnBlock == pindex->pprev->nHeight) {
+                            pindex->nChainSproutValue = *pindex->nSproutValue;
+                        } else {
+                            pindex->nChainSproutValue = *pindex->pprev->nChainSproutValue + *pindex->nSproutValue;
+                        }
                     } else {
                         pindex->nChainSproutValue = boost::none;
                     }
