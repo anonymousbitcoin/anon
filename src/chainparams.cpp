@@ -68,7 +68,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
         
         // sprout burn
-        consensus.zResetHeight = 50000;
+        consensus.zResetHeight = 48500;
 
         consensus.nForkStartHeight = 3;
         consensus.nForkHeightRange = 16737;
@@ -184,7 +184,7 @@ public:
         masternodeCollateralNew = 10000;
 
         //Sapling
-        saplingActivationBlock = 50000;
+        saplingActivationBlock = 48500;
 
         // Equihash algo
         eh_epoch_1 = eh200_9;
