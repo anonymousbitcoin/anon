@@ -152,14 +152,14 @@ class WalletShieldCoinbaseTest (BitcoinTestFramework):
 
         # Shielding the 800 utxos will occur over two transactions, since max tx size is 100,000 bytes.
         # We don't verify shieldingValue as utxos are not selected in any specific order, so value can change on each test run.
-        result = self.nodes[0].z_shieldcoinbase(mytaddr, myzaddr, 0)
+        result = self.nodes[0].z_shieldcoinbase(mytaddr, myzaddr, 0, 800)
         assert_equal(result["shieldingUTXOs"], Decimal('662'))
         assert_equal(result["remainingUTXOs"], Decimal('138'))
         remainingValue = result["remainingValue"]
         opid1 = result['opid']
 
         # Verify that utxos are locked (not available for selection) by queuing up another shielding operation
-        result = self.nodes[0].z_shieldcoinbase(mytaddr, myzaddr)
+        result = self.nodes[0].z_shieldcoinbase(mytaddr, myzaddr, 0, 138)
         assert_equal(result["shieldingValue"], Decimal(remainingValue))
         assert_equal(result["shieldingUTXOs"], Decimal('138'))
         assert_equal(result["remainingValue"], Decimal('0'))
@@ -178,7 +178,7 @@ class WalletShieldCoinbaseTest (BitcoinTestFramework):
 
         # Verify maximum number of utxos which node 2 can shield is limited by option -mempooltxinputlimit
         mytaddr = self.nodes[2].getnewaddress()
-        result = self.nodes[2].z_shieldcoinbase(mytaddr, myzaddr, 0)
+        result = self.nodes[2].z_shieldcoinbase(mytaddr, myzaddr, 0, 0)
         assert_equal(result["shieldingUTXOs"], Decimal('7'))
         assert_equal(result["remainingUTXOs"], Decimal('13'))
         mytxid = self.wait_and_assert_operationid_status(2, result['opid'])
