@@ -239,6 +239,6 @@ TEST_F(ContextualTxsCheckBlockTest, BlockShieldRulesRejectOtherTx) {
 
 	TestTxsAcceptanceRules(CBaseChainParams::REGTEST, 200);
 	TestTxsAcceptanceRules(CBaseChainParams::TESTNET, 100);
-	TestTxsAcceptanceRules(CBaseChainParams::MAIN, 50000);
+	TestTxsAcceptanceRules(CBaseChainParams::MAIN, 48500);
 
 }
