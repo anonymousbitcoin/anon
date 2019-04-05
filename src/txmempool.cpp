@@ -464,6 +464,9 @@ void CTxMemPool::check(const CCoinsViewCache *pcoins) const
 
         boost::unordered_map<uint256, ZCIncrementalMerkleTree, CCoinsKeyHasher> intermediates;
 
+        int nHeight = chainActive.Height();
+        int zResetHeight = Params().GetConsensus().zResetHeight;
+
         BOOST_FOREACH(const JSDescription &joinsplit, tx.vjoinsplit) {
             BOOST_FOREACH(const uint256 &nf, joinsplit.nullifiers) {
                 assert(!pcoins->GetNullifier(nf));
@@ -474,7 +477,7 @@ void CTxMemPool::check(const CCoinsViewCache *pcoins) const
             if (it != intermediates.end()) {
                 tree = it->second;
             } else {
-                assert(pcoins->GetAnchorAt(joinsplit.anchor, tree));
+                assert(pcoins->GetAnchorAt(joinsplit.anchor, tree, nHeight > zResetHeight));
             }
 
             BOOST_FOREACH(const uint256& commitment, joinsplit.commitments)

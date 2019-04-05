@@ -97,7 +97,7 @@ bool CMasternodeConfig::read(std::string &strErr)
             streamConfig.close();
             return false;
         }
-        std::cout << "Reading masternode config file:" << "\n ALIAS:" << alias << "\n IP:" << ip << "\n" "Private key:" << privKey << "\n TxHash:" << txHash << "\n Output Index:" << outputIndex;
+        // std::cout << "Reading masternode config file:" << "\n ALIAS:" << alias << "\n IP:" << ip << "\n" "Private key:" << privKey << "\n TxHash:" << txHash << "\n Output Index:" << outputIndex;
         add(alias, ip, privKey, txHash, outputIndex);
     }
 

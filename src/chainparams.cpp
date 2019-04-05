@@ -66,6 +66,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
+        
+        // sprout burn
+        consensus.zResetHeight = 48500;
 
         consensus.nForkStartHeight = 3;
         consensus.nForkHeightRange = 16737;
@@ -137,6 +140,8 @@ public:
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x88,0xAD,0xE4};
         // guarantees the first 2 characters, when base58 encoded, are "zc"
         base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0x9A};
+        // guarantees the first 4 characters, when base58 encoded, are "ZiVK"
+        base58Prefixes[ZCVIEWING_KEY]      = {0xA8,0xAB,0xD3};
         // guarantees the first 2 characters, when base58 encoded, are "SK"
         base58Prefixes[ZCSPENDING_KEY]     = {0xAB,0x36};
 
@@ -167,17 +172,21 @@ public:
         };
 
 
-        //setup airdrop blocks range
+        // Setup airdrop blocks range
         nForkStartHeight = 3;
         nForkHeightRange = 16737;
         nZtransparentStartBlock = 9893 + nForkStartHeight;
         nZshieldedStartBlock = 10132 + nForkStartHeight;
 
-        // masternode related
+        // Masternode related
         masternodeCollateralChangeBlock = 37000;
         masternodeCollateralOld = 500; 
         masternodeCollateralNew = 10000;
 
+        //Sapling
+        saplingActivationBlock = 48500;
+
+        // Equihash algo
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
@@ -244,6 +253,9 @@ public:
         consensus.nGovernanceMinQuorum = 3;
         consensus.nGovernanceFilterElements = 20000;
 
+        // sprout burn
+        consensus.zResetHeight = 3000;
+
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -255,22 +267,34 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
-        pchMessageStart[0] = 0xf1;
-        pchMessageStart[1] = 0xa3;
-        pchMessageStart[2] = 0x39;
-        pchMessageStart[3] = 0xbc;
+        consensus.nForkStartHeight = 2;
+        consensus.nForkHeightRange = 1;
+
+        pchMessageStart[0] = 0xf7;
+        pchMessageStart[1] = 0xd4;
+        pchMessageStart[2] = 0xc1;
+        pchMessageStart[3] = 0xb9;
 
         //setup airdrop blocks range
         nForkStartHeight = 2;
         nForkHeightRange = 1;
         nZtransparentStartBlock = 5;
         nZshieldedStartBlock = 6;
+
+        // Masternode related
+        masternodeCollateralChangeBlock = 1;
+        masternodeCollateralOld = 500; 
+        masternodeCollateralNew = 10000;
+
+        //Sapling
+        saplingActivationBlock = 100; 
         
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange + 1616; //actual block 1619
-        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1617; //actual block 1620
- 
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 3
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 4
+
+        
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
         nDefaultPort = 33129;
@@ -306,6 +330,8 @@ public:
         base58Prefixes[EXT_SECRET_KEY]     = {0x04,0x35,0x83,0x94};
         // guarantees the first 2 characters, when base58 encoded, are "zt"
         base58Prefixes[ZCPAYMENT_ADDRRESS] = {0x16,0xB6};
+        // guarantees the first 4 characters, when base58 encoded, are "ZiVt"
+        base58Prefixes[ZCVIEWING_KEY]      = {0xA8,0xAC,0x0C};
         // guarantees the first 2 characters, when base58 encoded, are "ST"
         base58Prefixes[ZCSPENDING_KEY]     = {0xAC,0x08};
 
@@ -335,7 +361,7 @@ public:
         masternodeCollateralNew = 10000;
 
         // Don't expect founders reward prior this block
-        nFoundersRewardBlockStart = 100; // actual block may vary, due to using SPORK to activate founders reward
+        nFoundersRewardBlockStart = 50; // actual block may vary, due to using SPORK to activate founders reward
 
         // choose new founders address every ~6 months.
         foundersRewardAddressPeriod = 25000;
@@ -384,16 +410,41 @@ public:
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 1000;
         consensus.powLimit = uint256S("0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f");
+        consensus.nPowAveragingWindow = 17;
         consensus.prePowLimit = consensus.powLimit;
+
+        assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
         consensus.nPowMaxAdjustDown = 0; // Turn off adjustment down
         consensus.nPowMaxAdjustUp = 0; // Turn off adjustment up
+        consensus.nPowTargetSpacing = 10 * 60;
 
         //masternode
         consensus.nMasternodeMinimumConfirmations = 1;
 
+        // Budget related
+        consensus.nBudgetPaymentsStartBlock = 5000;
+        consensus.nBudgetPaymentsCycleBlocks = 1000;
+        consensus.nSuperblockStartBlock = 6000; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
+        consensus.nSuperblockCycle = 1000;
+
         // governance
         consensus.nGovernanceMinQuorum = 3;
         consensus.nGovernanceFilterElements = 20000;
+
+         // sprout burn
+        consensus.zResetHeight = -2;
+
+        // Setup airdrop blocks range
+        nForkStartHeight = 0;
+        nForkHeightRange = 0;
+        nZtransparentStartBlock = 0;
+        nZshieldedStartBlock = 0;
+
+        // Equihash algo
+        eh_epoch_1 = eh48_5;
+        eh_epoch_2 = eh48_5;
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
 
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
         consensus.nMinerConfirmationWindow = 144; // Faster than normal for regtest (144 instead of 2016)
@@ -401,12 +452,14 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 999999999999ULL;
 
-        pchMessageStart[0] = 0xaa;
-        pchMessageStart[1] = 0xe8;
-        pchMessageStart[2] = 0x3f;
-        pchMessageStart[3] = 0x5f;
+        pchMessageStart[0] = 0x2f;
+        pchMessageStart[1] = 0x54;
+        pchMessageStart[2] = 0xcc;
+        pchMessageStart[3] = 0x9d;
         nMaxTipAge = 24 * 60 * 60;
 
+        //Sapling
+        saplingActivationBlock = 200;
 
         const size_t N = 48, K = 5;
         BOOST_STATIC_ASSERT(equihash_parameters_acceptable(N, K));
@@ -417,7 +470,7 @@ public:
         genesis.nNonce = uint256S("0x0000000000000000000000000000000000000000000000000000000000000014");
         genesis.nSolution = ParseHex("082db3be12af6517f20de6265d02f5c971010ee2e2d784c525b16c21185cce784c5ec38f");
         consensus.hashGenesisBlock = genesis.GetHash();
-        nDefaultPort = 3130;
+        nDefaultPort = 18344;
         assert(consensus.hashGenesisBlock == uint256S("0x0405af839b4b9e53bae1f951e76b0e0a33d1ca6901fc264893adb375cc04a410"));
         nPruneAfterHeight = 1000;
 
@@ -438,9 +491,6 @@ public:
             0,
             0
         };
-
-        nForkStartHeight = 0;
-        nForkHeightRange = 0;
     }
 };
 static CRegTestParams regTestParams;
@@ -530,4 +580,9 @@ int CChainParams::GetMasternodeCollateral(int nHeight) const {
         if(nHeight >= masternodeCollateralChangeBlock)
             return masternodeCollateralNew;
         return masternodeCollateralOld;
+}
+
+bool CChainParams::isGrothActive(int nHeight) const {
+        assert(saplingActivationBlock > 0);
+        return nHeight >= saplingActivationBlock;
 }

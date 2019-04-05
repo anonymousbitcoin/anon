@@ -57,6 +57,7 @@ public:
 
         ZCPAYMENT_ADDRRESS,
         ZCSPENDING_KEY,
+        ZCVIEWING_KEY,
 
         MAX_BASE58_TYPES
     };
@@ -111,6 +112,7 @@ public:
     CScript GetFoundersRewardScriptAtHeight(int height) const;
     std::string GetFoundersRewardAddressAtIndex(int i) const;
     int GetMasternodeCollateral(int nHeight) const;
+    bool isGrothActive(int nHeight) const;
 
     int GetFoundersRewardBlockStart() const { return nFoundersRewardBlockStart; };
 
@@ -159,6 +161,9 @@ protected:
     int masternodeCollateralChangeBlock;
     int masternodeCollateralOld;
     int masternodeCollateralNew;
+
+    //Sapling 
+    int saplingActivationBlock;
 
     //Founders reward
     int nFoundersRewardBlockStart;
