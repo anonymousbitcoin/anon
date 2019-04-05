@@ -1289,7 +1289,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransa
                                      REJECT_DUPLICATE, "bad-txns-inputs-spent");
 
         // are the joinsplit's requirements met?
-        if (!view.HaveJoinSplitRequirements(tx, chainActive.Height() >= Params().GetConsensus().zResetHeight))
+        if (!view.HaveJoinSplitRequirements(tx, chainActive.Height() > Params().GetConsensus().zResetHeight))
             return state.Invalid(error("AcceptToMemoryPool: joinsplit requirements not met"),
                                  REJECT_DUPLICATE, "bad-txns-joinsplit-requirements-not-met");
 
