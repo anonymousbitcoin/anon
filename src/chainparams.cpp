@@ -161,13 +161,13 @@ public:
 
         checkpointData = {
             {
-                {      0, consensus.hashGenesisBlock }
-                // {  30000, uint256S("0x000000005c2ad200c3c7c8e627f67b306659efca1268c9bb014335fdadc0c392") },
+                {      0, consensus.hashGenesisBlock },
+                { 49700, uint256S("0x0000005d5dc0b75986d737a5840ef41d8647f6a0234bebcba6fcc8f93de19222") },
             },
-            0,     // * UNIX timestamp of last checkpoint block
-            0,       // * total number of transactions between genesis and last checkpoint
+            1556450564,     // * UNIX timestamp of last checkpoint block
+            51145525,          // * total number of transactions between genesis and last checkpoint
                             //   (the tx=... number in the SetBestChain debug.log lines)
-            50            // * estimated number of transactions per day after checkpoint
+            148188            // * estimated number of transactions per day after checkpoint
                             //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
