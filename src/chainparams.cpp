@@ -239,6 +239,7 @@ public:
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.nPowTargetSpacing = 1 * 60; // time between blocks (sec)
 
         // Budget related
         consensus.nBudgetPaymentsStartBlock = 20;
@@ -268,7 +269,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
         consensus.nForkStartHeight = 2;
-        consensus.nForkHeightRange = 1;
+        consensus.nForkHeightRange = 0;
 
         pchMessageStart[0] = 0xf7;
         pchMessageStart[1] = 0xd4;
@@ -277,7 +278,7 @@ public:
 
         //setup airdrop blocks range
         nForkStartHeight = 2;
-        nForkHeightRange = 1;
+        nForkHeightRange = 0;
         nZtransparentStartBlock = 5;
         nZshieldedStartBlock = 6;
 
@@ -292,7 +293,7 @@ public:
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 3
-        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 4
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange; //actual block 4
 
         
 
