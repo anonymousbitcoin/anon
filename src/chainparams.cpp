@@ -189,8 +189,10 @@ public:
         // Equihash algo
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
+        eh_epoch_3 = eh192_7;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
+        eh_epoch_3_startblock = 9999999;
 
         // Don't expect founders reward prior this block
         nFoundersRewardBlockStart = 37000; // actual block may vary, due to using SPORK to activate founders reward
@@ -291,8 +293,10 @@ public:
         
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
+        eh_epoch_3 = eh192_7;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 3
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 4
+        eh_epoch_3_startblock = 6;
 
         
 
@@ -540,6 +544,10 @@ int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, cons
     //if in overlap period, there will be two valid solutions, else 1.
     //The upcoming version of EH is preferred so will always be first element
     //returns number of elements in list
+    if(blockheight>=params.eh_epoch_3_start()){
+        ehparams[0]=params.eh_epoch_3_params();
+        return 1;
+    }
     if(blockheight>=params.eh_epoch_2_start() && blockheight>params.eh_epoch_1_end()){
         ehparams[0]=params.eh_epoch_2_params();
         return 1;
