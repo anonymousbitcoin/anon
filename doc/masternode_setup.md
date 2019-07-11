@@ -35,7 +35,7 @@ Let's get started!
 2.	Get an account address to receive payouts with the `./src/anon-cli getaccountaddress 0`. Copy 
 the address in preperation to send it the collateral funds.
 
-3.	Send EXACTLY 500 ANON coins to the address you received.
+3.	Send EXACTLY 10000 ANON coins to the address you received.
 Note that this has to be sent in **ONE transaction**. 
 
 4.	Get the transactions output by running the command `./src/anon-cli masternode outputs`. You will see the transaction and a number next to it, either `0` or `1`.
@@ -47,7 +47,7 @@ At this point you should have the following informaiton:
 
 -	Masternode Private Key
 -	Your indexed account address
--	Transaction received when sending 500 ANON to above address
+-	Transaction received when sending 10000 ANON to above address
 -	The output id for the transaction
 
 ## 3. Get a VPS 
