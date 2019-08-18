@@ -118,6 +118,9 @@ public:
     bool isGrothActive(int nHeight) const;
 
     int GetFoundersRewardBlockStart() const { return nFoundersRewardBlockStart; };
+    int GetNewTimeRule() const { return newTimeRule; }
+    uint64_t LwmaAveragingWin() const { return lwmaAveragingWindow; };
+
 
 protected:
     CChainParams() {}
@@ -173,6 +176,12 @@ protected:
     //Founders reward
     int nFoundersRewardBlockStart;
     int foundersRewardAddressPeriod;
+
+    //diff
+    int newTimeRule;
+
+    // lwma
+    int64_t lwmaAveragingWindow;
 
 };
 

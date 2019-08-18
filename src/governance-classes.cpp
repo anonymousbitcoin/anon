@@ -519,8 +519,13 @@ CSuperblock(uint256& nHash)
 bool CSuperblock::IsValidBlockHeight(int nBlockHeight)
 {
     // SUPERBLOCKS CAN HAPPEN ONLY after hardfork and only ONCE PER CYCLE
+if (nBlockHeight >= Params().GetConsensus().nSuperblockStartBlockEchelon){
+    return nBlockHeight >= Params().GetConsensus().nSuperblockStartBlockEchelon &&
+            (((Params().GetConsensus().nSuperblockStartBlockEchelon - nBlockHeight) % Params().GetConsensus().nSuperblockCycleEchelon) == 0);
+} else {
     return nBlockHeight >= Params().GetConsensus().nSuperblockStartBlock &&
             (((Params().GetConsensus().nSuperblockStartBlock - nBlockHeight) % Params().GetConsensus().nSuperblockCycle) == 0);
+}
 }
 
 CAmount CSuperblock::GetPaymentsLimit(int nBlockHeight)
@@ -538,7 +543,12 @@ CAmount CSuperblock::GetPaymentsLimit(int nBlockHeight)
 
     CAmount nSuperblockPartOfSubsidy = 0;
     
-    int firstBlockOfCycle = nBlockHeight - consensusParams.nSuperblockCycle;
+    int firstBlockOfCycle = 
+        nBlockHeight >= Params().GetConsensus().nSuperblockStartBlockEchelon
+            ? nBlockHeight - consensusParams.nSuperblockCycleEchelon
+            : nBlockHeight - consensusParams.nSuperblockCycle;
+   
+    // int firstBlockOfCycle = nBlockHeight - consensusParams.nSuperblockCycle;
     for(int i = firstBlockOfCycle; i < nBlockHeight; i++){
         nSuperblockPartOfSubsidy += GetBlockSubsidy(i, consensusParams, true);
     }

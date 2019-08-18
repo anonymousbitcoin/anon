@@ -16,7 +16,12 @@ TEST(PoW, DifficultyAveraging) {
     for (int i = 0; i <= lastBlk; i++) {
         blocks[i].pprev = i ? &blocks[i - 1] : nullptr;
         blocks[i].nHeight = i;
-        blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacing;
+        if (blocks[i].nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
+            blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacing;
+        }
+        else {
+            blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacingEchelon;
+        }
         blocks[i].nBits = 0x1e7fffff; /* target 0x007fffff000... */
         blocks[i].nChainWork = i ? blocks[i - 1].nChainWork + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
     }
@@ -24,7 +29,7 @@ TEST(PoW, DifficultyAveraging) {
     // Result should be the same as if last difficulty was used
     arith_uint256 bnAvg;
     bnAvg.SetCompact(blocks[lastBlk].nBits);
-    EXPECT_EQ(CalculateNextWorkRequired(bnAvg,
+    EXPECT_EQ(DigishieldCalculateNextWorkRequired(bnAvg,
                                         blocks[lastBlk].GetMedianTimePast(),
                                         blocks[firstBlk].GetMedianTimePast(),
                                         params, UintToArith256(params.powLimit)),
@@ -37,11 +42,17 @@ TEST(PoW, DifficultyAveraging) {
     EXPECT_EQ(bnRes.GetCompact(), GetNextWorkRequired(&blocks[lastBlk], nullptr, params));
 
     // Randomise the final block time (plus 1 to ensure it is always different)
-    blocks[lastBlk].nTime += GetRand(params.nPowTargetSpacing/2) + 1;
+    if (blocks[lastBlk].nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
+        blocks[lastBlk].nTime += GetRand(params.nPowTargetSpacing/2) + 1;
+    }
+    else {
+        blocks[lastBlk].nTime += GetRand(params.nPowTargetSpacingEchelon/2) + 1;
+    }
+
 
     // Result should be the same as if last difficulty was used
     bnAvg.SetCompact(blocks[lastBlk].nBits);
-    EXPECT_EQ(CalculateNextWorkRequired(bnAvg,
+    EXPECT_EQ(DigishieldCalculateNextWorkRequired(bnAvg,
                                         blocks[lastBlk].GetMedianTimePast(),
                                         blocks[firstBlk].GetMedianTimePast(),
                                         params, UintToArith256(params.powLimit)),
@@ -54,7 +65,7 @@ TEST(PoW, DifficultyAveraging) {
 
     // Result should not be the same as if last difficulty was used
     bnAvg.SetCompact(blocks[lastBlk].nBits);
-    EXPECT_NE(CalculateNextWorkRequired(bnAvg,
+    EXPECT_NE(DigishieldCalculateNextWorkRequired(bnAvg,
                                         blocks[lastBlk].GetMedianTimePast(),
                                         blocks[firstBlk].GetMedianTimePast(),
                                         params, UintToArith256(params.powLimit)),
@@ -62,7 +73,7 @@ TEST(PoW, DifficultyAveraging) {
 
     // Result should be the same as if the average difficulty was used
     arith_uint256 average = UintToArith256(uint256S("0000796968696969696969696969696969696969696969696969696969696969"));
-    EXPECT_EQ(CalculateNextWorkRequired(average,
+    EXPECT_EQ(DigishieldCalculateNextWorkRequired(average,
                                         blocks[lastBlk].GetMedianTimePast(),
                                         blocks[firstBlk].GetMedianTimePast(),
                                         params, UintToArith256(params.powLimit)),

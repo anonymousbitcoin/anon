@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE(PartitionAlert)
     CCriticalSection csDummy;
     CBlockIndex indexDummy[400];
     CChainParams& params = Params(CBaseChainParams::MAIN);
-    int64_t nPowTargetSpacing = params.GetConsensus().nPowTargetSpacing;
+    int64_t nPowTargetSpacing;
 
     // Generate fake blockchain timestamps relative to
     // an arbitrary time:
@@ -403,6 +403,12 @@ BOOST_AUTO_TEST_CASE(PartitionAlert)
         if (i == 0) indexDummy[i].pprev = NULL;
         else indexDummy[i].pprev = &indexDummy[i-1];
         indexDummy[i].nHeight = i;
+        if (indexDummy[i].nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
+            nPowTargetSpacing = params.GetConsensus().nPowTargetSpacing;
+        }
+        else {
+            nPowTargetSpacing = params.GetConsensus().nPowTargetSpacingEchelon;
+        }
         indexDummy[i].nTime = now - (400-i)*nPowTargetSpacing;
         // Other members don't matter, the partition check code doesn't
         // use them

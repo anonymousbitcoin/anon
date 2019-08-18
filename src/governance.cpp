@@ -843,7 +843,12 @@ bool CGovernanceManager::MasternodeRateCheck(const CGovernanceObject& govobj, up
 
     int64_t nTimestamp = govobj.GetCreationTime();
     int64_t nNow = GetTime();
-    int64_t nSuperblockCycleSeconds = Params().GetConsensus().nSuperblockCycle * Params().GetConsensus().nPowTargetSpacing;
+    int64_t nSuperblockCycleSeconds;
+    (pCurrentBlockIndex->nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight)
+        ? nSuperblockCycleSeconds = Params().GetConsensus().nSuperblockCycle * Params().GetConsensus().nPowTargetSpacing
+        : nSuperblockCycleSeconds = Params().GetConsensus().nSuperblockCycleEchelon * Params().GetConsensus().nPowTargetSpacingEchelon;
+
+    LogPrintf("nHeight - %d, nSuperblockCycleSeconds - %d", pCurrentBlockIndex->nHeight, nSuperblockCycleSeconds);
 
     const CTxIn& vin = govobj.GetMasternodeVin();
 

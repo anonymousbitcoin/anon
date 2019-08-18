@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(get_next_work)
     arith_uint256 bnAvg;
     bnAvg.SetCompact(0x1d014f3c);
     BOOST_CHECK_EQUAL(0x1d011998,
-                      CalculateNextWorkRequired(bnAvg, nThisTime, nLastRetargetTime, params, UintToArith256(params.powLimit)));
+                      DigishieldCalculateNextWorkRequired(bnAvg, nThisTime, nLastRetargetTime, params, UintToArith256(params.powLimit)));
 }
 
 /* Test the constraint on the lower bound for actual time taken */
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(get_next_work_lower_limit_actual)
     arith_uint256 bnAvg;
     bnAvg.SetCompact(0x1c05a3f4);
     BOOST_CHECK_EQUAL(0x1c04bceb,
-                      CalculateNextWorkRequired(bnAvg, nThisTime, nLastRetargetTime, params, UintToArith256(params.powLimit)));
+                      DigishieldCalculateNextWorkRequired(bnAvg, nThisTime, nLastRetargetTime, params, UintToArith256(params.powLimit)));
 }
 
 /* Test the constraint on the upper bound for actual time taken */
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(get_next_work_upper_limit_actual)
     arith_uint256 bnAvg;
     bnAvg.SetCompact(0x1C58C841);
     BOOST_CHECK_EQUAL(0x1c4a93bb,
-                      CalculateNextWorkRequired(bnAvg, nThisTime, nLastRetargetTime, params, UintToArith256(params.powLimit)));
+                      DigishieldCalculateNextWorkRequired(bnAvg, nThisTime, nLastRetargetTime, params, UintToArith256(params.powLimit)));
 }
 
 BOOST_AUTO_TEST_CASE(GetBlockProofEquivalentTime_test)
@@ -64,7 +64,12 @@ BOOST_AUTO_TEST_CASE(GetBlockProofEquivalentTime_test)
     for (int i = 0; i < 10000; i++) {
         blocks[i].pprev = i ? &blocks[i - 1] : NULL;
         blocks[i].nHeight = i;
-        blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacing;
+        if (blocks[i].nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
+            blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacing;
+        }
+        else {
+            blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacingEchelon;
+        }
         blocks[i].nBits = 0x207fffff; /* target 0x7fffff000... */
         blocks[i].nChainWork = i ? blocks[i - 1].nChainWork + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
     }

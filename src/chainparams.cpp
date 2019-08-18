@@ -32,15 +32,23 @@ public:
     CMainParams() {
         strNetworkID = "main";
         strCurrencyUnits = "ANON";
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
+        consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight = 77880;
+
         consensus.fCoinbaseMustBeProtected = true;
         consensus.nSubsidySlowStartInterval = 1;
-        consensus.nSubsidyHalvingInterval = 134000; //1st halving occurs after block 150,740 (airdropped blocks offset)
+        consensus.nSubsidyHalvingInterval = 536000; //1st halving occurs after block 552,740 (airdropped blocks offset)
 
         // Budget related
         consensus.nBudgetPaymentsStartBlock = 39420; // (coinburn block [37,000] + [2,420] (~16 days)
         consensus.nBudgetPaymentsCycleBlocks = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
         consensus.nSuperblockStartBlock = 43800; // The block at which 1st superblock goes live
         consensus.nSuperblockCycle = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
+        consensus.nSuperblockStartBlockEchelon = consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight;
+        consensus.nSuperblockCycleEchelon = 17520;
         
         // masternode
         consensus.nMasternodeMinimumConfirmations = 3;
@@ -59,14 +67,12 @@ public:
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 10 * 60; // time between blocks (sec)
-        consensus.fPowAllowMinDifficultyBlocks = false;
+        consensus.nPowTargetSpacingEchelon = 2.5 * 60; // time between blocks (sec)
+        consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
-        
+
         // sprout burn
         consensus.zResetHeight = 48500;
 
@@ -192,7 +198,10 @@ public:
         eh_epoch_3 = eh192_7;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
-        eh_epoch_3_startblock = 9999999;
+        eh_epoch_3_startblock = consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight;
+
+        // lwma
+        lwmaAveragingWindow = 120;
 
         // Don't expect founders reward prior this block
         nFoundersRewardBlockStart = 37000; // actual block may vary, due to using SPORK to activate founders reward
@@ -236,17 +245,28 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         strCurrencyUnits = "ANONT";
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
+        consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight = 20;
+
         consensus.fCoinbaseMustBeProtected = true;
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.nPowAveragingWindow = 3; //difficulty adjusts every block
+        consensus.nPowTargetSpacing = 2 * 60; // time between blocks (sec)
+        consensus.nPowTargetSpacingEchelon = 1 * 60; // time between blocks (sec)
 
         // Budget related
         consensus.nBudgetPaymentsStartBlock = 20;
         consensus.nBudgetPaymentsCycleBlocks = 10;
         consensus.nSuperblockStartBlock = 30; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
         consensus.nSuperblockCycle = 10; // Superblocks can be issued hourly on testnet
+        consensus.nSuperblockStartBlockEchelon = consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
+        consensus.nSuperblockCycleEchelon = 20; // Superblocks can be issued hourly on testnet
 
         //masternode
         consensus.nMasternodeMinimumConfirmations = 1;
@@ -260,14 +280,11 @@ public:
 
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
-        consensus.fPowAllowMinDifficultyBlocks = false;
+        consensus.fPowAllowMinDifficultyBlocks = true;
 
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
         consensus.nForkStartHeight = 2;
         consensus.nForkHeightRange = 1;
@@ -279,7 +296,7 @@ public:
 
         //setup airdrop blocks range
         nForkStartHeight = 2;
-        nForkHeightRange = 1;
+        nForkHeightRange = 0;//ignore utxo for testnet
         nZtransparentStartBlock = 5;
         nZshieldedStartBlock = 6;
 
@@ -290,10 +307,16 @@ public:
 
         //Sapling
         saplingActivationBlock = 100; 
+
+        // lwma
+        lwmaAveragingWindow = 10;
         
+        newTimeRule = 39;
+
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_3 = eh192_7;
+        // eh_epoch_3 = eh192_7;
+        eh_epoch_3 = eh200_9;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 3
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 4
         eh_epoch_3_startblock = 6;
