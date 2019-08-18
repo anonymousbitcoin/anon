@@ -29,6 +29,47 @@ struct BIP9Deployment {
     int64_t nTimeout;
 };
 
+enum UpgradeIndex {
+    // Sprout must be first
+    BASE_SPROUT,
+    UPGRADE_TESTDUMMY,
+    UPGRADE_OVERWINTER,
+    UPGRADE_SAPLING,
+    UPGRADE_DIFA,
+    // NOTE: Also add new upgrades to NetworkUpgradeInfo in upgrades.cpp
+    MAX_NETWORK_UPGRADES
+};
+
+struct NetworkUpgrade {
+    /**
+     * The first protocol version which will understand the new consensus rules
+     */
+    int nProtocolVersion;
+
+    /**
+     * Height of the first block for which the new consensus rules will be active
+     */
+    int nActivationHeight;
+
+    /**
+     * Special value for nActivationHeight indicating that the upgrade is always active.
+     * This is useful for testing, as it means tests don't need to deal with the activation
+     * process (namely, faking a chain of somewhat-arbitrary length).
+     *
+     * New blockchains that want to enable upgrade rules from the beginning can also use
+     * this value. However, additional care must be taken to ensure the genesis block
+     * satisfies the enabled rules.
+     */
+    static constexpr int ALWAYS_ACTIVE = 0;
+
+    /**
+     * Special value for nActivationHeight indicating that the upgrade will never activate.
+     * This is useful when adding upgrade code that has a testnet activation height, but
+     * should remain disabled on mainnet.
+     */
+    static constexpr int NO_ACTIVATION_HEIGHT = -1;
+};
+
 /**
  * Parameters that influence chain consensus.
  */
@@ -60,6 +101,7 @@ struct Params {
     int nMajorityEnforceBlockUpgrade;
     int nMajorityRejectBlockOutdated;
     int nMajorityWindow;
+    NetworkUpgrade vUpgrades[MAX_NETWORK_UPGRADES];
     int nMasternodePaymentsStartBlock;
     int nMasternodePaymentsIncreaseBlock;
     int nMasternodePaymentsIncreasePeriod; // in blocks
@@ -108,6 +150,11 @@ struct Params {
     bool fPowNoRetargeting;
     
     int zResetHeight;
+
+
+    /** Parameters for LWMA3 **/
+    int64_t nZawyLWMA3AveragingWindow;
+
 
     int64_t AveragingWindowTimespan(bool isFork = false) const { return nPowAveragingWindow * nPowTargetSpacing / (isFork ? 20 : 1); }
     int64_t MinActualTimespan(bool isFork = false) const { return (AveragingWindowTimespan(isFork) * (100 - nPowMaxAdjustUp  )) / 100; }

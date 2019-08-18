@@ -118,6 +118,8 @@ public:
     bool isGrothActive(int nHeight) const;
 
     int GetFoundersRewardBlockStart() const { return nFoundersRewardBlockStart; };
+    int GetNewTimeRule() const { return newTimeRule; }
+
 
 protected:
     CChainParams() {}
@@ -173,6 +175,9 @@ protected:
     //Founders reward
     int nFoundersRewardBlockStart;
     int foundersRewardAddressPeriod;
+
+    //diff
+    int newTimeRule;
 
 };
 

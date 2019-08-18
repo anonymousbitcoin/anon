@@ -66,7 +66,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
-        
+
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 39;
+
         // sprout burn
         consensus.zResetHeight = 48500;
 
@@ -280,7 +282,7 @@ public:
 
         //setup airdrop blocks range
         nForkStartHeight = 2;
-        nForkHeightRange = 0;
+        nForkHeightRange = 0;//ignore utxo for testnet
         nZtransparentStartBlock = 5;
         nZshieldedStartBlock = 6;
 
@@ -291,12 +293,20 @@ public:
 
         //Sapling
         saplingActivationBlock = 100; 
+
+        //diff algo
+        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 139;
+
+        consensus.nZawyLWMA3AveragingWindow = 90;
         
+        newTimeRule = 39;
+
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
-        eh_epoch_3 = eh192_7;
+        // eh_epoch_3 = eh192_7;
+        eh_epoch_3 = eh200_9;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 3
-        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange; //actual block 4
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 4
         eh_epoch_3_startblock = 6;
 
         
