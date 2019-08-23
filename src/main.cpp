@@ -47,6 +47,8 @@
 #include <boost/static_assert.hpp>
 #include <boost/thread.hpp>
 
+#include "zcash/delay.h"
+
 
 #include "core_io.h" //for tests, can be removed later
 using namespace std;
@@ -81,6 +83,8 @@ bool fIsBareMultisigStd = true;
 bool fCheckBlockIndex = false;
 bool fCheckpointsEnabled = true;
 bool fCoinbaseEnforcedProtectionEnabled = true;
+//true in case we still have not reached the highest known block from server startup
+bool fIsStartupSyncing = true;
 size_t nCoinCacheUsage = 5000 * 300;
 uint64_t nPruneTarget = 0;
 bool fAlerts = DEFAULT_ALERTS;
@@ -146,7 +150,11 @@ namespace
 struct CBlockIndexWorkComparator {
     bool operator()(CBlockIndex* pa, CBlockIndex* pb) const
     {
-        // First sort by most total work, ...
+        // First sort by total delay in chain.
+        if (pa->nChainDelay < pb->nChainDelay) return false;
+        if (pa->nChainDelay > pb->nChainDelay) return true;
+
+            // Then sort by most total work, ...
         if (pa->nChainWork > pb->nChainWork)
             return false;
         if (pa->nChainWork < pb->nChainWork)
@@ -329,6 +337,11 @@ CNodeState* State(NodeId pnode)
     if (it == mapNodeState.end())
         return NULL;
     return &it->second;
+}
+
+bool IsStartupSyncing() {
+	LOCK(cs_main);
+	return fIsStartupSyncing;
 }
 
 int GetHeight()
@@ -2929,6 +2942,12 @@ void static UpdateTip(CBlockIndex* pindexNew)
     nTimeBestReceived = GetTime();
     mempool.AddTransactionsUpdated(1);
 
+    double syncProgress = Checkpoints::GuessVerificationProgress(chainParams.Checkpoints(), chainActive.Tip());
+	if(fIsStartupSyncing && std::abs(1.0 - syncProgress) < 0.000001) {
+    	LogPrintf("Fully synchronized at block height %d\n", chainActive.Height());
+    	fIsStartupSyncing = false;
+    }
+
     LogPrintf("%s: new best=%s  height=%d  log2_work=%.8g  tx=%lu  date=%s progress=%f  cache=%.1fMiB(%utx)\n", __func__,
               chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), log(chainActive.Tip()->nChainWork.getdouble()) / log(2.0), (unsigned long)chainActive.Tip()->nChainTx,
               DateTimeStrFormat("%Y-%m-%d %H:%M:%S", chainActive.Tip()->GetBlockTime()),
@@ -3457,8 +3476,18 @@ CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
         pindexNew->BuildSkip();
     }
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
+    //ZEN_MOD_START
+    if (pindexNew->pprev){
+        pindexNew->nChainDelay = pindexNew->pprev->nChainDelay + GetBlockDelay(*pindexNew,*(pindexNew->pprev), chainActive.Height(), fIsStartupSyncing);
+    } else {
+        pindexNew->nChainDelay = 0 ;
+    }
+    if(pindexNew->nChainDelay != 0) {
+    	LogPrintf("%s: Block belong to a chain under punishment Delay VAL: %i BLOCKHEIGHT: %d\n",__func__, pindexNew->nChainDelay,pindexNew->nHeight);
+    }
+    //ZEN_MOD_END
     pindexNew->RaiseValidity(BLOCK_VALID_TREE);
-    if (pindexBestHeader == NULL || pindexBestHeader->nChainWork < pindexNew->nChainWork)
+    if (pindexBestHeader == NULL || (pindexBestHeader->nChainWork < pindexNew->nChainWork && pindexNew->nChainDelay==0))
         pindexBestHeader = pindexNew;
 
     setDirtyBlockIndex.insert(pindexNew);
@@ -4390,6 +4419,14 @@ bool static LoadBlockIndexDB()
     BOOST_FOREACH (const PAIRTYPE(int, CBlockIndex*) & item, vSortedByHeight) {
         CBlockIndex* pindex = item.second;
         pindex->nChainWork = (pindex->pprev ? pindex->pprev->nChainWork : 0) + GetBlockProof(*pindex);
+        //ZEN_MOD_START
+        if (pindex->pprev){
+            pindex->nChainDelay = pindex->pprev->nChainDelay 
+            + GetBlockDelay(*pindex,*(pindex->pprev), chainActive.Height(), fIsStartupSyncing);
+        } else {
+            pindex->nChainDelay = 0 ;
+        }    
+        //ZEN_MOD_END
         // We can link the chain of blocks for which we've received transactions at some point.
         // Pruned nodes may have deleted the block.
         if (pindex->nTx > 0) {
