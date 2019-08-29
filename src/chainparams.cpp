@@ -276,7 +276,7 @@ public:
         consensus.nGovernanceFilterElements = 20000;
 
         // sprout burn
-        consensus.zResetHeight = 3000;
+        consensus.zResetHeight = -1;
 
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
@@ -317,8 +317,8 @@ public:
         eh_epoch_2 = eh144_5;
         // eh_epoch_3 = eh192_7;
         eh_epoch_3 = eh200_9;
-        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 3
-        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 4
+        eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 2
+        eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 3
         eh_epoch_3_startblock = 6;
 
         
