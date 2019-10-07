@@ -1603,8 +1603,19 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex)
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly)
 {
-    CAmount nSubsidy = 50 * COIN;
+    CAmount nSubsidy;
+
+    if (nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
+        nSubsidy = 50 * COIN;
+    }
+    else {
+        nSubsidy = 100 * COIN;
+    }
     const CChainParams& chainparams = Params();
+    //testnet dump heaps for masternode collateral
+    if (nHeight == 1) {
+        return 100000000000000;
+    }
     //subsidy should be 0 before and during airdrop
     if (nHeight <= chainparams.ForkStartHeight() + chainparams.ForkHeightRange()) {
         return 0;
@@ -2703,11 +2714,20 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
         std::string strError = "";
 
-        if (block.vtx[0].GetValueOut() > blockReward && (pindex->nHeight % chainparams.GetConsensus().nSuperblockCycle != 0)){
-            return state.DoS(100,
-                             error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
-                                   block.vtx[0].GetValueOut(), blockReward),
-                             REJECT_INVALID, "bad-cb-amount");
+        if (pindex->nHeight >= Params().GetConsensus().nSuperblock2StartBlock){
+            if (block.vtx[0].GetValueOut() > blockReward && (pindex->nHeight % chainparams.GetConsensus().nSuperblock2Cycle != 0)){
+                return state.DoS(100,
+                                error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
+                                    block.vtx[0].GetValueOut(), blockReward),
+                                REJECT_INVALID, "bad-cb-amount");
+            }
+        } else {
+            if (block.vtx[0].GetValueOut() > blockReward && (pindex->nHeight % chainparams.GetConsensus().nSuperblockCycle != 0)){
+                return state.DoS(100,
+                                error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
+                                    block.vtx[0].GetValueOut(), blockReward),
+                                REJECT_INVALID, "bad-cb-amount");
+            }
         }
 
         if (!IsBlockValueValid(block, pindex->nHeight, blockReward, strError)) {
@@ -3671,7 +3691,7 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool f
     unsigned int nHeight = chainActive.Height();
     const CChainParams& chainParams = Params();
     // Check timestamp
-    if (nHeight < chainParams.GetConsensus().vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight)
+    if (nHeight < chainParams.GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight)
     {
         if (nHeight < chainParams.GetNewTimeRule() && block.GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
             return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
