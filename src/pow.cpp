@@ -65,7 +65,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 
     bool isFork = isForkBlock(pindexLast->nHeight + 1);
     //Difficulty algo
-    if (nHeight < params.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight) {
+    if (nHeight < params.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
         return DigishieldCalculateNextWorkRequired(bnAvg, pindexLast->GetMedianTimePast(), pindexFirst->GetMedianTimePast(), params, proofOfWorkLimit, isFork);
     } else {
         return Lwma3CalculateNextWorkRequired(pindexLast, params);
@@ -107,11 +107,26 @@ unsigned int DigishieldCalculateNextWorkRequired(arith_uint256 bnAvg,
 
 unsigned int Lwma3CalculateNextWorkRequired(const CBlockIndex* pindexLast, const Consensus::Params& params)
 {
-    const int64_t T = params.nPowTargetSpacing;
+    int64_t T;
     const int64_t N = params.nZawyLWMA3AveragingWindow;
-    const int64_t k = N * (N + 1) * T / 2;
     const int64_t height = pindexLast->nHeight;
     const arith_uint256 powLimit = UintToArith256(params.powLimit);
+
+
+    if (height < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
+        T = params.nPowTargetSpacing;
+    }
+    else {
+        T = params.nPowTargetSpacingNew;
+    }
+    const int64_t k = N * (N + 1) * T / 2;
+
+    // LogPrintf("T %s...\n", T);
+    // LogPrintf("Writting height to %s...\n", height);
+    // LogPrintf("Echelon to %s...\n", Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight);
+
+
+
 
     if (height < N) { return powLimit.GetCompact(); }
 

@@ -1901,7 +1901,13 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     StartNode(threadGroup, scheduler);
 
     // Monitor the chain, and alert if we get blocks much quicker or slower than expected
-    int64_t nPowTargetSpacing = Params().GetConsensus().nPowTargetSpacing;
+    int64_t nPowTargetSpacing;
+    if (chainActive.Height() < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
+        nPowTargetSpacing = Params().GetConsensus().nPowTargetSpacing;
+    }
+    else {
+        nPowTargetSpacing = Params().GetConsensus().nPowTargetSpacingNew;
+    }
     CScheduler::Function f = boost::bind(&PartitionCheck, &IsInitialBlockDownloadBind,
                                          boost::ref(cs_main), boost::cref(pindexBestHeader), nPowTargetSpacing);
     scheduler.scheduleEvery(f, nPowTargetSpacing);

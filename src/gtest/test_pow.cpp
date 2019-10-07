@@ -16,7 +16,12 @@ TEST(PoW, DifficultyAveraging) {
     for (int i = 0; i <= lastBlk; i++) {
         blocks[i].pprev = i ? &blocks[i - 1] : nullptr;
         blocks[i].nHeight = i;
-        blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacing;
+        if (blocks[i].nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
+            blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacing;
+        }
+        else {
+            blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacingNew;
+        }
         blocks[i].nBits = 0x1e7fffff; /* target 0x007fffff000... */
         blocks[i].nChainWork = i ? blocks[i - 1].nChainWork + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
     }
@@ -37,7 +42,12 @@ TEST(PoW, DifficultyAveraging) {
     EXPECT_EQ(bnRes.GetCompact(), GetNextWorkRequired(&blocks[lastBlk], nullptr, params));
 
     // Randomise the final block time (plus 1 to ensure it is always different)
-    blocks[lastBlk].nTime += GetRand(params.nPowTargetSpacing/2) + 1;
+    if (blocks[lastBlk].nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
+        blocks[lastBlk].nTime += GetRand(params.nPowTargetSpacing/2) + 1;
+    }
+    else {
+        blocks[lastBlk].nTime += GetRand(params.nPowTargetSpacingNew/2) + 1;
+    }
 
     // Result should be the same as if last difficulty was used
     bnAvg.SetCompact(blocks[lastBlk].nBits);

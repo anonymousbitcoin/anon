@@ -67,7 +67,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
 
-        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 39;
+        consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight = 20000;
 
         // sprout burn
         consensus.zResetHeight = 48500;
@@ -243,13 +243,16 @@ public:
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetSpacing = 1 * 60; // time between blocks (sec)
+        consensus.nPowTargetSpacing = 2 * 60; // time between blocks (sec)
+        consensus.nPowTargetSpacingNew = 1 * 60; // time between blocks (sec)
 
         // Budget related
-        consensus.nBudgetPaymentsStartBlock = 20;
-        consensus.nBudgetPaymentsCycleBlocks = 10;
-        consensus.nSuperblockStartBlock = 30; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
-        consensus.nSuperblockCycle = 10; // Superblocks can be issued hourly on testnet
+        consensus.nBudgetPaymentsStartBlock = 5;
+        consensus.nBudgetPaymentsCycleBlocks = 5;
+        consensus.nSuperblockStartBlock = 5; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
+        consensus.nSuperblockCycle = 5; // Superblocks can be issued hourly on testnet
+        consensus.nSuperblock2StartBlock = 20; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
+        consensus.nSuperblock2Cycle = 10; // Superblocks can be issued hourly on testnet
 
         //masternode
         consensus.nMasternodeMinimumConfirmations = 1;
@@ -271,6 +274,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
+        consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight = 20;
 
         consensus.nForkStartHeight = 2;
         consensus.nForkHeightRange = 0;
@@ -292,10 +296,7 @@ public:
         masternodeCollateralNew = 10000;
 
         //Sapling
-        saplingActivationBlock = 100; 
-
-        //diff algo
-        consensus.vUpgrades[Consensus::UPGRADE_DIFA].nActivationHeight = 139;
+        saplingActivationBlock = 4; 
 
         consensus.nZawyLWMA3AveragingWindow = 90;
         
@@ -307,9 +308,7 @@ public:
         eh_epoch_3 = eh200_9;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 2
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 3
-        eh_epoch_3_startblock = 6;
-
-        
+        eh_epoch_3_startblock = 20;
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
         nDefaultPort = 33129;
@@ -369,11 +368,6 @@ public:
             0,
             0
         };
-
-        //masternode collateral
-        masternodeCollateralChangeBlock = 1;
-        masternodeCollateralOld = 500; 
-        masternodeCollateralNew = 10000;
 
         // Don't expect founders reward prior this block
         nFoundersRewardBlockStart = 50; // actual block may vary, due to using SPORK to activate founders reward
