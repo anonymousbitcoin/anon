@@ -119,6 +119,7 @@ public:
 
     int GetFoundersRewardBlockStart() const { return nFoundersRewardBlockStart; };
     int GetNewTimeRule() const { return newTimeRule; }
+    uint64_t LwmaAveragingWin() const { return lwmaAveragingWindow; };
 
 
 protected:
@@ -178,6 +179,9 @@ protected:
 
     //diff
     int newTimeRule;
+
+    // lwma
+    int64_t lwmaAveragingWindow;
 
 };
 

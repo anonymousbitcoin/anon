@@ -921,7 +921,7 @@ void static BitcoinMiner(CWallet* pwallet)
 void static BitcoinMiner()
 #endif
 {
-    LogPrintf("ANON Miner started %s\n");
+    LogPrintf("ANON Miner started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
     RenameThread("anon-miner");
     const CChainParams& chainparams = Params();

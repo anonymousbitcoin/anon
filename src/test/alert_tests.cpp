@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE(PartitionAlert)
             nPowTargetSpacing = params.GetConsensus().nPowTargetSpacing;
         }
         else {
-            nPowTargetSpacing = params.GetConsensus().nPowTargetSpacingNew;
+            nPowTargetSpacing = params.GetConsensus().nPowTargetSpacingEchelon;
         }
         indexDummy[i].nTime = now - (400-i) * nPowTargetSpacing;
         // Other members don't matter, the partition check code doesn't

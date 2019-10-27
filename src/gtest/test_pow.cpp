@@ -20,7 +20,7 @@ TEST(PoW, DifficultyAveraging) {
             blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacing;
         }
         else {
-            blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacingNew;
+            blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacingEchelon;
         }
         blocks[i].nBits = 0x1e7fffff; /* target 0x007fffff000... */
         blocks[i].nChainWork = i ? blocks[i - 1].nChainWork + GetBlockProof(blocks[i - 1]) : arith_uint256(0);
@@ -46,7 +46,7 @@ TEST(PoW, DifficultyAveraging) {
         blocks[lastBlk].nTime += GetRand(params.nPowTargetSpacing/2) + 1;
     }
     else {
-        blocks[lastBlk].nTime += GetRand(params.nPowTargetSpacingNew/2) + 1;
+        blocks[lastBlk].nTime += GetRand(params.nPowTargetSpacingEchelon/2) + 1;
     }
 
     // Result should be the same as if last difficulty was used

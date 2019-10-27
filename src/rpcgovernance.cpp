@@ -865,15 +865,15 @@ UniValue getgovernanceinfo(const UniValue& params, bool fHelp)
 
     // Get chain parameters
     int nSuperblockStartBlock = 
-        nBlockHeight >= Params().GetConsensus().nSuperblock2StartBlock
-            ? Params().GetConsensus().nSuperblock2StartBlock
-            : Params().GetConsensus().nSuperblockStartBlock;
+        nBlockHeight < Params().GetConsensus().nSuperblockStartBlockEchelon
+            ? Params().GetConsensus().nSuperblockStartBlock
+            : Params().GetConsensus().nSuperblockStartBlockEchelon;
     // int nSuperblockStartBlock = Params().GetConsensus().nSuperblockStartBlock;
 
     int nSuperblockCycle = 
-        nBlockHeight >= Params().GetConsensus().nSuperblock2StartBlock
-            ? Params().GetConsensus().nSuperblock2Cycle
-            : Params().GetConsensus().nSuperblockCycle;
+        nBlockHeight < Params().GetConsensus().nSuperblockStartBlockEchelon
+            ? Params().GetConsensus().nSuperblockCycle
+            : Params().GetConsensus().nSuperblockCycleEchelon;
     // int nSuperblockCycle = Params().GetConsensus().nSuperblockCycle;
 
     int nGovernanceMinQuorum = Params().GetConsensus().nGovernanceMinQuorum;

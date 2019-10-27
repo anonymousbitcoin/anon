@@ -147,7 +147,7 @@ int EstimateNetHeight(int height, int64_t tipmediantime, CChainParams chainParam
             Checkpoints::GetTotalBlocksEstimate(checkpointData),
             checkpointData.nTimeLastCheckpoint,
             chainParams.GenesisBlock().nTime,
-            chainParams.GetConsensus().nPowTargetSpacingNew);
+            chainParams.GetConsensus().nPowTargetSpacingEchelon);
     }
 }
 

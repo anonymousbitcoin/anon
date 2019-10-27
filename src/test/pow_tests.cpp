@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(GetBlockProofEquivalentTime_test)
             blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacing;
         }
         else {
-            blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacingNew;
+            blocks[i].nTime = 1269211443 + i * params.nPowTargetSpacingEchelon;
         }
         blocks[i].nBits = 0x207fffff; /* target 0x7fffff000... */
         blocks[i].nChainWork = i ? blocks[i - 1].nChainWork + GetBlockProof(blocks[i - 1]) : arith_uint256(0);

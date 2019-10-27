@@ -34,7 +34,7 @@ public:
         strCurrencyUnits = "ANON";
         consensus.fCoinbaseMustBeProtected = true;
         consensus.nSubsidySlowStartInterval = 1;
-        consensus.nSubsidyHalvingInterval = 134000; //1st halving occurs after block 150,740 (airdropped blocks offset)
+        consensus.nSubsidyHalvingInterval = 536000; //1st halving occurs after block 552,740 (airdropped blocks offset)
 
         // Budget related
         consensus.nBudgetPaymentsStartBlock = 39420; // (coinburn block [37,000] + [2,420] (~16 days)
@@ -59,6 +59,7 @@ public:
         consensus.nPowMaxAdjustDown = 32; // 32% adjustment down
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 10 * 60; // time between blocks (sec)
+        consensus.nPowTargetSpacingEchelon = 2.5 * 60; // time between blocks (sec)
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
@@ -196,6 +197,9 @@ public:
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
         eh_epoch_3_startblock = 9999999;
 
+        // lwma
+        lwmaAveragingWindow = 120;
+
         // Don't expect founders reward prior this block
         nFoundersRewardBlockStart = 37000; // actual block may vary, due to using SPORK to activate founders reward
 
@@ -238,21 +242,29 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         strCurrencyUnits = "ANONT";
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
+        consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight = 20;
+
         consensus.fCoinbaseMustBeProtected = true;
         consensus.nMajorityEnforceBlockUpgrade = 51;
         consensus.nMajorityRejectBlockOutdated = 75;
         consensus.nMajorityWindow = 400;
         consensus.powLimit = uint256S("07ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.nPowAveragingWindow = 3; //difficulty adjusts every block
         consensus.nPowTargetSpacing = 2 * 60; // time between blocks (sec)
-        consensus.nPowTargetSpacingNew = 1 * 60; // time between blocks (sec)
+        consensus.nPowTargetSpacingEchelon = 1 * 60; // time between blocks (sec)
 
         // Budget related
         consensus.nBudgetPaymentsStartBlock = 5;
         consensus.nBudgetPaymentsCycleBlocks = 5;
         consensus.nSuperblockStartBlock = 5; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
         consensus.nSuperblockCycle = 5; // Superblocks can be issued hourly on testnet
-        consensus.nSuperblock2StartBlock = 20; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
-        consensus.nSuperblock2Cycle = 10; // Superblocks can be issued hourly on testnet
+        consensus.nSuperblockStartBlockEchelon = consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight; // NOTE: Should satisfy nSuperblockStartBlock > nBudgetPaymentsStartBlock
+        consensus.nSuperblockCycleEchelon = 20; // Superblocks can be issued hourly on testnet
+
 
         //masternode
         consensus.nMasternodeMinimumConfirmations = 1;
@@ -266,15 +278,11 @@ public:
 
         consensus.prePowLimit = consensus.powLimit;
         assert(maxUint/UintToArith256(consensus.powLimit) >= consensus.nPowAveragingWindow);
-        consensus.fPowAllowMinDifficultyBlocks = false;
+        consensus.fPowAllowMinDifficultyBlocks = true;
 
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
-        consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight = 20;
 
         consensus.nForkStartHeight = 2;
         consensus.nForkHeightRange = 0;
@@ -298,17 +306,20 @@ public:
         //Sapling
         saplingActivationBlock = 4; 
 
-        consensus.nZawyLWMA3AveragingWindow = 90;
-        
         newTimeRule = 39;
 
         eh_epoch_1 = eh200_9;
-        eh_epoch_2 = eh144_5;
+        // eh_epoch_2 = eh144_5;
+        eh_epoch_2 = eh200_9;
         // eh_epoch_3 = eh192_7;
         eh_epoch_3 = eh200_9;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 2
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 3
-        eh_epoch_3_startblock = 20;
+        eh_epoch_3_startblock = consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight;
+        LogPrintf("eh_epoch_3_startblock - %d\n", eh_epoch_3_startblock);
+
+        // lwma
+        lwmaAveragingWindow = 10;
 
         vAlertPubKey = ParseHex("048679fb891b15d0cada9692047fd0ae26ad8bfb83fabddbb50334ee5bc0683294deb410be20513c5af6e7b9cec717ade82b27080ee6ef9a245c36a795ab044bb3");
         nDefaultPort = 33129;
@@ -368,6 +379,18 @@ public:
             0,
             0
         };
+
+
+        // checkpointData = {
+        //     {
+        //         {      0, consensus.hashGenesisBlock },
+        //     },
+        //     0,     // * UNIX timestamp of last checkpoint block
+        //     0,          // * total number of transactions between genesis and last checkpoint
+        //                     //   (the tx=... number in the SetBestChain debug.log lines)
+        //     0            // * estimated number of transactions per day after checkpoint
+        //                     //   total number of tx / (checkpoint block height / (24 * 24))
+        // };
 
         // Don't expect founders reward prior this block
         nFoundersRewardBlockStart = 50; // actual block may vary, due to using SPORK to activate founders reward
@@ -452,8 +475,10 @@ public:
         // Equihash algo
         eh_epoch_1 = eh48_5;
         eh_epoch_2 = eh48_5;
+        eh_epoch_3 = eh48_5;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
+        eh_epoch_3_startblock = 7;
 
         consensus.nRuleChangeActivationThreshold = 108; // 75% for testchains
         consensus.nMinerConfirmationWindow = 144; // Faster than normal for regtest (144 instead of 2016)

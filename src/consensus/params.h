@@ -111,8 +111,8 @@ struct Params {
     int nBudgetPaymentsCycleBlocks;
     int nSuperblockStartBlock;
     int nSuperblockCycle; // in blocks
-    int nSuperblock2StartBlock;
-    int nSuperblock2Cycle; // in blocks
+    int nSuperblockStartBlockEchelon;
+    int nSuperblockCycleEchelon; // in blocks
 
     // Masternode
     int nMasternodeMinimumConfirmations;
@@ -147,16 +147,12 @@ struct Params {
     int64_t nPowMaxAdjustDown;
     int64_t nPowMaxAdjustUp;
     int64_t nPowTargetSpacing;
-    int64_t nPowTargetSpacingNew;
+    int64_t nPowTargetSpacingEchelon;
 
     int nPowDifficultyBombHeight;
     bool fPowNoRetargeting;
     
     int zResetHeight;
-
-
-    /** Parameters for LWMA3 **/
-    int64_t nZawyLWMA3AveragingWindow;
 
     int64_t AveragingWindowTimespan(bool isFork = false) const { return nPowAveragingWindow * nPowTargetSpacing / (isFork ? 20 : 1); }
     int64_t MinActualTimespan(bool isFork = false) const { return (AveragingWindowTimespan(isFork) * (100 - nPowMaxAdjustUp  )) / 100; }
