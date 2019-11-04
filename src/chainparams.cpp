@@ -372,25 +372,30 @@ public:
         // Spork
         strSporkPubKey = "04b8c57d8921b9ecd769052739f8d137104b68f68714f4d4ca3219c5664a74048bd7cbe8badbe0baeee17ec463a13f3d0f5964f56d68317fd6ef14e86380383c74";
 
-        checkpointData = (Checkpoints::CCheckpointData) {
-            boost::assign::map_list_of
-            ( 0, consensus.hashGenesisBlock),
-            genesis.nTime,
-            0,
-            0
-        };
-
 
         // checkpointData = {
         //     {
         //         {      0, consensus.hashGenesisBlock },
+        //         { 49700, uint256S("0x0000005d5dc0b75986d737a5840ef41d8647f6a0234bebcba6fcc8f93de19222") },
         //     },
-        //     0,     // * UNIX timestamp of last checkpoint block
-        //     0,          // * total number of transactions between genesis and last checkpoint
+        //     1556450564,     // * UNIX timestamp of last checkpoint block
+        //     51145525,          // * total number of transactions between genesis and last checkpoint
         //                     //   (the tx=... number in the SetBestChain debug.log lines)
-        //     0            // * estimated number of transactions per day after checkpoint
+        //     148188            // * estimated number of transactions per day after checkpoint
         //                     //   total number of tx / (checkpoint block height / (24 * 24))
         // };
+
+        checkpointData = {
+            {
+                {      0, consensus.hashGenesisBlock },
+                {   3341, uint256S("0x0019987a4bdc9c5228f4f42a80bd2e1b561e3a7c753e55b04fd9e9166260c363") },
+            },
+            1572393206,     // * UNIX timestamp of last checkpoint block
+            3348,          // * total number of transactions between genesis and last checkpoint
+                            //   (the tx=... number in the SetBestChain debug.log lines)
+            144            // * estimated number of transactions per day after checkpoint
+                            //   total number of tx / (checkpoint block height / (24 * 24))
+        };
 
         // Don't expect founders reward prior this block
         nFoundersRewardBlockStart = 50; // actual block may vary, due to using SPORK to activate founders reward
