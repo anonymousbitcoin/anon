@@ -57,16 +57,16 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     if (nHeight >= params.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight &&
         nHeight < params.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight + chainParams.LwmaAveragingWin()) {
 
-        if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacingEchelon * 5) {
-            // If > 30 mins, allow min difficulty
+        if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacingEchelon * 6) {
+            // If > 15 mins, allow min difficulty
             LogPrintf("HC Returning level 1 difficulty %i at height %i\n", nProofOfWorkLimit, nHeight);
             return nProofOfWorkLimit;
         } else if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacingEchelon * 4) {
-            // If > 15 mins, allow low estimate difficulty
+            // If > 10 mins, allow low estimate difficulty
             unsigned int difficulty = IncreaseDifficultyBy(nProofOfWorkLimit, 128, params);
             LogPrintf("HC Returning level 2 difficulty %i at height %i\n", nProofOfWorkLimit, nHeight);
             return difficulty;
-        } else if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacingEchelon * 3) {
+        } else if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacingEchelon * 2) {
             // If > 5 mins, allow high estimate difficulty
             unsigned int difficulty = IncreaseDifficultyBy(nProofOfWorkLimit, 256, params);
             LogPrintf("HC Returning level 3 difficulty %i at height %i\n", nProofOfWorkLimit, nHeight);
@@ -167,7 +167,7 @@ unsigned int DigishieldCalculateNextWorkRequired(arith_uint256 bnAvg,
 
 unsigned int LwmaCalculateNextWorkRequired(const CBlockIndex* pindexLast, const Consensus::Params& params)
 {
-    // part of echelon update so only called from echelon activation block upwards
+    // part of echelon update so only called after echelon activation block upwards
     // no subsequent echelon checks required
 
     const CChainParams& chainparams = Params();
@@ -176,6 +176,7 @@ unsigned int LwmaCalculateNextWorkRequired(const CBlockIndex* pindexLast, const 
     const int64_t T = params.nPowTargetSpacingEchelon;
     const int64_t N = chainparams.LwmaAveragingWin();
     const arith_uint256 powLimit = UintToArith256(params.powLimit);
+    LogPrintf("Lwma, nPowTargetSpacing - %d\n", params.nPowTargetSpacingEchelon);
 
     // Define a k that will be used to get a proper average after weighting the solvetimes.
     const int64_t k = N * (N + 1) * T / 2;

@@ -32,26 +32,18 @@ public:
     CMainParams() {
         strNetworkID = "main";
         strCurrencyUnits = "ANON";
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
+        consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight = 77880;
+
         consensus.fCoinbaseMustBeProtected = true;
-        consensus.nSubsidySlowStartInterval = 1;
-        consensus.nSubsidyHalvingInterval = 536000; //1st halving occurs after block 552,740 (airdropped blocks offset)
-
-        // Budget related
-        consensus.nBudgetPaymentsStartBlock = 39420; // (coinburn block [37,000] + [2,420] (~16 days)
-        consensus.nBudgetPaymentsCycleBlocks = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
-        consensus.nSuperblockStartBlock = 43800; // The block at which 1st superblock goes live
-        consensus.nSuperblockCycle = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
-        
-        // masternode
-        consensus.nMasternodeMinimumConfirmations = 3;
-
-        // governance
-        consensus.nGovernanceMinQuorum = 25;
-        consensus.nGovernanceFilterElements = 20000;
-
         consensus.nMajorityEnforceBlockUpgrade = 750;
         consensus.nMajorityRejectBlockOutdated = 950;
         consensus.nMajorityWindow = 4000;
+        consensus.nSubsidySlowStartInterval = 1;
+        consensus.nSubsidyHalvingInterval = 536000; //1st halving occurs after block 552,740 (airdropped blocks offset)
         consensus.prePowLimit = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.powLimit = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowAveragingWindow = 17; //difficulty adjusts every block
@@ -60,15 +52,26 @@ public:
         consensus.nPowMaxAdjustUp = 16; // 16% adjustment up
         consensus.nPowTargetSpacing = 10 * 60; // time between blocks (sec)
         consensus.nPowTargetSpacingEchelon = 2.5 * 60; // time between blocks (sec)
-        consensus.fPowAllowMinDifficultyBlocks = false;
+        consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.nRuleChangeActivationThreshold = 1916; // 95% of 2016
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
-        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
+        // Budget related
+        consensus.nBudgetPaymentsStartBlock = 39420; // (coinburn block [37,000] + [2,420] (~16 days)
+        consensus.nBudgetPaymentsCycleBlocks = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
+        consensus.nSuperblockStartBlock = 43800; // The block at which 1st superblock goes live
+        consensus.nSuperblockCycle = 4380; // (blocks per day times ~ days in a month) 144 * (365/12)
+        consensus.nSuperblockStartBlockEchelon = consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight;
+        consensus.nSuperblockCycleEchelon = 17520;
+        
+        // masternode
+        consensus.nMasternodeMinimumConfirmations = 3;
 
-        consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight = 20000;
+        // governance
+        consensus.nGovernanceMinQuorum = 25;
+        consensus.nGovernanceFilterElements = 20000;
+
+
 
         // sprout burn
         consensus.zResetHeight = 48500;
@@ -151,7 +154,7 @@ public:
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
-        fMiningRequiresPeers = true;
+        fMiningRequiresPeers = false;
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
         fMineBlocksOnDemand = false;
@@ -189,13 +192,15 @@ public:
         //Sapling
         saplingActivationBlock = 48500;
 
+       newTimeRule = 39;
+
         // Equihash algo
         eh_epoch_1 = eh200_9;
         eh_epoch_2 = eh144_5;
         eh_epoch_3 = eh192_7;
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange;
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1;
-        eh_epoch_3_startblock = 9999999;
+        eh_epoch_3_startblock = consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight;
 
         // lwma
         lwmaAveragingWindow = 120;
@@ -310,9 +315,9 @@ public:
 
         eh_epoch_1 = eh200_9;
         // eh_epoch_2 = eh144_5;
-        eh_epoch_2 = eh200_9;
+        eh_epoch_2 = eh200_9;// use 200,9 on testnet for convenience
         // eh_epoch_3 = eh192_7;
-        eh_epoch_3 = eh200_9;
+        eh_epoch_3 = eh200_9;// use 200,9 on testnet for convenience
         eh_epoch_1_endblock = nForkStartHeight + nForkHeightRange; //actual block 2
         eh_epoch_2_startblock = nForkStartHeight + nForkHeightRange + 1; //actual block 3
         eh_epoch_3_startblock = consensus.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight;

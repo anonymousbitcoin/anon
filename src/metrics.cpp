@@ -1,3 +1,4 @@
+// Copyright (c) 2018 ANON Core developers
 // Copyright (c) 2016 The Zcash developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -110,6 +111,36 @@ double GetLocalSolPS()
     return miningTimer.rate(solutionTargetChecks);
 }
 
+int EstimateNetHeightInner(int height, int64_t tipmediantime,
+                           int heightLastCheckpoint, int64_t timeLastCheckpoint,
+                           int64_t genesisTime, int64_t targetSpacing)
+{
+    // We average the target spacing with the observed spacing to the last
+    // checkpoint (either from below or above depending on the current height),
+    // and use that to estimate the current network height.
+    int medianHeight = height > CBlockIndex::nMedianTimeSpan ?
+            height - (1 + ((CBlockIndex::nMedianTimeSpan - 1) / 2)) :
+            height / 2;
+    double checkpointSpacing = medianHeight > heightLastCheckpoint ?
+            (double (tipmediantime - timeLastCheckpoint)) / (medianHeight - heightLastCheckpoint) :
+            (double (timeLastCheckpoint - genesisTime)) / heightLastCheckpoint;
+    double averageSpacing = (targetSpacing + checkpointSpacing) / 2;
+    int netheight = medianHeight + ((GetTime() - tipmediantime) / averageSpacing);
+    // Round to nearest ten to reduce noise
+    return ((netheight + 5) / 10) * 10;
+}
+
+int EstimateNetHeight(int height, int64_t tipmediantime, CChainParams chainParams)
+{
+    auto checkpointData = chainParams.Checkpoints();
+    return EstimateNetHeightInner(
+        height, tipmediantime,
+        Checkpoints::GetTotalBlocksEstimate(checkpointData),
+        checkpointData.nTimeLastCheckpoint,
+        chainParams.GenesisBlock().nTime,
+        chainParams.GetConsensus().nPowTargetSpacing);
+}
+
 void TriggerRefresh()
 {
     *nNextRefresh = GetTime();
@@ -173,20 +204,28 @@ void ConnectMetricsScreen()
 int printStats(bool mining)
 {
     // Number of lines that are always displayed
-    int lines = 4;
+    int lines = 5;
 
     int height;
+    int bestHeader;
+    float downloadPercent;
     size_t connections;
     int64_t netsolps;
-    {
+    const CChainParams& chainparams = Params();
+    const int nLastAirdroppedBlock = chainparams.ForkStartHeight() + chainparams.ForkHeightRange();
+
+    {   
+        bestHeader = (pindexBestHeader ? pindexBestHeader->nHeight : -1);
         LOCK2(cs_main, cs_vNodes);
         height = chainActive.Height();
+        downloadPercent = ((float)height/(float)bestHeader) * 100.00;
         connections = vNodes.size();
         netsolps = GetNetworkHashPS(120, -1);
     }
     auto localsolps = GetLocalSolPS();
-
-    std::cout << "           " << _("Block height") << " | " << height << std::endl;
+    
+    std::cout << "           " << _("Block height") << " | " << height << " ("<< std::fixed << std::setprecision(2) << downloadPercent << "\%)" <<std::endl;
+    std::cout << "            " << _("Best header") << " | " << bestHeader << std::endl;
     std::cout << "            " << _("Connections") << " | " << connections << std::endl;
     std::cout << "  " << _("Network solution rate") << " | " << netsolps << " Sol/s" << std::endl;
     if (mining && miningTimer.running()) {
@@ -194,6 +233,15 @@ int printStats(bool mining)
         lines++;
     }
     std::cout << std::endl;
+    if(height <= nLastAirdroppedBlock){
+        std::cout << std::endl;
+        std::cout << "  " << _("Note: BTC and ZCL airdrop blocks are being downloaded.") << std::endl;
+        std::cout << "  " << _("      These take longer to sync than normal blocks.") << std::endl;
+        std::cout << "  " << _("      Please be patient. Aftewards, sync speed and performance will return to normal.") << std::endl;
+        std::cout << std::endl;
+        lines += 5;
+        
+    }
 
     return lines;
 }
@@ -378,6 +426,30 @@ int printInitMessage()
     return 2;
 }
 
+#ifdef WIN32
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+
+bool enableVTMode()
+{
+    // Set output mode to handle virtual terminal sequences
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+
+    DWORD dwMode = 0;
+    if (!GetConsoleMode(hOut, &dwMode)) {
+        return false;
+    }
+
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if (!SetConsoleMode(hOut, dwMode)) {
+        return false;
+    }
+    return true;
+}
+#endif
+
 void ThreadShowMetricsScreen()
 {
     // Make this thread recognisable as the metrics screen thread
@@ -389,6 +461,9 @@ void ThreadShowMetricsScreen()
     int64_t nRefresh = GetArg("-metricsrefreshtime", isTTY ? 1 : 600);
 
     if (isScreen) {
+#ifdef WIN32
+        enableVTMode();
+#endif
         // Clear screen
         std::cout << "\e[2J";
 
@@ -397,8 +472,8 @@ void ThreadShowMetricsScreen()
         std::cout << std::endl;
 
         // Thank you text
-        std::cout << _("Thank you for running an Anon node!") << std::endl;
-        std::cout << _("You're helping to strengthen the network and contributing to a social good.") << std::endl;
+        std::cout << _("Thank you for running an Anonymous Bitcoin node!") << std::endl;
+        std::cout << _("You're strengthening the network and contributing to a social good.") << std::endl;
 
         // Privacy notice text
         std::cout << PrivacyInfo();
@@ -448,7 +523,14 @@ void ThreadShowMetricsScreen()
 
         if (isScreen) {
             // Explain how to exit
-            std::cout << "[" << _("Press Ctrl+C to exit") << "] [" << _("Set 'showmetrics=0' to hide") << "]" << std::endl;
+            //std::cout << "[" << _("Press Ctrl+C to exit") << "] [" << _("Set 'showmetrics=0' to hide") << "]" << std::endl;
+            std::cout << "[";
+#ifdef WIN32
+            std::cout << _("'anon-cli.exe stop' to exit");
+#else
+            std::cout << _("Press Ctrl+C to exit");
+#endif
+            std::cout << "] [" << _("Set 'showmetrics=0' to hide") << "]" << std::endl;
         } else {
             // Print delineator
             std::cout << "----------------------------------------" << std::endl;
