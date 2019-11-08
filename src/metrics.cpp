@@ -482,7 +482,7 @@ void ThreadShowMetricsScreen()
         std::cout << std::endl;
 
         // Thank you text
-        std::cout << _("Thank you for running an Anonymous Bitcoin node!") << std::endl;
+        std::cout << _("Thank you for running an Anon node!") << std::endl;
         std::cout << _("You're strengthening the network and contributing to a social good.") << std::endl;
 
         // Privacy notice text

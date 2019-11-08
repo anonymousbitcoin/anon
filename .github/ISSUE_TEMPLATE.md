@@ -2,7 +2,7 @@
 
 This issue tracker is only for technical issues related to anond.
 
-General Anonymous Bitcoin questions and/or support requests and are best directed to the [ANON Github Repo](https://github.com/anonymousbitcoin/anon/issues).
+General Anon questions and/or support requests and are best directed to the [ANON Github Repo](https://github.com/anonymousbitcoin/anon/issues).
 
 ### Describe the issue
 Please provide a general summary of the issue you're experiencing
