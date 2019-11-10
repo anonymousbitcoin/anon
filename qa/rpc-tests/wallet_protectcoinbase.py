@@ -164,8 +164,33 @@ class WalletProtectCoinbaseTest (BitcoinTestFramework):
         myopid = self.nodes[0].z_sendmany(mytaddr, recipients)
         mytxid = wait_and_assert_operationid_status(self.nodes[0], myopid)
         self.sync_all()
+
+        # Verify that z_listunspent can return a note which has zero confirmations
+        results = self.nodes[0].z_listunspent()
+        assert(len(results) == 0)
+        results = self.nodes[0].z_listunspent(0) # set minconf to zero
+        assert(len(results) == 1)
+        assert_equal(results[0]["address"], myzaddr)
+        assert_equal(results[0]["amount"], shieldvalue)
+        assert_equal(results[0]["confirmations"], 0)
+
+        # Mine the tx
         self.nodes[1].generate(1)
         self.sync_all()
+
+        # Verify that z_listunspent returns one note which has been confirmed
+        results = self.nodes[0].z_listunspent()
+        assert(len(results) == 1)
+        assert_equal(results[0]["address"], myzaddr)
+        assert_equal(results[0]["amount"], shieldvalue)
+        assert_equal(results[0]["confirmations"], 1)
+
+        # Verify that z_listunspent returns error when address spending key from node 0 is not available in wallet of node 1.
+        try:
+            results = self.nodes[1].z_listunspent(1, 999, [myzaddr])
+        except JSONRPCException as e:
+            errorString = e.error['message']
+        assert_equal("Invalid parameter, spending key for address does not belong to wallet" in errorString, True)
 
         # Verify that debug=zrpcunsafe logs params, and that full txid is associated with opid
         logpath = self.options.tmpdir+"/node0/regtest/debug.log"
@@ -360,13 +385,27 @@ class WalletProtectCoinbaseTest (BitcoinTestFramework):
         self.nodes[1].generate(1)
         self.sync_all()
 
-        # check balances
+        # check balances and unspent notes
         resp = self.nodes[2].z_gettotalbalance()
         assert_equal(Decimal(resp["private"]), send_amount)
+
+        notes = self.nodes[2].z_listunspent()
+        sum_of_notes = 0
+        for note in notes:
+            sum_of_notes += note["amount"]
+        assert_equal(Decimal(resp["private"]), sum_of_notes)
+
         resp = self.nodes[0].z_getbalance(myzaddr)
         assert_equal(Decimal(resp), zbalance - custom_fee - send_amount)
         sproutvalue -= custom_fee
         check_value_pool(self.nodes[0], 'sprout', sproutvalue)
+
+        notes = self.nodes[0].z_listunspent(1, 99999, [myzaddr])
+        sum_of_notes = 0
+        for note in notes:
+            sum_of_notes += note["amount"]
+        assert_equal(Decimal(resp), sum_of_notes)
+
 
 if __name__ == '__main__':
     WalletProtectCoinbaseTest().main()

@@ -864,8 +864,18 @@ UniValue getgovernanceinfo(const UniValue& params, bool fHelp)
     }
 
     // Get chain parameters
-    int nSuperblockStartBlock = Params().GetConsensus().nSuperblockStartBlock;
-    int nSuperblockCycle = Params().GetConsensus().nSuperblockCycle;
+    int nSuperblockStartBlock = 
+        nBlockHeight < Params().GetConsensus().nSuperblockStartBlockEchelon
+            ? Params().GetConsensus().nSuperblockStartBlock
+            : Params().GetConsensus().nSuperblockStartBlockEchelon;
+    // int nSuperblockStartBlock = Params().GetConsensus().nSuperblockStartBlock;
+
+    int nSuperblockCycle = 
+        nBlockHeight < Params().GetConsensus().nSuperblockStartBlockEchelon
+            ? Params().GetConsensus().nSuperblockCycle
+            : Params().GetConsensus().nSuperblockCycleEchelon;
+    // int nSuperblockCycle = Params().GetConsensus().nSuperblockCycle;
+
     int nGovernanceMinQuorum = Params().GetConsensus().nGovernanceMinQuorum;
 
     // Get first superblock
@@ -884,7 +894,7 @@ UniValue getgovernanceinfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("governanceminquorum", nGovernanceMinQuorum));
     obj.push_back(Pair("masternodewatchdogmaxseconds", MASTERNODE_WATCHDOG_MAX_SECONDS));
     obj.push_back(Pair("proposalfee", ValueFromAmount(GOVERNANCE_PROPOSAL_FEE_TX)));
-    obj.push_back(Pair("superblockcycle", Params().GetConsensus().nSuperblockCycle));
+    obj.push_back(Pair("superblockcycle", nSuperblockCycle));
     obj.push_back(Pair("lastsuperblock", nLastSuperblock));
     obj.push_back(Pair("nextsuperblock", nNextSuperblock));
 

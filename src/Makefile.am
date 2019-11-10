@@ -553,7 +553,8 @@ libzcash_a_SOURCES = \
   zcash/circuit/merkle.tcc \
   zcash/circuit/note.tcc \
   zcash/circuit/prfs.tcc \
-  zcash/circuit/utils.tcc
+  zcash/circuit/utils.tcc \
+  zcash/delay.cpp
 
 libzcash_a_CPPFLAGS = $(AM_CPPFLAGS) $(PIC_FLAGS) -DBINARY_OUTPUT -DCURVE_ALT_BN128 -DBOOST_SPIRIT_THREADSAFE -fvisibility=hidden -DSTATIC $(BITCOIN_INCLUDES)
 libzcash_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)

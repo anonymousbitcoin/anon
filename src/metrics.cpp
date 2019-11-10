@@ -133,12 +133,22 @@ int EstimateNetHeightInner(int height, int64_t tipmediantime,
 int EstimateNetHeight(int height, int64_t tipmediantime, CChainParams chainParams)
 {
     auto checkpointData = chainParams.Checkpoints();
-    return EstimateNetHeightInner(
-        height, tipmediantime,
-        Checkpoints::GetTotalBlocksEstimate(checkpointData),
-        checkpointData.nTimeLastCheckpoint,
-        chainParams.GenesisBlock().nTime,
-        chainParams.GetConsensus().nPowTargetSpacing);
+    if (height < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight) {
+        return EstimateNetHeightInner(
+            height, tipmediantime,
+            Checkpoints::GetTotalBlocksEstimate(checkpointData),
+            checkpointData.nTimeLastCheckpoint,
+            chainParams.GenesisBlock().nTime,
+            chainParams.GetConsensus().nPowTargetSpacing);
+    }
+    else {
+        return EstimateNetHeightInner(
+            height, tipmediantime,
+            Checkpoints::GetTotalBlocksEstimate(checkpointData),
+            checkpointData.nTimeLastCheckpoint,
+            chainParams.GenesisBlock().nTime,
+            chainParams.GetConsensus().nPowTargetSpacingEchelon);
+    }
 }
 
 void TriggerRefresh()
@@ -472,7 +482,7 @@ void ThreadShowMetricsScreen()
         std::cout << std::endl;
 
         // Thank you text
-        std::cout << _("Thank you for running an Anonymous Bitcoin node!") << std::endl;
+        std::cout << _("Thank you for running an Anon node!") << std::endl;
         std::cout << _("You're strengthening the network and contributing to a social good.") << std::endl;
 
         // Privacy notice text

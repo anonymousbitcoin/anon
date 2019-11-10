@@ -32,6 +32,7 @@ struct EHparameters {
 
 //EH sol size = (pow(2, k) * ((n/(k+1))+1)) / 8;
 static const EHparameters eh200_9 = {200,9,1344};
+static const EHparameters eh192_7 = {192,7,400};
 static const EHparameters eh144_5 = {144,5,100};
 static const EHparameters eh96_5 = {96,5,68};
 static const EHparameters eh48_5 = {48,5,36};
@@ -81,8 +82,10 @@ public:
 
     EHparameters eh_epoch_1_params() const { return eh_epoch_1; }
     EHparameters eh_epoch_2_params() const { return eh_epoch_2; }
+    EHparameters eh_epoch_3_params() const { return eh_epoch_3; }
     unsigned long eh_epoch_1_end() const { return eh_epoch_1_endblock; }
     unsigned long eh_epoch_2_start() const { return eh_epoch_2_startblock; }
+    unsigned long eh_epoch_3_start() const { return eh_epoch_3_startblock; }
 
     std::string CurrencyUnits() const { return strCurrencyUnits; }
     /** Make miner stop after a block is found. In RPC, don't return until nGenProcLimit blocks are generated */
@@ -115,6 +118,9 @@ public:
     bool isGrothActive(int nHeight) const;
 
     int GetFoundersRewardBlockStart() const { return nFoundersRewardBlockStart; };
+    int GetNewTimeRule() const { return newTimeRule; }
+    uint64_t LwmaAveragingWin() const { return lwmaAveragingWindow; };
+
 
 protected:
     CChainParams() {}
@@ -129,8 +135,10 @@ protected:
 
     EHparameters eh_epoch_1 = eh200_9;
     EHparameters eh_epoch_2 = eh144_5;
+    EHparameters eh_epoch_3 = eh192_7;
     unsigned long eh_epoch_1_endblock = 5;
     unsigned long eh_epoch_2_startblock = 10;
+    unsigned long eh_epoch_3_startblock = 20;
 
     unsigned int nEquihashN = 0;
     unsigned int nEquihashK = 0;
@@ -168,6 +176,12 @@ protected:
     //Founders reward
     int nFoundersRewardBlockStart;
     int foundersRewardAddressPeriod;
+
+    //diff
+    int newTimeRule;
+
+    // lwma
+    int64_t lwmaAveragingWindow;
 
 };
 

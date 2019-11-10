@@ -45,6 +45,7 @@ testScripts=(
     'zcjoinsplit.py'
     'zcjoinsplitdoublespend.py'              
     'zkey_import_export.py'
+    'blockdelay.py'
     # 'getblocktemplate.py'                     #disabled - due to masternode sync, and also need to be reworked to check for "coinbase_required_outputs"
     # 'bip65-cltv-p2p.py'                       #currently not supported - this test is meant to exercise BIP65 (CHECKLOCKTIMEVERIFY)
     # 'bipdersig-p2p.py'                        #currently not supported - this test is meant to exercise BIP66 (DER SIG)

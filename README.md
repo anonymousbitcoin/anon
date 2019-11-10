@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/ByeBugDevelopment/anon-backup.svg?token=WBBgtRXJbdCRsjxqqhJy&branch=master)](https://travis-ci.com/ByeBugDevelopment/anon-backup)
 
-**Anonymous Bitcoin v.2.2.0**
+**Anon v.2.2.0**
 
 ANON is an implementation of the zerocash protocol, bootstrapped with a merge of the Official Bitcoin and Zclassic UTXO sets via a snapshot and airdrop, and with the additional implementation of masternodes.
 
@@ -26,19 +26,19 @@ ANON is an implementation of the zerocash protocol, bootstrapped with a merge of
 See important security warnings in
 [doc/security-warnings.md](doc/security-warnings.md).
 
-**Anonymous Bitcoin is unfinished and highly experimental.** Use at your own risk.
+**Anon is unfinished and highly experimental.** Use at your own risk.
 <!-- ### Any optional sections -->
 
 ## Background
 
-[Anonymous Bitcoin](https://www.anonymousbitcoin.io/), like [Zclassic](https://zclassic.org/) and [Zcash](https://z.cash/), is an implementation of the "Zerocash" protocol.
+[Anon](https://www.anonymousbitcoin.io/), like [Zclassic](https://zclassic.org/) and [Zcash](https://z.cash/), is an implementation of the "Zerocash" protocol.
 Based on Zclassic's code, it intends to offer a far higher standard of privacy
 through a sophisticated zero-knowledge proving scheme that preserves
 confidentiality of transaction metadata. Technical details are available
 in the Zcash [Protocol Specification](https://github.com/zcash/zips/raw/master/protocol/protocol.pdf).
 
-This software is the Anonymous Bitcoin client. It downloads and stores the entire history
-of Anonymous Bitcoin transactions. Depending on the speed of your computer and network
+This software is the Anon client. It downloads and stores the entire history
+of Anon transactions. Depending on the speed of your computer and network
 connection, the synchronization process could take a day or more once the
 blockchain has reached a significant size.
 

@@ -289,6 +289,13 @@ struct CNotePlaintextEntry
     libzcash::NotePlaintext plaintext;
 };
 
+/** Decrypted note, location in a transaction, and confirmation height. */
+struct CUnspentNotePlaintextEntry {
+    JSOutPoint jsop;
+    libzcash::PaymentAddress address;
+    libzcash::NotePlaintext plaintext;
+    int nHeight;
+};
 
 
 /** A transaction with a merkle branch linking it to the block chain. */
@@ -1075,6 +1082,12 @@ public:
 
     /* Find notes filtered by payment address, min depth, ability to spend */
     void GetFilteredNotes(std::vector<CNotePlaintextEntry> & outEntries, std::string address, int minDepth=1, bool ignoreSpent=true, bool ignoreUnspendable=true);
+
+    /* Find unspent notes filtered by payment address, min depth and max depth */
+    void GetUnspentFilteredNotes(std::vector<CUnspentNotePlaintextEntry>& outEntries,
+                                 std::set<libzcash::PaymentAddress>& filterAddresses,
+                                 int minDepth=1,
+                                 int maxDepth=INT_MAX);
 
     /**
      * Explicitly make the wallet learn the related scripts for outputs to the

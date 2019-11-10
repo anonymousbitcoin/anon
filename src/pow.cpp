@@ -21,6 +21,20 @@
 #include "librustzcash.h"
 #endif // ENABLE_RUST
 
+/**
+ * Manually increase difficulty by a multiplier. Note that because of the use of compact bits, this will
+ * only be an approx increase, not a 100% precise increase.
+ */
+unsigned int IncreaseDifficultyBy(unsigned int nBits, int64_t multiplier, const Consensus::Params& params) {
+    arith_uint256 target;
+    target.SetCompact(nBits);
+    target /= multiplier;
+    const arith_uint256 pow_limit = UintToArith256(params.powLimit);
+    if (target > pow_limit) {
+        target = pow_limit;
+    }
+    return target.GetCompact();
+}
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
@@ -38,6 +52,30 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     // Genesis block
     if (pindexLast == NULL)
         return nProofOfWorkLimit;
+
+    // For upgrade mainnet forks, we'll adjust the difficulty down for the first nPowAveragingWindow blocks
+    if (nHeight >= params.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight &&
+        nHeight < params.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight + chainParams.LwmaAveragingWin()) {
+
+        if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacingEchelon * 6) {
+            // If > 15 mins, allow min difficulty
+            LogPrintf("HC Returning level 1 difficulty %i at height %i\n", nProofOfWorkLimit, nHeight);
+            return nProofOfWorkLimit;
+        } else if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacingEchelon * 4) {
+            // If > 10 mins, allow low estimate difficulty
+            unsigned int difficulty = IncreaseDifficultyBy(nProofOfWorkLimit, 128, params);
+            LogPrintf("HC Returning level 2 difficulty %i at height %i\n", nProofOfWorkLimit, nHeight);
+            return difficulty;
+        } else if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacingEchelon * 2) {
+            // If > 5 mins, allow high estimate difficulty
+            unsigned int difficulty = IncreaseDifficultyBy(nProofOfWorkLimit, 256, params);
+            LogPrintf("HC Returning level 3 difficulty %i at height %i\n", nProofOfWorkLimit, nHeight);
+            return difficulty;
+        } else {
+            // If < 5 mins, fall through, and return the normal difficulty.
+            LogPrintf("HC Falling through at height %i\n", nHeight);
+        }
+    }
 
     // right at fork
     else if(isForkBlock(nHeight))
@@ -64,15 +102,23 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     arith_uint256 bnAvg {bnTot / params.nPowAveragingWindow};
 
     bool isFork = isForkBlock(pindexLast->nHeight + 1);
-    return CalculateNextWorkRequired(bnAvg, pindexLast->GetMedianTimePast(), pindexFirst->GetMedianTimePast(), params, proofOfWorkLimit, isFork);
+
+    //Difficulty algo
+    if (nHeight < params.vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight)
+        return DigishieldCalculateNextWorkRequired(bnAvg, pindexLast->GetMedianTimePast(), pindexFirst->GetMedianTimePast(), params, proofOfWorkLimit, isFork);
+    else 
+        return LwmaCalculateNextWorkRequired(pindexLast, params);
+    
 }
 
-unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
+unsigned int DigishieldCalculateNextWorkRequired(arith_uint256 bnAvg,
                                        int64_t nLastBlockTime, int64_t nFirstBlockTime,
                                        const Consensus::Params& params, const arith_uint256 bnPowLimit, bool isFork)
 {
     // Limit adjustment step
     // Use medians to prevent time-warp attacks
+    LogPrintf("Digishield, nPowTargetSpacing - %d\n", params.nPowTargetSpacing);
+
     int64_t nActualTimespan = nLastBlockTime - nFirstBlockTime;
     LogPrint("pow", "  nActualTimespan = %d  before dampening\n", nActualTimespan);
     nActualTimespan = params.AveragingWindowTimespan(isFork) + (nActualTimespan - params.AveragingWindowTimespan(isFork))/4;
@@ -95,9 +141,92 @@ unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
     LogPrint("pow", "GetNextWorkRequired RETARGET\n");
     LogPrint("pow", "params.AveragingWindowTimespan() = %d    nActualTimespan = %d\n", params.AveragingWindowTimespan(), nActualTimespan);
     LogPrint("pow", "Current average: %08x  %s\n", bnAvg.GetCompact(), bnAvg.ToString());
-    LogPrint("pow", "After:  %08x  %s\n", bnNew.GetCompact(), bnNew.ToString());
+    LogPrintf("bnNew.GetCompact():  %08x  %s\n", bnNew.GetCompact(), bnNew.ToString());
 
     return bnNew.GetCompact();
+}
+
+// LWMA-1 for BTC/Zcash clones
+// LWMA has the best response*stability.  It rises slowly & drops fast when needed.
+// Copyright (c) 2017-2018 The Bitcoin Gold developers
+// Copyright (c) 2018-2019 Zawy
+// Copyright (c) 2018 iamstenman (Microbitcoin)
+// MIT License
+// Algorithm by Zawy, a modification of WT-144 by Tom Harding
+// For any changes, patches, updates, etc see
+// https://github.com/zawy12/difficulty-algorithms/issues/3#issuecomment-442129791
+//  FTL should be lowered to about N*T/20.
+//  FTL in BTC clones is MAX_FUTURE_BLOCK_TIME in chain.h.
+//  FTL in Zcash & Dash clones need to change the 2*60*60 here:
+//  if (block.GetBlockTime() > nAdjustedTime + 2 * 60 * 60)
+//  which is around line 3700 in main.cpp in ZEC and validation.cpp in Dash
+//  If your coin uses network time instead of node local time, lowering FTL < about 125% of the
+//  "revert to node time" rule (70 minutes in BCH, ZEC, & BTC) allows 33% Sybil attack,
+//  so revert rule must be ~ FTL/2 instead of 70 minutes. See:
+// https://github.com/zcash/zcash/issues/4021
+
+unsigned int LwmaCalculateNextWorkRequired(const CBlockIndex* pindexLast, const Consensus::Params& params)
+{
+    // part of echelon update so only called after echelon activation block upwards
+    // no subsequent echelon checks required
+
+    const CChainParams& chainparams = Params();
+    // For T=600, 300, 150 (ie 10, 5, 2.5min blocks) use approximately N=60, 90, 120
+    const int64_t height = pindexLast->nHeight;
+    const int64_t T = params.nPowTargetSpacingEchelon;
+    const int64_t N = chainparams.LwmaAveragingWin();
+    const arith_uint256 powLimit = UintToArith256(params.powLimit);
+    LogPrintf("Lwma, nPowTargetSpacing - %d\n", params.nPowTargetSpacingEchelon);
+
+    // Define a k that will be used to get a proper average after weighting the solvetimes.
+    const int64_t k = N * (N + 1) * T / 2;
+
+    //check sufficient number of blocks
+    if (height < N) { return powLimit.GetCompact(); }
+
+
+    arith_uint256 avgTarget, nextTarget;
+    int64_t thisTimestamp, previousTimestamp;
+    int64_t sumWeightedSolvetimes = 0, j = 0;
+
+    const CBlockIndex* blockPreviousTimestamp = pindexLast->GetAncestor(height - N);
+    previousTimestamp = blockPreviousTimestamp->GetBlockTime();
+
+    // Loop through N most recent blocks.
+    for (int64_t i = height - N + 1; i <= height; i++) {
+
+        const CBlockIndex* block = pindexLast->GetAncestor(i);
+
+        // Prevent solvetimes from being negative in a safe way. It must be done like this.
+        // In particular, do not attempt anything like  if(solvetime < 0) {solvetime=0;}
+        // The +1 ensures new coins do not calculate nextTarget = 0.
+        thisTimestamp = (block->GetBlockTime() > previousTimestamp)
+                            ? block->GetBlockTime()
+                            : previousTimestamp + 1;
+
+       // A 6*T limit will prevent large drops in difficulty from long solvetimes.
+        int64_t solvetime = std::min(6 * T, thisTimestamp - previousTimestamp);
+
+       // The following is part of "preventing negative solvetimes".
+        previousTimestamp = thisTimestamp;
+
+       // Give linearly higher weight to more recent solvetimes.
+        j++;
+        sumWeightedSolvetimes += solvetime * j;
+
+        arith_uint256 target;
+        target.SetCompact(block->nBits);
+        avgTarget += target / (N * k); // Dividing by k here prevents an overflow below.
+    }
+
+    // Desired equation in next line was nextTarget = avgTarget * sumWeightSolvetimes / k
+    // but 1/k was moved to line above to prevent overflow in new coins
+
+    nextTarget = avgTarget * sumWeightedSolvetimes;
+
+    if (nextTarget > powLimit) { nextTarget = powLimit; }
+
+    return nextTarget.GetCompact();
 }
 
 bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& params)
@@ -109,6 +238,7 @@ bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& param
     switch (nSolSize){
         case 1344: n=200; k=9; break;
         case 100:  n=144; k=5; break;
+        case 400:  n=192; k=7; break;
         case 68:   n=96;  k=5; break;
         case 36:   n=48;  k=5; break;
         default: return error("CheckEquihashSolution: Unsupported solution size of %d", nSolSize);

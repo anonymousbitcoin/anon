@@ -47,6 +47,8 @@
 #include <boost/static_assert.hpp>
 #include <boost/thread.hpp>
 
+#include "zcash/delay.h"
+
 
 #include "core_io.h" //for tests, can be removed later
 using namespace std;
@@ -81,6 +83,8 @@ bool fIsBareMultisigStd = true;
 bool fCheckBlockIndex = false;
 bool fCheckpointsEnabled = true;
 bool fCoinbaseEnforcedProtectionEnabled = true;
+//true in case we still have not reached the highest known block from server startup
+bool fIsStartupSyncing = true;
 size_t nCoinCacheUsage = 5000 * 300;
 uint64_t nPruneTarget = 0;
 bool fAlerts = DEFAULT_ALERTS;
@@ -146,7 +150,11 @@ namespace
 struct CBlockIndexWorkComparator {
     bool operator()(CBlockIndex* pa, CBlockIndex* pb) const
     {
-        // First sort by most total work, ...
+        // First sort by total delay in chain.
+        if (pa->nChainDelay < pb->nChainDelay) return false;
+        if (pa->nChainDelay > pb->nChainDelay) return true;
+
+            // Then sort by most total work, ...
         if (pa->nChainWork > pb->nChainWork)
             return false;
         if (pa->nChainWork < pb->nChainWork)
@@ -329,6 +337,11 @@ CNodeState* State(NodeId pnode)
     if (it == mapNodeState.end())
         return NULL;
     return &it->second;
+}
+
+bool IsStartupSyncing() {
+	LOCK(cs_main);
+	return fIsStartupSyncing;
 }
 
 int GetHeight()
@@ -1590,8 +1603,16 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex)
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, bool fSuperblockPartOnly)
 {
-    CAmount nSubsidy = 50 * COIN;
+    CAmount nSubsidy;
+
+    (nHeight < Params().GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight)
+        ? nSubsidy = 50 * COIN
+        : nSubsidy = 12.5 * COIN;
+
+    LogPrintf("nHeight - %d, nSubsidy - %f\n", nHeight, (float)nSubsidy / (float)COIN);
+
     const CChainParams& chainparams = Params();
+
     //subsidy should be 0 before and during airdrop
     if (nHeight <= chainparams.ForkStartHeight() + chainparams.ForkHeightRange()) {
         return 0;
@@ -1629,6 +1650,8 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, b
     // Hard fork to reduce the block reward by 5 extra percent (allowing budget/superblocks)
     CAmount nSuperblockPart = (nHeight >= consensusParams.nBudgetPaymentsStartBlock) ? nSubsidy/20 : 0;
 
+    LogPrintf("nHeight - %d, nSuperblockPart - %f\n", nHeight, (float)nSuperblockPart / (float)COIN);
+
     return fSuperblockPartOnly ? nSuperblockPart : nSubsidy - nSuperblockPart;
 }
 
@@ -1637,6 +1660,7 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 {
     // Masternode should get paid only 35% of the block reward, and Masternode should NOT take any of the miners fee
     CAmount ret = 0.35 * GetBlockSubsidy(nHeight, Params().GetConsensus());
+    LogPrintf("masternode reward %f\n", (float)ret / (float)COIN);
     // int nMNPIBlock = Params().GetConsensus().nMasternodePaymentsIncreaseBlock;
     // int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
 
@@ -2690,11 +2714,20 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
         std::string strError = "";
 
-        if (block.vtx[0].GetValueOut() > blockReward && (pindex->nHeight % chainparams.GetConsensus().nSuperblockCycle != 0)){
-            return state.DoS(100,
-                             error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
-                                   block.vtx[0].GetValueOut(), blockReward),
-                             REJECT_INVALID, "bad-cb-amount");
+        if (pindex->nHeight >= Params().GetConsensus().nSuperblockStartBlockEchelon){
+            if (block.vtx[0].GetValueOut() > blockReward && (pindex->nHeight % chainparams.GetConsensus().nSuperblockCycleEchelon != 0)){
+                return state.DoS(100,
+                                error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
+                                    block.vtx[0].GetValueOut(), blockReward),
+                                REJECT_INVALID, "bad-cb-amount");
+            }
+        } else {
+            if (block.vtx[0].GetValueOut() > blockReward && (pindex->nHeight % chainparams.GetConsensus().nSuperblockCycle != 0)){
+                return state.DoS(100,
+                                error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
+                                    block.vtx[0].GetValueOut(), blockReward),
+                                REJECT_INVALID, "bad-cb-amount");
+            }
         }
 
         if (!IsBlockValueValid(block, pindex->nHeight, blockReward, strError)) {
@@ -2928,6 +2961,12 @@ void static UpdateTip(CBlockIndex* pindexNew)
     // New best block
     nTimeBestReceived = GetTime();
     mempool.AddTransactionsUpdated(1);
+
+    double syncProgress = Checkpoints::GuessVerificationProgress(chainParams.Checkpoints(), chainActive.Tip());
+	if(fIsStartupSyncing && std::abs(1.0 - syncProgress) < 0.000001) {
+    	LogPrintf("Fully synchronized at block height %d\n", chainActive.Height());
+    	fIsStartupSyncing = false;
+    }
 
     LogPrintf("%s: new best=%s  height=%d  log2_work=%.8g  tx=%lu  date=%s progress=%f  cache=%.1fMiB(%utx)\n", __func__,
               chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), log(chainActive.Tip()->nChainWork.getdouble()) / log(2.0), (unsigned long)chainActive.Tip()->nChainTx,
@@ -3457,8 +3496,18 @@ CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
         pindexNew->BuildSkip();
     }
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
+    //ZEN_MOD_START
+    if (pindexNew->pprev){
+        pindexNew->nChainDelay = pindexNew->pprev->nChainDelay + GetBlockDelay(*pindexNew,*(pindexNew->pprev), chainActive.Height(), fIsStartupSyncing);
+    } else {
+        pindexNew->nChainDelay = 0 ;
+    }
+    if(pindexNew->nChainDelay != 0) {
+    	LogPrintf("%s: Block belong to a chain under punishment Delay VAL: %i BLOCKHEIGHT: %d\n",__func__, pindexNew->nChainDelay,pindexNew->nHeight);
+    }
+    //ZEN_MOD_END
     pindexNew->RaiseValidity(BLOCK_VALID_TREE);
-    if (pindexBestHeader == NULL || pindexBestHeader->nChainWork < pindexNew->nChainWork)
+    if (pindexBestHeader == NULL || (pindexBestHeader->nChainWork < pindexNew->nChainWork && pindexNew->nChainDelay==0))
         pindexBestHeader = pindexNew;
 
     setDirtyBlockIndex.insert(pindexNew);
@@ -3639,11 +3688,25 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool f
         return state.DoS(50, error("CheckBlockHeader(): proof of work failed"),
                          REJECT_INVALID, "high-hash");
 
+    unsigned int nHeight = chainActive.Height();
+    const CChainParams& chainParams = Params();
     // Check timestamp
-    if (block.GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
-        return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
-                             REJECT_INVALID, "time-too-new");
-
+    if (nHeight < chainParams.GetConsensus().vUpgrades[Consensus::UPGRADE_ECHELON].nActivationHeight)
+    {
+        if (nHeight < chainParams.GetNewTimeRule() && block.GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
+            return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
+                                REJECT_INVALID, "time-too-new");
+        //new rule
+        else if (nHeight >= chainParams.GetNewTimeRule() && block.GetBlockTime() > GetAdjustedTime() + 10 * 60)
+            return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
+                                REJECT_INVALID, "time-too-new");
+    }
+    else
+    {
+        if (block.GetBlockTime() > GetAdjustedTime() + 6 * 60)
+            return state.Invalid(error("CheckBlockHeader(): block timestamp too far in the future"),
+                                REJECT_INVALID, "time-too-new");
+    }
     return true;
 }
 
@@ -3780,11 +3843,11 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
             return state.DoS(100, error("%s: forked chain older than last checkpoint (height %d)", __func__, nHeight));
     }
     // TEMP SOLUTION
-    if (nHeight == 38404) {
-        if (block.GetHash().ToString() != "0000003e14aed8597b83880b4e4b46002a548b33904a1b415b51a746aee467c0")
-        return state.DoS(100, error("%s: invalid forked chain", __func__),
-                         REJECT_INVALID, "bad-chain");
-    }
+    // if (nHeight == 38404) {
+    //     if (block.GetHash().ToString() != "0000003e14aed8597b83880b4e4b46002a548b33904a1b415b51a746aee467c0")
+    //     return state.DoS(100, error("%s: invalid forked chain", __func__),
+    //                      REJECT_INVALID, "bad-chain");
+    // }
 
     // Reject block.nVersion < 4 blocks
     if (block.nVersion < 4)
@@ -4376,6 +4439,14 @@ bool static LoadBlockIndexDB()
     BOOST_FOREACH (const PAIRTYPE(int, CBlockIndex*) & item, vSortedByHeight) {
         CBlockIndex* pindex = item.second;
         pindex->nChainWork = (pindex->pprev ? pindex->pprev->nChainWork : 0) + GetBlockProof(*pindex);
+        //ZEN_MOD_START
+        if (pindex->pprev){
+            pindex->nChainDelay = pindex->pprev->nChainDelay 
+            + GetBlockDelay(*pindex,*(pindex->pprev), chainActive.Height(), fIsStartupSyncing);
+        } else {
+            pindex->nChainDelay = 0 ;
+        }    
+        //ZEN_MOD_END
         // We can link the chain of blocks for which we've received transactions at some point.
         // Pruned nodes may have deleted the block.
         if (pindex->nTx > 0) {

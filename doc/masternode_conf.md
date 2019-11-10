@@ -1,7 +1,7 @@
 Masternode config
 =======================
 
-Anonymous Bitcoin Core allows controlling multiple remote masternodes from a single wallet. The wallet needs to have a valid collateral output of 500 coins for each masternode and uses a configuration file named `masternode.conf` which can be found in the following data directory (depending on your operating system):
+Anon Core allows controlling multiple remote masternodes from a single wallet. The wallet needs to have a valid collateral output of 500 coins for each masternode and uses a configuration file named `masternode.conf` which can be found in the following data directory (depending on your operating system):
  * Windows: %APPDATA%\Anon\
  * Mac OS: ~/Library/Application Support/Anon/
  * Unix/Linux: ~/.anon/

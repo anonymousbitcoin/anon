@@ -88,9 +88,9 @@ signed. **CAUTION:** Remember the `v` at the beginning here:
 
 ### Deploy testnet
 
-Notify the Anonymous Bitcoin DevOps engineer/sysadmin that the release has been tagged. They update some variables in the company's automation code and then run an Ansible playbook, which:
+Notify the Anon DevOps engineer/sysadmin that the release has been tagged. They update some variables in the company's automation code and then run an Ansible playbook, which:
 
-* builds Anonymous Bitcoin based on the specified branch
+* builds Anon based on the specified branch
 * deploys it as a public service (e.g. betatestnet.z.cash, mainnet.z.cash)
 * often the same server can be re-used, and the role idempotently handles upgrades, but if not then they also need to update DNS records
 * possible manual steps: blowing away the `testnet3` dir, deleting old parameters, restarting DNS seeder
