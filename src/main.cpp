@@ -1609,8 +1609,6 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, b
         ? nSubsidy = 50 * COIN
         : nSubsidy = 12.5 * COIN;
 
-    LogPrintf("nHeight - %d, nSubsidy - %f\n", nHeight, (float)nSubsidy / (float)COIN);
-
     const CChainParams& chainparams = Params();
 
     //subsidy should be 0 before and during airdrop
@@ -1650,8 +1648,6 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams, b
     // Hard fork to reduce the block reward by 5 extra percent (allowing budget/superblocks)
     CAmount nSuperblockPart = (nHeight >= consensusParams.nBudgetPaymentsStartBlock) ? nSubsidy/20 : 0;
 
-    LogPrintf("nHeight - %d, nSuperblockPart - %f\n", nHeight, (float)nSuperblockPart / (float)COIN);
-
     return fSuperblockPartOnly ? nSuperblockPart : nSubsidy - nSuperblockPart;
 }
 
@@ -1660,7 +1656,6 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 {
     // Masternode should get paid only 35% of the block reward, and Masternode should NOT take any of the miners fee
     CAmount ret = 0.35 * GetBlockSubsidy(nHeight, Params().GetConsensus());
-    LogPrintf("masternode reward %f\n", (float)ret / (float)COIN);
     // int nMNPIBlock = Params().GetConsensus().nMasternodePaymentsIncreaseBlock;
     // int nMNPIPeriod = Params().GetConsensus().nMasternodePaymentsIncreasePeriod;
 
@@ -3102,7 +3097,7 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
     {
         bool rv;
         CCoinsViewCache view(pcoinsTip);
-        LogPrintf("pindexNew->nHeight: %d\n", pindexNew->nHeight);
+
         if (pindexNew->nHeight == 1) {
             rv = ConnectBlock(*pblock, state, pindexNew, view, false);
         } else {
