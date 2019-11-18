@@ -117,7 +117,6 @@ unsigned int DigishieldCalculateNextWorkRequired(arith_uint256 bnAvg,
 {
     // Limit adjustment step
     // Use medians to prevent time-warp attacks
-    LogPrintf("Digishield, nPowTargetSpacing - %d\n", params.nPowTargetSpacing);
 
     int64_t nActualTimespan = nLastBlockTime - nFirstBlockTime;
     LogPrint("pow", "  nActualTimespan = %d  before dampening\n", nActualTimespan);
@@ -176,7 +175,6 @@ unsigned int LwmaCalculateNextWorkRequired(const CBlockIndex* pindexLast, const 
     const int64_t T = params.nPowTargetSpacingEchelon;
     const int64_t N = chainparams.LwmaAveragingWin();
     const arith_uint256 powLimit = UintToArith256(params.powLimit);
-    LogPrintf("Lwma, nPowTargetSpacing - %d\n", params.nPowTargetSpacingEchelon);
 
     // Define a k that will be used to get a proper average after weighting the solvetimes.
     const int64_t k = N * (N + 1) * T / 2;
