@@ -156,6 +156,7 @@ protected:
     Checkpoints::CCheckpointData checkpointData;
     int nFulfilledRequestExpireTime;
     std::vector<std::string> vFoundersRewardAddress;
+    std::vector<std::string> vFoundersRewardAddress2;
 
     //Sporks
     std::string strSporkPubKey;
