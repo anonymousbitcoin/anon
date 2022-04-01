@@ -119,17 +119,13 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("anon1_mainnet", "45.76.29.107"));
-        vSeeds.push_back(CDNSSeedData("anon2_mainnet", "72.14.185.1"));
-        vSeeds.push_back(CDNSSeedData("anon3_mainnet", "198.58.124.152"));
-        vSeeds.push_back(CDNSSeedData("anon4_mainnet", "50.116.27.226"));
-        vSeeds.push_back(CDNSSeedData("anon5_mainnet", "198.58.103.84"));
-        vSeeds.push_back(CDNSSeedData("anon6_mainnet", "45.79.13.202"));
-        vSeeds.push_back(CDNSSeedData("anon7_mainnet", "91.121.69.100"));
-        vSeeds.push_back(CDNSSeedData("anon8_mainnet", "188.166.31.17"));
-        vSeeds.push_back(CDNSSeedData("anon9_mainnet", "128.199.54.243"));
-        vSeeds.push_back(CDNSSeedData("anon10_mainnet", "128.199.55.192"));
-        vSeeds.push_back(CDNSSeedData("anon11_mainnet", "68.183.196.10"));
+        vSeeds.push_back(CDNSSeedData("anon1_mainnet", "144.202.106.119"));
+        vSeeds.push_back(CDNSSeedData("anon2_mainnet", "149.28.208.64"));
+        vSeeds.push_back(CDNSSeedData("anon3_mainnet", "8.210.206.143"));
+        vSeeds.push_back(CDNSSeedData("anon4_mainnet", "47.242.230.93"));
+        vSeeds.push_back(CDNSSeedData("anon5_mainnet", "47.242.254.18"));
+        vSeeds.push_back(CDNSSeedData("anon6_mainnet", "47.241.78.143"));
+        vSeeds.push_back(CDNSSeedData("anon7_mainnet", "47.241.65.100"));
 
         // guarantees the first 2 characters, when base58 encoded, are "An"
         base58Prefixes[PUBKEY_ADDRESS]     = {0x05,0x82};
@@ -232,6 +228,29 @@ public:
             "AnVBJ5oRrdvdTWDtb41eL6cCaSU3qAfM4VY", /* main-index: 17*/
             "Anc4J1Snvs9buX8FeFMM2tZC9G1cie3wUn2", /* main-index: 18*/
             "Ani1avTH5BFDEiZRWUpaaLEeqpHVCo9dn2V"  /* main-index: 19*/
+        };
+
+        vFoundersRewardAddress2 = {
+            "AnSByQpaYmTLj6zgCrZXy5a46AvwyJcLSi1", /* main-index: 0*/
+            "AnT7tKn25TVmKWdVq5AQagxMJUaoHU47Zqs", /* main-index: 1*/
+            "AnWgogghrWcLT6Vt8LVzNkFVUxnSojWZ6wP", /* main-index: 2*/
+            "AnebUj35GoitwGww4PphUAh7cE96hQdF66f", /* main-index: 3*/
+            "AngURqmBMSAb7s9sA7qpuPBbhnWPYo1Bw5y", /* main-index: 4*/
+            "Anb7WcnovUXZWMxWFTk53PQYrMZnpm57kJP", /* main-index: 5*/
+            "AnTDcELCmFLFNuaP5mR1YDC6xzncBdDn9EE", /* main-index: 6*/
+            "AnchB7PPkG9KJRQAaf2WtABfraNBjLpyqZX", /* main-index: 7*/
+            "Anjf7QhP64LdYAd9wPE2gCRaH3CxoKgSv3V", /* main-index: 8*/
+            "AnQtmL9mjT76ytSNpQTR9M7fk6U95PgXnMD", /* main-index: 9*/
+            "AnesRXjtchfWU8q98qi8xZh5i68hvZ5Y3en", /* main-index: 10*/
+            "AndVc1E5B1nWHFRXwG49dphRBCAhJWpfFzk", /* main-index: 11*/
+            "AnUsQaCguuLVtHui3Rxw3AAE7TygkJtxA4r", /* main-index: 12*/
+            "AnWUVqQGK6A51kJ7AC5sThvFwcLA1yhNpFx", /* main-index: 13*/
+            "AnjLYpADLTH7Mx5r5Zf1zWh1jmH6eycYbMv", /* main-index: 14*/
+            "AnYK6ZTYeSo6riuF6LnX9CjsoqK1vpbJVp2", /* main-index: 15*/
+            "AnUjDqjzuecLPUXLtTNPJBX1jEWoen5MVEr", /* main-index: 16*/
+            "Angg7dghaLXN7q2FasbqLXfnNqyA7XWWPEy", /* main-index: 17*/
+            "AnZpgFRRQAjJyCTEjeW2S5ipEeywCZMsfd3", /* main-index: 18*/
+            "Anicnb3Ytx3vpvkTHmotXMLSniknpQdVDGd"  /* main-index: 19*/
         };
     }
 };
@@ -587,12 +606,17 @@ int validEHparameterList(EHparameters *ehparams, unsigned long blockheight, cons
 
 std::string CChainParams::GetFoundersRewardAddressAtHeight(int nHeight) const {
 
-    // asserts if node runs out of the founder addresses
-    assert(nHeight >= nFoundersRewardBlockStart && ((nHeight - nFoundersRewardBlockStart) / foundersRewardAddressPeriod) < vFoundersRewardAddress.size());
+	if (nHeight >= 537012 and nHeight <= 537398) {
+		return "AnVxp2c5kojn6pvDzn63x2piAye4GtLybRU";
+	}
 
-    int vFoundersRewardAddressIndex = (nHeight - nFoundersRewardBlockStart) / foundersRewardAddressPeriod;
+	int vFoundersRewardAddressIndex = (nHeight - nFoundersRewardBlockStart) / foundersRewardAddressPeriod;
 
-    return vFoundersRewardAddress[vFoundersRewardAddressIndex];
+	if (nHeight >= 538888) {
+	    return vFoundersRewardAddress2[vFoundersRewardAddressIndex % vFoundersRewardAddress2.size()];
+	}
+
+    return vFoundersRewardAddress[vFoundersRewardAddressIndex % vFoundersRewardAddress.size()];
 }
 
 CScript CChainParams::GetFoundersRewardScriptAtHeight(int nHeight) const {
